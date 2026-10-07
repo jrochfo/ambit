@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { loadPref, savePref } from '../lib/storage';
+import { useTheme } from '../lib/theme';
 import { DEFAULT_RINGS, MAX_RINGS } from '../../shared/isochrones';
 import { AddressSearch } from '../components/AddressSearch';
 import type { AddOption } from '../components/AddCategory';
@@ -33,6 +34,7 @@ const toSaved = (a: FakeAddress): SavedAddress => ({ id: a.id, label: a.label, a
  * Layout mirrors App.tsx; keep the two in step when the page structure changes.
  */
 export function Sandbox() {
+  const [theme, setTheme] = useTheme();
   const [mapped, setMapped] = useState<FakeAddress | null>(FAKE_ADDRESSES[0]!);
   const [resultsState, setResultsState] = useState<Results>('loaded');
   const [ringMinutes, setRingMinutes] = useState<number[]>(DEFAULT_RINGS);
@@ -117,7 +119,7 @@ export function Sandbox() {
         savedCount={saved.length}
         onSaved={(on) => setSaved(on ? FAKE_ADDRESSES.map(toSaved) : [])}
       />
-      <Header />
+      <Header theme={theme} onTheme={setTheme} />
       <main className="main">
         <aside className="card sidebar">
           <div className="sidebar-head">

@@ -3,7 +3,8 @@ import type { Ring } from '../../shared/isochrones';
 import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
 import { useEffect, useState } from 'react';
-import { MAP_STYLE, MAP_STYLE_BLANK, START_ZOOM, randomStartView } from '../lib/mapStyle';
+import { START_ZOOM, mapStyleFor, randomStartView } from '../lib/mapStyle';
+import type { Theme } from '../lib/theme';
 import { CategoryPin } from './CategoryPin';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
 import { EmptyMapPrompt, MapLegend, OriginMarker } from './MapParts';
@@ -30,6 +31,7 @@ export function MapPanel({
   pins,
   spotlight,
   onMapClick,
+  theme,
 }: {
   origin: Origin | null;
   /** Active rings, ascending. */
@@ -39,6 +41,7 @@ export function MapPanel({
   /** `${categoryId}:${placeId}` of a spot whose card is shown open and panned to. */
   spotlight: string | null;
   onMapClick: () => void;
+  theme: Theme;
 }) {
   const largest = rings[rings.length - 1];
   const [startView] = useState(randomStartView);
@@ -48,7 +51,7 @@ export function MapPanel({
         <Map
           defaultCenter={startView}
           defaultZoom={START_ZOOM}
-          styles={origin ? MAP_STYLE : MAP_STYLE_BLANK}
+          styles={mapStyleFor(theme, origin !== null)}
           gestureHandling="cooperative"
           disableDefaultUI
           zoomControl

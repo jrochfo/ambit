@@ -62,7 +62,7 @@ function Option({ category, checked, onToggle }: { category: Category; checked: 
   return (
     <label className="category-option">
       <input type="checkbox" checked={checked} onChange={() => onToggle(category.id)} />
-      <span aria-hidden="true">{pickEmoji(category.emoji)}</span>
+      <span className="emoji" aria-hidden="true">{pickEmoji(category.emoji)}</span>
       <span className="category-option-label">{category.label}</span>
     </label>
   );

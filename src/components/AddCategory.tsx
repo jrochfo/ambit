@@ -145,7 +145,7 @@ function OptionText({ option, enabled }: { option: AddOption; enabled: ReadonlyS
     return (
       <>
         <span className="combo-main">
-          {pickEmoji(option.category.emoji)} {option.category.label}
+          <span className="emoji" aria-hidden="true">{pickEmoji(option.category.emoji)}</span> {option.category.label}
         </span>
         <span className="combo-secondary">{enabled.has(option.category.id) ? 'Already showing' : 'In your list · turn it on'}</span>
       </>

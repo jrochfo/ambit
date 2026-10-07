@@ -1,6 +1,7 @@
 // Map visuals shared by the real Google map (MapPanel) and the design sandbox's fake map,
 // so styling them in one place styles both.
 import { formatMinutes, ringStyle } from '../lib/rings';
+import { Logomark } from './Logomark';
 
 export function OriginMarker({ label }: { label: string }) {
   return (
@@ -19,10 +20,22 @@ export function RingLabel({ minutes }: { minutes: number }) {
   );
 }
 
+/** Shown over the map before an address is entered: introduces Ambit and how to start. */
 export function EmptyMapPrompt() {
   return (
     <div className="map-empty">
-      <p className="map-empty-text">Enter an address to see how far you can walk.</p>
+      <div className="map-intro">
+        <div className="map-intro-brand">
+          <Logomark size={36} />
+          <p className="map-intro-name">Ambit</p>
+        </div>
+        <p className="map-intro-tagline">What’s within a walk of here?</p>
+        <p className="map-intro-text">
+          See how far you can walk from any address, and which groceries, coffee shops, transit stops, and other spots fall within 5, 10,
+          or 15 minutes. Save a few addresses to compare them side by side.
+        </p>
+        <p className="map-intro-start">Enter an address to get started.</p>
+      </div>
     </div>
   );
 }

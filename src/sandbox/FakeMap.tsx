@@ -34,16 +34,16 @@ export function FakeMap({
         <svg className="fake-basemap" viewBox={`0 0 ${VIEW.width} ${VIEW.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <pattern id="fake-blocks" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(-9)">
-              <path d="M56 0H0V56" fill="none" stroke="#ffffff" strokeWidth="3" />
+              <path d="M56 0H0V56" fill="none" style={{ stroke: 'var(--map-road)' }} strokeWidth="3" />
             </pattern>
           </defs>
-          <rect width={VIEW.width} height={VIEW.height} fill="#eef1ef" />
+          <rect width={VIEW.width} height={VIEW.height} style={{ fill: 'var(--map-land)' }} />
           <rect width={VIEW.width} height={VIEW.height} fill="url(#fake-blocks)" />
-          <path d="M0 520 C120 500 180 580 260 620 L0 620 Z" fill="#d4e3ea" />
-          <rect x="610" y="430" width="140" height="90" rx="10" fill="#dae7db" />
-          <rect x="110" y="120" width="110" height="80" rx="10" fill="#dae7db" />
-          <path d="M0 420 L860 250" stroke="#c6cec9" strokeWidth="6" fill="none" />
-          <path d="M300 0 L520 620" stroke="#c6cec9" strokeWidth="6" fill="none" />
+          <path d="M0 520 C120 500 180 580 260 620 L0 620 Z" style={{ fill: 'var(--map-water)' }} />
+          <rect x="610" y="430" width="140" height="90" rx="10" style={{ fill: 'var(--map-park)' }} />
+          <rect x="110" y="120" width="110" height="80" rx="10" style={{ fill: 'var(--map-park)' }} />
+          <path d="M0 420 L860 250" style={{ stroke: 'var(--map-highway)' }} strokeWidth="6" fill="none" />
+          <path d="M300 0 L520 620" style={{ stroke: 'var(--map-highway)' }} strokeWidth="6" fill="none" />
           {[...shown].reverse().map((m) => {
             const style = ringStyle(rings.indexOf(m), rings.length);
             const d = `M${ringPoints(m, largest).map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')} Z`;

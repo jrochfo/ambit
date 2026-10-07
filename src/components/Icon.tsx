@@ -6,13 +6,16 @@ import add from '@material-symbols/svg-400/rounded/add.svg?raw';
 import bookmarkAdd from '@material-symbols/svg-400/rounded/bookmark_add.svg?raw';
 import bookmarkAdded from '@material-symbols/svg-400/rounded/bookmark_added-fill.svg?raw';
 import close from '@material-symbols/svg-400/rounded/close.svg?raw';
+import darkMode from '@material-symbols/svg-400/rounded/dark_mode.svg?raw';
 import directionsWalk from '@material-symbols/svg-400/rounded/directions_walk.svg?raw';
 import edit from '@material-symbols/svg-400/rounded/edit.svg?raw';
+import info from '@material-symbols/svg-400/rounded/info.svg?raw';
 import keyboardArrowDown from '@material-symbols/svg-400/rounded/keyboard_arrow_down.svg?raw';
+import lightMode from '@material-symbols/svg-400/rounded/light_mode.svg?raw';
 import openInNew from '@material-symbols/svg-400/rounded/open_in_new.svg?raw';
 import tune from '@material-symbols/svg-400/rounded/tune.svg?raw';
 
-const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, directionsWalk, edit, keyboardArrowDown, openInNew, tune };
+const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, darkMode, directionsWalk, edit, info, keyboardArrowDown, lightMode, openInNew, tune };
 
 export type IconName = keyof typeof ICONS;
 

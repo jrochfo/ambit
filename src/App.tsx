@@ -10,6 +10,7 @@ import { NearbyList } from './components/NearbyList';
 import { CATEGORIES, DEFAULT_CATEGORY_IDS, isCustomCategoryList, makeCustomCategory, type Category } from './lib/categories';
 import type { AddOption } from './components/AddCategory';
 import { strongEmojiMatch } from './lib/emojiTags';
+import { useTheme, type Theme } from './lib/theme';
 import { loadPref, savePref } from './lib/storage';
 import { useAnalysis, type CategoryResult } from './lib/useAnalysis';
 import { addressKey, clearFailures } from './lib/analysisStore';
@@ -22,17 +23,18 @@ const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | und
 
 
 export default function App() {
+  const [theme, setTheme] = useTheme();
   if (!BROWSER_KEY) {
     return (
       <div className="app">
-        <Header />
+        <Header theme={theme} onTheme={setTheme} />
         <p className="status status-error">Missing VITE_GOOGLE_MAPS_BROWSER_KEY in .env.</p>
       </div>
     );
   }
   return (
     <APIProvider apiKey={BROWSER_KEY}>
-      <Ambit />
+      <Ambit theme={theme} onTheme={setTheme} />
     </APIProvider>
   );
 }
@@ -40,7 +42,7 @@ export default function App() {
 const isNumberList = (v: unknown): v is number[] => Array.isArray(v) && v.length > 0 && v.every(isValidRing);
 const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) => typeof x === 'string');
 
-function Ambit() {
+function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => void }) {
   const geocoding = useMapsLibrary('geocoding');
   const places = useMapsLibrary('places');
   const [origin, setOrigin] = useState<Origin | null>(null);
@@ -243,7 +245,7 @@ function Ambit() {
 
   return (
     <div className="app">
-      <Header />
+      <Header theme={theme} onTheme={onTheme} />
       <main className="main">
         <aside className="card sidebar">
           <div className="sidebar-head">
@@ -287,6 +289,7 @@ function Ambit() {
           pins={pins}
           spotlight={spotlightKey}
           onMapClick={() => setSpotlight(null)}
+          theme={theme}
         />
         <CompareGrid
         saved={saved}

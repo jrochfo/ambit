@@ -1,15 +1,30 @@
-export function Header() {
+import { useRef } from 'react';
+import type { Theme } from '../lib/theme';
+import { AboutDialog } from './AboutDialog';
+import { Icon } from './Icon';
+import { Logomark } from './Logomark';
+
+export function Header({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => void }) {
+  const about = useRef<HTMLDialogElement>(null);
+  const dark = theme === 'dark';
   return (
     <header className="header">
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <circle cx="18" cy="18" r="16" stroke="#0E7C74" strokeWidth="2" strokeOpacity="0.35" />
-        <circle cx="18" cy="18" r="10.5" stroke="#0E7C74" strokeWidth="2" strokeOpacity="0.65" />
-        <circle cx="18" cy="18" r="5" fill="#0E7C74" />
-      </svg>
-      <div>
-        <h1 className="header-title">Ambit</h1>
-        <p className="header-tagline">What's within a walk of here?</p>
+      <div className="brand">
+        <Logomark size={26} />
+        <h1 className="brand-name">Ambit</h1>
       </div>
+      <div className="header-actions">
+        <button type="button" className="header-btn" onClick={() => about.current?.showModal()}>
+          <Icon name="info" size={18} />
+          About
+        </button>
+        <button type="button" role="switch" aria-checked={dark} aria-label="Dark mode" className="theme-switch" onClick={() => onTheme(dark ? 'light' : 'dark')}>
+          <span className="theme-switch-knob">
+            <Icon name={dark ? 'darkMode' : 'lightMode'} size={14} />
+          </span>
+        </button>
+      </div>
+      <AboutDialog ref={about} />
     </header>
   );
 }

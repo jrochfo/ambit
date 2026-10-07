@@ -91,7 +91,7 @@ export function CompareGrid({
               {categories.map((c) => (
                 <tr key={c.id}>
                   <th scope="row" className="compare-category">
-                    <span aria-hidden="true">{pickEmoji(c.emoji)}</span> {c.label}
+                    <span className="emoji" aria-hidden="true">{pickEmoji(c.emoji)}</span> {c.label}
                   </th>
                   {saved.map((a) => (
                     <td key={a.id} aria-current={a.id === currentId ? 'true' : undefined}>

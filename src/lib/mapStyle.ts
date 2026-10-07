@@ -16,8 +16,31 @@ export const MAP_STYLE: google.maps.MapTypeStyle[] = [
   { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#7d959f' }] },
 ];
 
-/** Before an address is mapped: the same basemap with every label hidden, as a quiet backdrop. */
-export const MAP_STYLE_BLANK: google.maps.MapTypeStyle[] = [...MAP_STYLE, { elementType: 'labels', stylers: [{ visibility: 'off' }] }];
+// Dark counterpart, matching the dark theme's tokens in styles.css.
+export const MAP_STYLE_DARK: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry', stylers: [{ color: '#1b2524' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#9aaba7' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#1b2524' }] },
+  { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi', elementType: 'labels.text', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1a2e22' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a3634' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1f2b29' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a4846' }] },
+  { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#2f3c3a' }] },
+  { featureType: 'transit', elementType: 'labels.icon', stylers: [{ saturation: -100 }, { lightness: -30 }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#24302e' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#10262d' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5f7d88' }] },
+];
+
+const NO_LABELS: google.maps.MapTypeStyle = { elementType: 'labels', stylers: [{ visibility: 'off' }] };
+
+/** Basemap style for the theme; before an address is mapped, labels are hidden as a quiet backdrop. */
+export function mapStyleFor(theme: 'light' | 'dark', mapped: boolean): google.maps.MapTypeStyle[] {
+  const base = theme === 'dark' ? MAP_STYLE_DARK : MAP_STYLE;
+  return mapped ? base : [...base, NO_LABELS];
+}
 
 // Walkable neighborhoods to open on, one picked per page load. Only the starting
 // view changes; a map load is billed the same at any zoom.
