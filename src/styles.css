@@ -51,7 +51,9 @@ button, input { font: inherit; }
 @media (min-width: 960px) {
   .main { grid-template-columns: minmax(340px, 400px) minmax(0, 1fr); align-items: stretch; }
   .sidebar { contain: size; overflow: hidden; }
-  .sidebar-scroll { overflow-y: auto; overscroll-behavior: contain; }
+  /* The scrollbar's 12px is always reserved and taken out of the right padding, so content
+     keeps the same width (and even 20px sides) whether or not the list scrolls. */
+  .sidebar > .sidebar-scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding-right: 8px; }
 }
 
 /* Slim scrollbar inside the card: starts at the divider, stops short of the rounded corner. */
