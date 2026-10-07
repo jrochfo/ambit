@@ -1,0 +1,13 @@
+# secrets
+.env
+.env.*
+.dev.vars*
+*.rtf
+
+node_modules
+dist
+.wrangler
+.DS_Store
+*.log
+
+!.env.example
