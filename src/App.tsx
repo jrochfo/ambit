@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DEFAULT_RINGS, MAX_RINGS, isValidRing } from '../shared/isochrones';
 import { Header } from './components/Header';
+import { StatusLine, type Status } from './components/StatusLine';
 import { AddressSearch, type SearchTarget } from './components/AddressSearch';
 import { RingPicker } from './components/RingPicker';
 import { MapPanel, type Origin, type Pin } from './components/MapPanel';
@@ -19,7 +20,6 @@ import { CompareGrid } from './components/CompareGrid';
 
 const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
 
-type Status = { kind: 'idle' } | { kind: 'busy'; message: string } | { kind: 'done'; address: string } | { kind: 'error'; message: string };
 
 export default function App() {
   if (!BROWSER_KEY) {
@@ -343,20 +343,6 @@ function ResultsAnnouncer({ origin, results }: { origin: Origin | null; results:
   return (
     <p className="sr-only" role="status" aria-live="polite">
       {message}
-    </p>
-  );
-}
-
-function StatusLine({ status }: { status: Status }) {
-  return (
-    <p className={`status${status.kind === 'error' ? ' status-error' : ''}`} role="status" aria-live="polite">
-      {status.kind === 'busy' && status.message}
-      {status.kind === 'error' && status.message}
-      {status.kind === 'done' && (
-        <>
-          Walking from <strong>{status.address}</strong>
-        </>
-      )}
     </p>
   );
 }

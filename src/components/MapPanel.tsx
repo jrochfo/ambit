@@ -4,9 +4,9 @@ import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
 import { useEffect, useState } from 'react';
 import { MAP_STYLE, MAP_STYLE_BLANK, START_ZOOM, randomStartView } from '../lib/mapStyle';
-import { formatMinutes, ringStyle } from '../lib/rings';
 import { CategoryPin } from './CategoryPin';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
+import { EmptyMapPrompt, MapLegend, OriginMarker } from './MapParts';
 import { FitToRing, RingLayer } from './RingLayer';
 
 export interface Origin {
@@ -73,29 +73,13 @@ export function MapPanel({
           <PanToSpot position={pins.find((p) => `${p.category.id}:${p.place.id}` === spotlight)?.place.position} />
           {origin && (
             <MapOverlay position={origin.position} zIndex={OVERLAY_Z.origin}>
-              <div className="origin">
-                <div className="origin-dot" />
-                <div className="origin-label">{origin.label}</div>
-              </div>
+              <OriginMarker label={origin.label} />
             </MapOverlay>
           )}
         </Map>
-        {!origin && (
-          <div className="map-empty">
-            <p className="map-empty-text">Enter an address to see how far you can walk.</p>
-          </div>
-        )}
+        {!origin && <EmptyMapPrompt />}
       </div>
-      <div className="legend">
-        {rings.map((r, rank) => (
-          <span key={r.minutes} className="legend-item">
-            <span className="legend-swatch" style={{ opacity: Math.min(1, ringStyle(rank, rings.length).fill * 2.6) }} />
-            {formatMinutes(r.minutes)}
-            {rank === 0 && ' walk'}
-          </span>
-        ))}
-        <span className="legend-note">Walking reach along real streets</span>
-      </div>
+      <MapLegend minutes={rings.map((r) => r.minutes)} />
     </section>
   );
 }

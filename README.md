@@ -24,6 +24,14 @@ npm run dev            # http://localhost:5173 — serves the app and the /api/i
 - The browser key's HTTP referrer restrictions need `http://localhost:5173/*` for local dev.
 - Deploy (later): `npx wrangler secret put GOOGLE_ISOCHRONES_SERVER_KEY`, then `npm run deploy`. The browser key is baked in at build time from `VITE_GOOGLE_MAPS_BROWSER_KEY`.
 
+## Design sandbox
+
+`npm run dev`, then open http://localhost:5173/sandbox.html. It renders the real components (sidebar, ring picker, categories and custom categories, save control, spot cards, comparison grid) with deterministic fake data on a drawn map, and makes no Google calls, so styling can be edited without spending quota. Everything is interactive (add rings, categories, custom categories, focus a category, click grid cells), and the yellow bar switches between states: mapped or empty map, loaded / loading / daily-limit results, saved addresses or none.
+
+- App styles: `src/styles.css` (color and type tokens at the top). Edits hot-reload in both the app and the sandbox.
+- The real map's basemap colors live in `src/lib/mapStyle.ts`; the sandbox's drawn map only approximates them.
+- Sandbox code is in `src/sandbox/` and is never part of the deployed build.
+
 ## Terms
 
 Use these consistently in UI copy and when discussing the app.

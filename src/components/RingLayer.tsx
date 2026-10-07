@@ -2,8 +2,9 @@ import { useEffect, useMemo } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
 import type { Ring } from '../../shared/isochrones';
 import { toPolygonPaths, topPoint } from '../lib/geojson';
-import { formatMinutes, ringStyle } from '../lib/rings';
+import { ringStyle } from '../lib/rings';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
+import { RingLabel } from './MapParts';
 
 /** One walking ring; `rank` is its position among active rings (0 = smallest). */
 export function RingLayer({ ring, rank, count }: { ring: Ring; rank: number; count: number }) {
@@ -34,9 +35,7 @@ export function RingLayer({ ring, rank, count }: { ring: Ring; rank: number; cou
   if (!labelAt) return null;
   return (
     <MapOverlay position={labelAt} zIndex={OVERLAY_Z.ringLabel}>
-      <div className="map-label" style={{ marginTop: -4 }}>
-        {formatMinutes(ring.minutes)}
-      </div>
+      <RingLabel minutes={ring.minutes} />
     </MapOverlay>
   );
 }
