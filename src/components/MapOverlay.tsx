@@ -7,7 +7,16 @@ import { useMap } from '@vis.gl/react-google-maps';
  * they can share the page's fonts; AdvancedMarker would need a cloud map ID,
  * which disables the custom basemap style.
  */
-export function MapOverlay({ position, children }: { position: google.maps.LatLngLiteral; children: ReactNode }) {
+export function MapOverlay({
+  position,
+  interactive = false,
+  children,
+}: {
+  position: google.maps.LatLngLiteral;
+  /** Interactive overlays sit in the pane that receives mouse events and don't pan the map. */
+  interactive?: boolean;
+  children: ReactNode;
+}) {
   const map = useMap();
   const container = useMemo(() => {
     const el = document.createElement('div');
@@ -19,7 +28,11 @@ export function MapOverlay({ position, children }: { position: google.maps.LatLn
   useEffect(() => {
     if (!map) return;
     const ov = new google.maps.OverlayView();
-    ov.onAdd = () => ov.getPanes()?.floatPane.appendChild(container);
+    ov.onAdd = () => {
+      const panes = ov.getPanes();
+      (interactive ? panes?.overlayMouseTarget : panes?.floatPane)?.appendChild(container);
+    };
+    if (interactive) google.maps.OverlayView.preventMapHitsAndGesturesFrom(container);
     ov.onRemove = () => container.remove();
     ov.setMap(map);
     setOverlay(ov);
@@ -27,7 +40,7 @@ export function MapOverlay({ position, children }: { position: google.maps.LatLn
       ov.setMap(null);
       setOverlay(null);
     };
-  }, [map, container]);
+  }, [map, container, interactive]);
 
   useEffect(() => {
     if (!overlay) return;

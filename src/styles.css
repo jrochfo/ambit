@@ -212,3 +212,72 @@ button, input { font: inherit; }
   color: var(--ink-3);
   text-align: right;
 }
+
+/* What's nearby */
+.field-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.field-hint { font-size: 13px; color: var(--ink-3); }
+.nearby-list { display: flex; flex-direction: column; gap: 10px; }
+.nearby-row {
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.nearby-row[aria-pressed='false'] { opacity: 0.5; }
+.nearby-row:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.nearby-avatar {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.nearby-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.nearby-label { font-size: 16px; font-weight: 500; }
+.nearby-place { font-size: 13px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ring-pill {
+  flex: 0 0 auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.ring-5 { background: var(--teal); color: #fff; }
+.ring-10 { background: var(--teal-mid); color: var(--on-teal-light); }
+.ring-15 { background: var(--teal-pale); color: var(--on-teal-light); }
+.ring-none { background: transparent; color: var(--ink-3); border-color: var(--muted-border); }
+
+/* Category pins */
+.pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  box-sizing: content-box;
+}
+.pin:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

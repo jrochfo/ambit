@@ -1,6 +1,9 @@
 import { Map } from '@vis.gl/react-google-maps';
 import type { Ring, RingMinutes } from '../../shared/isochrones';
 import { MAP_STYLE } from '../lib/mapStyle';
+import type { Category } from '../lib/categories';
+import type { NearbyPlace } from '../lib/nearby';
+import { CategoryPin } from './CategoryPin';
 import { MapOverlay } from './MapOverlay';
 import { FitToRings, RingLayer } from './RingLayer';
 
@@ -15,10 +18,12 @@ export function MapPanel({
   origin,
   rings,
   visible,
+  pins,
 }: {
   origin: Origin | null;
   rings: Ring[];
   visible: ReadonlySet<RingMinutes>;
+  pins: { category: Category; place: NearbyPlace }[];
 }) {
   return (
     <section className="card map-panel" aria-label="Map">
@@ -39,6 +44,9 @@ export function MapPanel({
               <RingLayer key={r.minutes} ring={r} />
             ))}
           <FitToRings rings={rings} />
+          {pins.map(({ category, place }) => (
+            <CategoryPin key={category.id} category={category} place={place} />
+          ))}
           {origin && (
             <MapOverlay position={origin.position}>
               <div className="origin">
