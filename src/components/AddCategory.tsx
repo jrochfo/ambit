@@ -154,13 +154,13 @@ function OptionText({ option, enabled }: { option: AddOption; enabled: ReadonlyS
     return (
       <>
         <span className="combo-main">{option.label}</span>
-        <span className="combo-secondary">Google place type · precise match</span>
+        <span className="combo-secondary">Google category · exact type</span>
       </>
     );
   return (
     <>
       <span className="combo-main">Search “{option.text}”</span>
-      <span className="combo-secondary">Matches names and descriptions</span>
+      <span className="combo-secondary">Finds spots by name or description</span>
     </>
   );
 }

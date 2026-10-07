@@ -24,6 +24,14 @@ npm run dev            # http://localhost:5173 — serves the app and the /api/i
 - The browser key's HTTP referrer restrictions need `http://localhost:5173/*` for local dev.
 - Deploy (later): `npx wrangler secret put GOOGLE_ISOCHRONES_SERVER_KEY`, then `npm run deploy`. The browser key is baked in at build time from `VITE_GOOGLE_MAPS_BROWSER_KEY`.
 
+## Terms
+
+Use these consistently in UI copy and when discussing the app.
+
+- **Category**: a row in "What's nearby" (Coffee shop, Grocery store, or one you add, like Climbing gym).
+- **Spot**: a real place found for a category (La Noisette, Mission Cliffs). Spots are the pins on the map.
+- **Ring**: a walking-time area (5, 10, 15 min, or a custom time).
+
 ## Goals
 
 - Walking isochrones at 5, 10, and 15 minutes from any address.

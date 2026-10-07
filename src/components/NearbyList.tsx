@@ -70,10 +70,10 @@ export function NearbyList({
             isDefault={enabled.size === DEFAULT_CATEGORY_IDS.length && DEFAULT_CATEGORY_IDS.every((id) => enabled.has(id))}
           />
         )}
-        <div className="field-hint">{categories.length > 0 ? 'Tap a row to see every match' : 'Choose categories to see what’s within a walk.'}</div>
+        <div className="field-hint">{categories.length > 0 ? 'Tap a category to see every spot' : 'Choose categories to find spots within a walk.'}</div>
         {limited && (
           <p className="status status-error" role="status">
-            Today’s search limit is used up, so some rows couldn’t load. It resets at midnight Pacific time.
+            Today’s search limit is used up, so some categories couldn’t load. It resets at midnight Pacific time.
           </p>
         )}
         <div className="nearby-list" role="group" aria-labelledby="nearby-label">
@@ -169,7 +169,7 @@ function EmojiPicker({ category, current, onPick }: { category: Category; curren
 
 /** Nearby Search returns at most 20 places, so a full page means "at least this many". */
 function MoreCount({ count }: { count: number }) {
-  return <>{count >= 20 ? ` + ${count - 1} more (nearest 20 shown)` : ` + ${count - 1} more`}</>;
+  return <>{count >= 20 ? ` + ${count - 1} more spots (nearest 20 shown)` : ` + ${count - 1} more ${count === 2 ? 'spot' : 'spots'}`}</>;
 }
 
 function RingPill({ result, rings }: { result: CategoryResult | undefined; rings: number[] }) {

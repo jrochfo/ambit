@@ -39,7 +39,7 @@ export function CategoryPicker({
       </div>
       {customs.length > 0 && (
         <>
-          <div className="category-picker-section">Your categories</div>
+          <div className="category-picker-section">Added by you</div>
           {customs.map((c) => (
             <div key={c.id} className="category-option-row">
               <Option category={c} checked={enabled.has(c.id)} onToggle={onToggle} />
