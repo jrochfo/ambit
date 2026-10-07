@@ -1,4 +1,4 @@
-import { RING_MINUTES, type IsochroneResponse, type Ring } from '../shared/isochrones';
+import { MAX_RINGS, isValidRing, type IsochroneRequest, type IsochroneResponse, type Ring } from '../shared/isochrones';
 import { fetchWalkingRing } from './isochrones';
 
 interface Env {
@@ -23,19 +23,24 @@ async function handleIsochrones(request: Request, env: Env): Promise<Response> {
     return json({ error: 'Server key is not configured' }, 500);
   }
 
-  let lat: number, lng: number;
+  let body: Partial<IsochroneRequest>;
   try {
-    ({ lat, lng } = (await request.json()) as { lat: number; lng: number });
+    body = (await request.json()) as Partial<IsochroneRequest>;
   } catch {
     return json({ error: 'Body must be JSON' }, 400);
   }
+  const { lat, lng, minutes } = body;
   if (!isFiniteInRange(lat, -90, 90) || !isFiniteInRange(lng, -180, 180)) {
     return json({ error: 'lat and lng must be valid coordinates' }, 400);
   }
+  // Bounded so one request can't fan out into many billed calls.
+  const rings = [...new Set(Array.isArray(minutes) ? minutes : [])];
+  if (rings.length === 0 || rings.length > MAX_RINGS || !rings.every(isValidRing)) {
+    return json({ error: `minutes must be 1 to ${MAX_RINGS} whole numbers between 1 and 120` }, 400);
+  }
 
-  // Google returns one isochrone per request, so fetch the three rings in parallel.
-  // The ring set is fixed server-side so the proxy can't be used for arbitrary calls.
-  const results = await Promise.all(RING_MINUTES.map((m) => fetchWalkingRing(env.GOOGLE_ISOCHRONES_SERVER_KEY, lat, lng, m)));
+  // Google returns one isochrone per request, so fetch the rings in parallel.
+  const results = await Promise.all(rings.map((m) => fetchWalkingRing(env.GOOGLE_ISOCHRONES_SERVER_KEY, lat, lng, m)));
 
   const failed = results.find((r) => 'error' in r);
   if (failed && 'error' in failed) {

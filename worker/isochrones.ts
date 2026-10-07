@@ -2,11 +2,11 @@
 // Keep it this small so a request/response change, or a swap to another
 // provider (OpenRouteService, Valhalla), stays contained here.
 
-import type { ApiError, Ring, RingMinutes } from '../shared/isochrones';
+import type { ApiError, Ring } from '../shared/isochrones';
 
 const GOOGLE_URL = 'https://isochrones.googleapis.com/v1/isochrones:generate';
 
-export async function fetchWalkingRing(apiKey: string, lat: number, lng: number, minutes: RingMinutes): Promise<Ring | ApiError> {
+export async function fetchWalkingRing(apiKey: string, lat: number, lng: number, minutes: number): Promise<Ring | ApiError> {
   const res = await fetch(GOOGLE_URL, {
     method: 'POST',
     headers: {

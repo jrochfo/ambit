@@ -1,15 +1,21 @@
 import { Map } from '@vis.gl/react-google-maps';
-import type { Ring, RingMinutes } from '../../shared/isochrones';
-import { MAP_STYLE } from '../lib/mapStyle';
+import type { Ring } from '../../shared/isochrones';
 import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
+import { MAP_STYLE } from '../lib/mapStyle';
+import { formatMinutes, ringStyle } from '../lib/rings';
 import { CategoryPin } from './CategoryPin';
 import { MapOverlay } from './MapOverlay';
-import { FitToRings, RingLayer } from './RingLayer';
+import { FitToRing, RingLayer } from './RingLayer';
 
 export interface Origin {
   position: google.maps.LatLngLiteral;
   label: string;
+}
+
+export interface Pin {
+  category: Category;
+  place: NearbyPlace;
 }
 
 const DEFAULT_CENTER = { lat: 39.5, lng: -98.35 }; // continental US until an address is mapped
@@ -17,14 +23,16 @@ const DEFAULT_CENTER = { lat: 39.5, lng: -98.35 }; // continental US until an ad
 export function MapPanel({
   origin,
   rings,
-  visible,
+  hidden,
   pins,
 }: {
   origin: Origin | null;
+  /** Active rings, ascending. */
   rings: Ring[];
-  visible: ReadonlySet<RingMinutes>;
-  pins: { category: Category; place: NearbyPlace }[];
+  hidden: ReadonlySet<number>;
+  pins: Pin[];
 }) {
+  const largest = rings[rings.length - 1];
   return (
     <section className="card map-panel" aria-label="Map">
       <div className="map-frame">
@@ -38,14 +46,10 @@ export function MapPanel({
           clickableIcons={false}
           style={{ position: 'absolute', inset: 0 }}
         >
-          {rings
-            .filter((r) => visible.has(r.minutes))
-            .map((r) => (
-              <RingLayer key={r.minutes} ring={r} />
-            ))}
-          <FitToRings rings={rings} />
+          {rings.map((r, rank) => (hidden.has(r.minutes) ? null : <RingLayer key={r.minutes} ring={r} rank={rank} count={rings.length} />))}
+          <FitToRing ring={largest} />
           {pins.map(({ category, place }) => (
-            <CategoryPin key={category.id} category={category} place={place} />
+            <CategoryPin key={`${category.id}:${place.id}`} category={category} place={place} outerRing={largest?.minutes} />
           ))}
           {origin && (
             <MapOverlay position={origin.position}>
@@ -56,18 +60,16 @@ export function MapPanel({
             </MapOverlay>
           )}
         </Map>
-        {!origin && <div className="map-empty">Enter an address to see how far you can walk in 5, 10, and 15 minutes.</div>}
+        {!origin && <div className="map-empty">Enter an address to see how far you can walk.</div>}
       </div>
       <div className="legend">
-        <span className="legend-item">
-          <span className="legend-swatch" style={{ opacity: 0.8 }} />5 min walk
-        </span>
-        <span className="legend-item">
-          <span className="legend-swatch" style={{ opacity: 0.5 }} />10 min
-        </span>
-        <span className="legend-item">
-          <span className="legend-swatch" style={{ opacity: 0.25 }} />15 min
-        </span>
+        {rings.map((r, rank) => (
+          <span key={r.minutes} className="legend-item">
+            <span className="legend-swatch" style={{ opacity: Math.min(1, ringStyle(rank, rings.length).fill * 2.6) }} />
+            {formatMinutes(r.minutes)}
+            {rank === 0 && ' walk'}
+          </span>
+        ))}
         <span className="legend-note">Walking reach along real streets</span>
       </div>
     </section>
