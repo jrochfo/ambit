@@ -11,7 +11,11 @@ import { FitToRing, RingLayer } from './RingLayer';
 
 export interface Origin {
   position: google.maps.LatLngLiteral;
+  /** Short name shown on the map (street, or a saved address's nickname). */
   label: string;
+  /** Full address from Google. */
+  address: string;
+  placeId?: string;
 }
 
 export interface Pin {

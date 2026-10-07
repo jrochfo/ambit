@@ -11,6 +11,11 @@ import type { AddOption } from './components/AddCategory';
 import { strongEmojiMatch } from './lib/emojiTags';
 import { loadPref, savePref } from './lib/storage';
 import { useAnalysis } from './lib/useAnalysis';
+import { addressKey, clearFailures } from './lib/analysisStore';
+import { MAX_AGE_MS, MAX_SAVED, isSavedList, pruneExpired, type SavedAddress, type SavedResults } from './lib/saved';
+import { useComparison } from './lib/useComparison';
+import { SaveControl } from './components/SaveControl';
+import { CompareGrid } from './components/CompareGrid';
 
 const BROWSER_KEY = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
 
@@ -47,16 +52,46 @@ function Ambit() {
   const [categoryIds, setCategoryIds] = useState<ReadonlySet<string>>(() => new Set(loadPref('categories', DEFAULT_CATEGORY_IDS, isStringList)));
   const [customs, setCustoms] = useState<Category[]>(() => loadPref('customCategories', [], isCustomCategoryList));
   const [focused, setFocused] = useState<string | null>(null);
+  const [saved, setSaved] = useState<SavedAddress[]>(() => pruneExpired(loadPref('savedAddresses', [], isSavedList)));
   const lookup = useRef(0);
 
   useEffect(() => savePref('rings', ringMinutes), [ringMinutes]);
   useEffect(() => savePref('categories', [...categoryIds]), [categoryIds]);
   useEffect(() => savePref('customCategories', customs), [customs]);
+  useEffect(() => savePref('savedAddresses', saved), [saved]);
+
+  // Stored coordinates may be kept 30 days; after that, look the address up again (Geocoding,
+  // by place ID when we have one). A moved point invalidates its stored results.
+  useEffect(() => {
+    if (!geocoding) return;
+    const stale = saved.filter((a) => Date.now() - a.positionAt > MAX_AGE_MS);
+    for (const a of stale) {
+      new geocoding.Geocoder()
+        .geocode(a.placeId ? { placeId: a.placeId } : { address: a.address })
+        .then(({ results }) => {
+          const position = results[0]?.geometry.location.toJSON();
+          if (!position) return;
+          setSaved((prev) =>
+            prev.map((x) =>
+              x.id !== a.id
+                ? x
+                : { ...x, position, positionAt: Date.now(), results: addressKey(position) === addressKey(x.position) ? x.results : undefined },
+            ),
+          );
+        })
+        .catch((err: unknown) => console.error('Refreshing saved address failed', err));
+    }
+  }, [geocoding, saved]);
 
   const categories = useMemo(() => [...CATEGORIES, ...customs].filter((c) => categoryIds.has(c.id)), [categoryIds, customs]);
   const position = origin?.position ?? null;
   const analysis = useAnalysis(places, position, ringMinutes, categories);
-  const { retry } = analysis;
+  const currentSaved = origin ? saved.find((a) => addressKey(a.position) === addressKey(origin.position)) : undefined;
+
+  const updateResults = useCallback((id: string, results: SavedResults) => {
+    setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, results } : a)));
+  }, []);
+  const comparison = useComparison(places, saved, ringMinutes, categories, updateResults);
 
   const mapAddress = useCallback(
     async (target: SearchTarget) => {
@@ -66,9 +101,9 @@ function Ambit() {
         setStatus({ kind: 'busy', message: 'Finding that address…' });
         const found = target.kind === 'prediction' ? await resolvePrediction(target.prediction) : await geocode(geocoding, target.text);
         if (id !== lookup.current) return;
-        retry();
+        clearFailures();
         setFocused(null);
-        setOrigin({ position: found.position, label: found.address.split(',')[0] ?? found.address });
+        setOrigin({ position: found.position, label: found.address.split(',')[0] ?? found.address, address: found.address, placeId: found.placeId });
         setStatus({ kind: 'done', address: found.address });
       } catch (err) {
         if (id !== lookup.current) return;
@@ -81,8 +116,40 @@ function Ambit() {
         setStatus({ kind: 'error', message });
       }
     },
-    [geocoding, retry],
+    [geocoding],
   );
+
+  const saveCurrent = useCallback(
+    (label: string) => {
+      if (!origin) return;
+      setSaved((prev) =>
+        prev.length >= MAX_SAVED || prev.some((a) => addressKey(a.position) === addressKey(origin.position))
+          ? prev
+          : [
+              ...prev,
+              {
+                id: `addr-${Date.now().toString(36)}`,
+                label,
+                address: origin.address,
+                placeId: origin.placeId,
+                position: origin.position,
+                positionAt: Date.now(),
+              },
+            ],
+      );
+    },
+    [origin],
+  );
+  const removeSaved = useCallback((id: string) => setSaved((prev) => prev.filter((a) => a.id !== id)), []);
+  const renameSaved = useCallback((id: string, label: string) => setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, label } : a))), []);
+  // Mapping a saved address reuses its stored point: no lookup call.
+  const showSaved = useCallback((a: SavedAddress) => {
+    lookup.current++;
+    clearFailures();
+    setFocused(null);
+    setOrigin({ position: a.position, label: a.label, address: a.address, placeId: a.placeId });
+    setStatus({ kind: 'done', address: a.address });
+  }, []);
 
   const toggleRing = useCallback((m: number) => setHiddenRings((prev) => toggled(prev, m)), []);
   const addRing = useCallback((m: number) => setRingMinutes((prev) => [...new Set([...prev, m])].sort((a, b) => a - b).slice(0, MAX_RINGS)), []);
@@ -166,6 +233,16 @@ function Ambit() {
           <div className="sidebar-scroll">
             <RingPicker rings={ringMinutes} hidden={hiddenRings} onToggle={toggleRing} onAdd={addRing} onRemove={removeRing} />
             <StatusLine status={shownStatus} />
+            {origin && status.kind === 'done' && (
+              <SaveControl
+                key={addressKey(origin.position)}
+                defaultLabel={origin.label}
+                saved={currentSaved}
+                full={saved.length >= MAX_SAVED}
+                onSave={saveCurrent}
+                onRemove={removeSaved}
+              />
+            )}
             <NearbyList
               catalog={CATEGORIES}
               customs={customs}
@@ -185,6 +262,16 @@ function Ambit() {
         </aside>
         <MapPanel origin={origin} rings={analysis.rings} hidden={hiddenRings} pins={pins} />
       </main>
+      <CompareGrid
+        saved={saved}
+        categories={categories}
+        rings={ringMinutes}
+        cells={comparison}
+        currentId={currentSaved?.id}
+        onSelect={showSaved}
+        onRemove={removeSaved}
+        onRename={renameSaved}
+      />
     </div>
   );
 }
@@ -199,6 +286,7 @@ function toggled<T>(set: ReadonlySet<T>, item: T): ReadonlySet<T> {
 interface FoundAddress {
   position: google.maps.LatLngLiteral;
   address: string;
+  placeId?: string;
 }
 
 /** Picking a suggestion: one Place lookup (location + address only) that also closes the autocomplete session. */
@@ -206,7 +294,7 @@ async function resolvePrediction(prediction: google.maps.places.PlacePrediction)
   const place = prediction.toPlace();
   await place.fetchFields({ fields: ['location', 'formattedAddress'] });
   if (!place.location) throw new Error('Couldn’t find that address.');
-  return { position: place.location.toJSON(), address: place.formattedAddress ?? prediction.text.text };
+  return { position: place.location.toJSON(), address: place.formattedAddress ?? prediction.text.text, placeId: prediction.placeId };
 }
 
 /** Typed text with no suggestions to pick from: fall back to the Geocoding API. */
@@ -214,7 +302,7 @@ async function geocode(lib: google.maps.GeocodingLibrary, address: string): Prom
   const { results } = await new lib.Geocoder().geocode({ address });
   const top = results[0];
   if (!top) throw new Error('Couldn’t find that address.');
-  return { position: top.geometry.location.toJSON(), address: top.formatted_address };
+  return { position: top.geometry.location.toJSON(), address: top.formatted_address, placeId: top.place_id };
 }
 
 function StatusLine({ status }: { status: Status }) {
