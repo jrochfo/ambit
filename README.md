@@ -119,7 +119,7 @@ Running list for phase 5 (polish). Add to it as things come up.
 
 - **Empty-map copy**: what the map says before an address is entered, once phase 4 defines the save-and-compare flow.
 - **Top nav**: what belongs there (saved addresses, compare, about).
-- **Accessibility pass**: contrast check on every pairing, full screen-reader run, focus order, keyboard-only use, a non-visual way to understand ring coverage, reduced motion and zoom.
+- **Accessibility pass**: automated audit (axe-core, WCAG 2.2 AA) passes except overlapping pins near the origin (touch-target size). Still to do by hand: a VoiceOver run-through, keyboard flow when a focused category shows many pins, ring coverage for non-visual users, 200% zoom.
 - **Spot details on hover (paid, opt-in)**: hours / open now, rating, price level, website via Place Details only when a spot's tooltip opens (cached per spot, about 1,000 free per month). Never add these fields to searches: that moves every search to the Enterprise tier.
 - **Exact walking minutes**: Routes API for the nearest 2–3 spots per category (about 10–15 calls per address), instead of ring buckets.
 - **Ring outlines**: optional smoothing for display only.

@@ -10,7 +10,7 @@ import { CATEGORIES, DEFAULT_CATEGORY_IDS, isCustomCategoryList, makeCustomCateg
 import type { AddOption } from './components/AddCategory';
 import { strongEmojiMatch } from './lib/emojiTags';
 import { loadPref, savePref } from './lib/storage';
-import { useAnalysis } from './lib/useAnalysis';
+import { useAnalysis, type CategoryResult } from './lib/useAnalysis';
 import { addressKey, clearFailures } from './lib/analysisStore';
 import { MAX_AGE_MS, MAX_SAVED, isSavedList, pruneExpired, type SavedAddress, type SavedResults } from './lib/saved';
 import { useComparison } from './lib/useComparison';
@@ -288,8 +288,7 @@ function Ambit() {
           spotlight={spotlightKey}
           onMapClick={() => setSpotlight(null)}
         />
-      </main>
-      <CompareGrid
+        <CompareGrid
         saved={saved}
         categories={categories}
         rings={ringMinutes}
@@ -298,8 +297,10 @@ function Ambit() {
         onSelect={showSaved}
         onSelectCell={showSavedSpot}
         onRemove={removeSaved}
-        onRename={renameSaved}
-      />
+          onRename={renameSaved}
+        />
+      </main>
+      <ResultsAnnouncer origin={origin} results={analysis.results} />
     </div>
   );
 }
@@ -331,6 +332,19 @@ async function geocode(lib: google.maps.GeocodingLibrary, address: string): Prom
   const top = results[0];
   if (!top) throw new Error('Couldn’t find that address.');
   return { position: top.geometry.location.toJSON(), address: top.formatted_address, placeId: top.place_id };
+}
+
+/** Tells screen readers when an address's categories have finished loading. */
+function ResultsAnnouncer({ origin, results }: { origin: Origin | null; results: Record<string, CategoryResult> }) {
+  const values = Object.values(results);
+  const done = values.length > 0 && values.every((r) => r.status !== 'loading');
+  const found = values.filter((r) => r.status === 'done' && r.ring !== null).length;
+  const message = origin && done ? `Found spots within a walk for ${found} of ${values.length} categories.` : '';
+  return (
+    <p className="sr-only" role="status" aria-live="polite">
+      {message}
+    </p>
+  );
 }
 
 function StatusLine({ status }: { status: Status }) {

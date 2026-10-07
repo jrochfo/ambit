@@ -43,9 +43,9 @@ export function RingPicker({
   return (
     <div className="field" role="group" aria-labelledby="walking-time-label">
       <div className="field-head">
-        <div className="field-label" id="walking-time-label">
+        <h2 className="field-label" id="walking-time-label">
           Walking time
-        </div>
+        </h2>
         {canAdd && (
           <button type="button" className="link-btn" aria-expanded={adding} aria-controls="ring-add" onClick={() => setAdding((a) => !a)}>
             {adding ? (

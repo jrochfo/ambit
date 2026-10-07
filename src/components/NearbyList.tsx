@@ -51,9 +51,9 @@ export function NearbyList({
     <>
       <div className="field">
         <div className="field-head">
-          <div className="field-label" id="nearby-label">
+          <h2 className="field-label" id="nearby-label">
             What's nearby
-          </div>
+          </h2>
           <button type="button" className="link-btn" aria-expanded={editing} aria-controls="category-picker" onClick={() => setEditing((e) => !e)}>
             {editing ? 'Done' : `Choose (${categories.length})`}
           </button>

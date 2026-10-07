@@ -43,7 +43,7 @@ export function MapPanel({
   const largest = rings[rings.length - 1];
   const [startView] = useState(randomStartView);
   return (
-    <section className="card map-panel" aria-label="Map">
+    <section className="card map-panel" aria-label="Walking rings map">
       <div className="map-frame">
         <Map
           defaultCenter={startView}
@@ -108,7 +108,9 @@ function PanToSpot({ position }: { position: google.maps.LatLngLiteral | undefin
   useEffect(() => {
     if (!map || lat === undefined || lng === undefined) return;
     const bounds = map.getBounds();
-    if (!bounds?.contains({ lat, lng })) map.panTo({ lat, lng });
+    if (bounds?.contains({ lat, lng })) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) map.setCenter({ lat, lng });
+    else map.panTo({ lat, lng });
   }, [map, lat, lng]);
   return null;
 }

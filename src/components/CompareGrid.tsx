@@ -95,14 +95,12 @@ export function CompareGrid({
                   </th>
                   {saved.map((a) => (
                     <td key={a.id} aria-current={a.id === currentId ? 'true' : undefined}>
-                      <button
-                        type="button"
-                        className="compare-cell"
-                        aria-label={`${c.label} near ${a.label}: ${describeCell(cells[a.id]?.[c.id], within)}. Show on the map.`}
-                        onClick={() => onSelectCell(a, c.id)}
-                      >
+                      <button type="button" className="compare-cell" onClick={() => onSelectCell(a, c.id)}>
+                        {/* Visible text stays in the spoken name; the hidden parts give it context. */}
+                        <span className="sr-only">{c.label} near {a.label}: </span>
                         <CellPill cell={cells[a.id]?.[c.id]} rings={rings} />
                         <CellName cell={cells[a.id]?.[c.id]} />
+                        <span className="sr-only">. {describeCell(cells[a.id]?.[c.id], within)}. Show on the map.</span>
                       </button>
                     </td>
                   ))}
@@ -134,10 +132,9 @@ export function CompareGrid({
 }
 
 function describeCell(cell: Cell | undefined, within: string): string {
-  if (!cell || cell.status === 'loading') return 'loading';
+  if (!cell || cell.status === 'loading') return 'Loading';
   if (cell.status === 'error') return cell.message;
-  if (cell.ring === null) return `nothing within ${within}`;
-  return `within ${formatMinutes(cell.ring)}${cell.spotName ? `, ${cell.spotName}` : ''}`;
+  return cell.ring === null ? `Nothing within ${within}` : `Within a ${formatMinutes(cell.ring)} walk`;
 }
 
 function CellPill({ cell, rings }: { cell: Cell | undefined; rings: number[] }) {
