@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useMap } from '@vis.gl/react-google-maps';
 
+/** Stacking order of overlays, which all share one pane (spot cards must top ring labels). */
+export const OVERLAY_Z = { ringLabel: 1, pin: 2, origin: 3, openPin: 10 } as const;
+
 /**
- * Pins arbitrary HTML to a lat/lng. Used for the origin dot and ring labels so
+ * Pins arbitrary HTML to a lat/lng. Used for the origin dot, ring labels and spot pins so
  * they can share the page's fonts; AdvancedMarker would need a cloud map ID,
  * which disables the custom basemap style.
  */
@@ -14,9 +17,9 @@ export function MapOverlay({
   children,
 }: {
   position: google.maps.LatLngLiteral;
-  /** Interactive overlays sit in the pane that receives mouse events and don't pan the map. */
+  /** Interactive overlays take mouse events without panning or clicking the map. */
   interactive?: boolean;
-  /** Raise an overlay (an open spot card) above its neighbors. */
+  /** See OVERLAY_Z. */
   zIndex?: number;
   children: ReactNode;
 }) {
@@ -31,10 +34,8 @@ export function MapOverlay({
   useEffect(() => {
     if (!map) return;
     const ov = new google.maps.OverlayView();
-    ov.onAdd = () => {
-      const panes = ov.getPanes();
-      (interactive ? panes?.overlayMouseTarget : panes?.floatPane)?.appendChild(container);
-    };
+    // One pane for everything, so z-index alone decides what's on top.
+    ov.onAdd = () => ov.getPanes()?.floatPane.appendChild(container);
     if (interactive) google.maps.OverlayView.preventMapHitsAndGesturesFrom(container);
     ov.onRemove = () => container.remove();
     ov.setMap(map);

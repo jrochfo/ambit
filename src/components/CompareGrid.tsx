@@ -14,6 +14,7 @@ export function CompareGrid({
   cells,
   currentId,
   onSelect,
+  onSelectCell,
   onRemove,
   onRename,
 }: {
@@ -25,6 +26,8 @@ export function CompareGrid({
   /** Saved address currently on the map. */
   currentId: string | undefined;
   onSelect: (a: SavedAddress) => void;
+  /** Map an address with a category's nearest spot opened. */
+  onSelectCell: (a: SavedAddress, categoryId: string) => void;
   onRemove: (id: string) => void;
   onRename: (id: string, label: string) => void;
 }) {
@@ -59,6 +62,9 @@ export function CompareGrid({
                 </th>
                 {saved.map((a) => (
                   <th key={a.id} scope="col" aria-current={a.id === currentId ? 'true' : undefined} className="compare-col">
+                    <button type="button" className="icon-btn compare-remove" aria-label={`Remove ${a.label}`} onClick={() => onRemove(a.id)}>
+                      <Icon name="close" size={16} />
+                    </button>
                     {renaming === a.id ? (
                       <RenameField
                         initial={a.label}
@@ -72,14 +78,9 @@ export function CompareGrid({
                         <button type="button" className="compare-col-name" title={`${a.address}. Show on the map.`} onClick={() => onSelect(a)}>
                           {a.label}
                         </button>
-                        <span className="compare-col-actions">
-                          <button type="button" className="icon-btn" aria-label={`Rename ${a.label}`} onClick={() => setRenaming(a.id)}>
-                            <Icon name="edit" size={16} />
-                          </button>
-                          <button type="button" className="icon-btn" aria-label={`Remove ${a.label}`} onClick={() => onRemove(a.id)}>
-                            <Icon name="close" size={16} />
-                          </button>
-                        </span>
+                        <button type="button" className="icon-btn compare-rename-btn" aria-label={`Rename ${a.label}`} onClick={() => setRenaming(a.id)}>
+                          <Icon name="edit" size={16} />
+                        </button>
                       </div>
                     )}
                   </th>
@@ -94,7 +95,14 @@ export function CompareGrid({
                   </th>
                   {saved.map((a) => (
                     <td key={a.id} aria-current={a.id === currentId ? 'true' : undefined}>
-                      <CellPill cell={cells[a.id]?.[c.id]} rings={rings} within={within} />
+                      <button
+                        type="button"
+                        className="compare-cell"
+                        aria-label={`${c.label} near ${a.label}: ${describeCell(cells[a.id]?.[c.id], within)}. Show on the map.`}
+                        onClick={() => onSelectCell(a, c.id)}
+                      >
+                        <CellPill cell={cells[a.id]?.[c.id]} rings={rings} />
+                      </button>
                     </td>
                   ))}
                 </tr>
@@ -124,28 +132,34 @@ export function CompareGrid({
   );
 }
 
-function CellPill({ cell, rings, within }: { cell: Cell | undefined; rings: number[]; within: string }) {
+function describeCell(cell: Cell | undefined, within: string): string {
+  if (!cell || cell.status === 'loading') return 'loading';
+  if (cell.status === 'error') return cell.message;
+  return cell.ring === null ? `nothing within ${within}` : `within ${formatMinutes(cell.ring)}`;
+}
+
+function CellPill({ cell, rings }: { cell: Cell | undefined; rings: number[] }) {
   if (!cell || cell.status === 'loading')
     return (
-      <span className="grid-pill grid-pill-none" aria-label="Loading">
+      <span className="grid-pill grid-pill-none">
         …
       </span>
     );
   if (cell.status === 'error')
     return (
-      <span className="grid-pill grid-pill-none" title={cell.message} aria-label={cell.message}>
+      <span className="grid-pill grid-pill-none" title={cell.message}>
         !
       </span>
     );
   if (cell.ring === null)
     return (
-      <span className="grid-pill grid-pill-none" aria-label={`Nothing within ${within}`}>
+      <span className="grid-pill grid-pill-none">
         —
       </span>
     );
   const { bg, fg } = pillColors(rings.indexOf(cell.ring));
   return (
-    <span className="grid-pill" style={{ background: bg, color: fg, borderColor: bg }} aria-label={`Within ${formatMinutes(cell.ring)}`}>
+    <span className="grid-pill" style={{ background: bg, color: fg, borderColor: bg }}>
       {cell.ring < 60 ? cell.ring : formatMinutes(cell.ring)}
     </span>
   );

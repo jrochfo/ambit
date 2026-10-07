@@ -1,4 +1,4 @@
-import { Map } from '@vis.gl/react-google-maps';
+import { Map, useMap } from '@vis.gl/react-google-maps';
 import type { Ring } from '../../shared/isochrones';
 import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { MAP_STYLE, MAP_STYLE_BLANK, START_ZOOM, randomStartView } from '../lib/mapStyle';
 import { formatMinutes, ringStyle } from '../lib/rings';
 import { CategoryPin } from './CategoryPin';
-import { MapOverlay } from './MapOverlay';
+import { MapOverlay, OVERLAY_Z } from './MapOverlay';
 import { FitToRing, RingLayer } from './RingLayer';
 
 export interface Origin {
@@ -28,18 +28,20 @@ export function MapPanel({
   rings,
   hidden,
   pins,
+  spotlight,
+  onMapClick,
 }: {
   origin: Origin | null;
   /** Active rings, ascending. */
   rings: Ring[];
   hidden: ReadonlySet<number>;
   pins: Pin[];
+  /** `${categoryId}:${placeId}` of a spot whose card is shown open and panned to. */
+  spotlight: string | null;
+  onMapClick: () => void;
 }) {
   const largest = rings[rings.length - 1];
   const [startView] = useState(randomStartView);
-  // At most one spot card held open by a click or tap; cleared for a new address or a map click.
-  const [pinnedSpot, setPinnedSpot] = useState<string | null>(null);
-  useEffect(() => setPinnedSpot(null), [origin]);
   return (
     <section className="card map-panel" aria-label="Map">
       <div className="map-frame">
@@ -52,7 +54,7 @@ export function MapPanel({
           zoomControl
           clickableIcons={false}
           style={{ position: 'absolute', inset: 0 }}
-          onClick={() => setPinnedSpot(null)}
+          onClick={onMapClick}
         >
           {rings.map((r, rank) => (hidden.has(r.minutes) ? null : <RingLayer key={r.minutes} ring={r} rank={rank} count={rings.length} />))}
           <FitToRing ring={largest} />
@@ -64,13 +66,13 @@ export function MapPanel({
                 category={category}
                 place={place}
                 outerRing={largest?.minutes}
-                pinned={pinnedSpot === key}
-                onTogglePinned={(open) => setPinnedSpot(open ? key : null)}
+                spotlight={spotlight === key}
               />
             );
           })}
+          <PanToSpot position={pins.find((p) => `${p.category.id}:${p.place.id}` === spotlight)?.place.position} />
           {origin && (
-            <MapOverlay position={origin.position}>
+            <MapOverlay position={origin.position} zIndex={OVERLAY_Z.origin}>
               <div className="origin">
                 <div className="origin-dot" />
                 <div className="origin-label">{origin.label}</div>
@@ -96,4 +98,17 @@ export function MapPanel({
       </div>
     </section>
   );
+}
+
+/** Brings a spotlighted spot into view (after the rings have been fitted). */
+function PanToSpot({ position }: { position: google.maps.LatLngLiteral | undefined }) {
+  const map = useMap();
+  const lat = position?.lat;
+  const lng = position?.lng;
+  useEffect(() => {
+    if (!map || lat === undefined || lng === undefined) return;
+    const bounds = map.getBounds();
+    if (!bounds?.contains({ lat, lng })) map.panTo({ lat, lng });
+  }, [map, lat, lng]);
+  return null;
 }

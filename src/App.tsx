@@ -52,6 +52,8 @@ function Ambit() {
   const [categoryIds, setCategoryIds] = useState<ReadonlySet<string>>(() => new Set(loadPref('categories', DEFAULT_CATEGORY_IDS, isStringList)));
   const [customs, setCustoms] = useState<Category[]>(() => loadPref('customCategories', [], isCustomCategoryList));
   const [focused, setFocused] = useState<string | null>(null);
+  // Category whose nearest spot's card is shown open (picked from the comparison grid).
+  const [spotlight, setSpotlight] = useState<string | null>(null);
   const [saved, setSaved] = useState<SavedAddress[]>(() => pruneExpired(loadPref('savedAddresses', [], isSavedList)));
   const lookup = useRef(0);
 
@@ -103,6 +105,7 @@ function Ambit() {
         if (id !== lookup.current) return;
         clearFailures();
         setFocused(null);
+        setSpotlight(null);
         setOrigin({ position: found.position, label: found.address.split(',')[0] ?? found.address, address: found.address, placeId: found.placeId });
         setStatus({ kind: 'done', address: found.address });
       } catch (err) {
@@ -147,8 +150,22 @@ function Ambit() {
     lookup.current++;
     clearFailures();
     setFocused(null);
+    setSpotlight(null);
     setOrigin({ position: a.position, label: a.label, address: a.address, placeId: a.placeId });
     setStatus({ kind: 'done', address: a.address });
+  }, []);
+  // A grid cell: map that address, show the category's spots, and open its nearest spot's card.
+  const showSavedSpot = useCallback(
+    (a: SavedAddress, categoryId: string) => {
+      showSaved(a);
+      setFocused(categoryId);
+      setSpotlight(categoryId);
+    },
+    [showSaved],
+  );
+  const focusCategory = useCallback((id: string | null) => {
+    setFocused(id);
+    setSpotlight(null);
   }, []);
 
   const toggleRing = useCallback((m: number) => setHiddenRings((prev) => toggled(prev, m)), []);
@@ -212,6 +229,9 @@ function Ambit() {
     return (r.within.length ? r.within : [r.nearest]).map((place) => ({ category, place }));
   });
 
+  const spotlightResult = spotlight ? analysis.results[spotlight] : undefined;
+  const spotlightKey = spotlightResult?.status === 'done' && spotlightResult.nearest ? `${spotlight}:${spotlightResult.nearest.id}` : null;
+
   const shownStatus: Status =
     status.kind !== 'done'
       ? status
@@ -250,7 +270,7 @@ function Ambit() {
               results={analysis.results}
               rings={analysis.rings.map((r) => r.minutes)}
               focused={focused}
-              onFocus={setFocused}
+              onFocus={focusCategory}
               onToggleCategory={toggleCategory}
               onClearCategories={clearCategories}
               onResetCategories={resetCategories}
@@ -260,7 +280,14 @@ function Ambit() {
             />
           </div>
         </aside>
-        <MapPanel origin={origin} rings={analysis.rings} hidden={hiddenRings} pins={pins} />
+        <MapPanel
+          origin={origin}
+          rings={analysis.rings}
+          hidden={hiddenRings}
+          pins={pins}
+          spotlight={spotlightKey}
+          onMapClick={() => setSpotlight(null)}
+        />
       </main>
       <CompareGrid
         saved={saved}
@@ -269,6 +296,7 @@ function Ambit() {
         cells={comparison}
         currentId={currentSaved?.id}
         onSelect={showSaved}
+        onSelectCell={showSavedSpot}
         onRemove={removeSaved}
         onRename={renameSaved}
       />
