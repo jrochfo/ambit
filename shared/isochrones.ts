@@ -5,7 +5,7 @@ export const DEFAULT_RINGS = [5, 10, 15];
 export const MIN_RING = 1;
 export const MAX_RING = 120;
 /** Each ring is one Isochrones call per address, so cap how many can be active. */
-export const MAX_RINGS = 6;
+export const MAX_RINGS = 3;
 
 export interface IsochroneRequest {
   lat: number;
