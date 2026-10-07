@@ -37,7 +37,7 @@ export const CATEGORIES: Category[] = [
   { id: 'farmers', label: 'Farmers market', emoji: ['🥕', '🍅'], color: '#C25E1F', types: ['farmers_market'] },
   { id: 'salon', label: 'Salon', emoji: ['💇'], color: '#7B3FA0', types: ['hair_salon', 'beauty_salon', 'barber_shop', 'hair_care'] },
   { id: 'laundry', label: 'Laundromat', emoji: ['🧺', '👕'], color: '#4A7A8C', types: ['laundry'] },
-  { id: 'convenience', label: 'Convenience store', emoji: ['🏪'], color: '#5E6B2E', types: ['convenience_store'] },
+  { id: 'convenience', label: 'Corner store', emoji: ['🏪'], color: '#5E6B2E', types: ['convenience_store'] },
   { id: 'liquor', label: 'Liquor store', emoji: ['🍷'], color: '#7A2E3B', types: ['liquor_store'] },
   { id: 'hardware', label: 'Hardware store', emoji: ['🔨'], color: '#6B5B4B', types: ['hardware_store', 'home_improvement_store'] },
   { id: 'library', label: 'Library', emoji: ['📚'], color: '#4B5A8C', types: ['library'] },

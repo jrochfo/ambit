@@ -83,6 +83,10 @@ function Ambit() {
   const toggleRing = useCallback((m: number) => setHiddenRings((prev) => toggled(prev, m)), []);
   const addRing = useCallback((m: number) => setRingMinutes((prev) => [...new Set([...prev, m])].sort((a, b) => a - b).slice(0, MAX_RINGS)), []);
   const removeRing = useCallback((m: number) => setRingMinutes((prev) => (prev.length > 1 ? prev.filter((x) => x !== m) : prev)), []);
+  const clearCategories = useCallback(() => {
+    setCategoryIds(new Set());
+    setFocused(null);
+  }, []);
   const toggleCategory = useCallback((id: string) => {
     setCategoryIds((prev) => toggled(prev, id));
     setFocused((f) => (f === id ? null : f));
@@ -111,7 +115,9 @@ function Ambit() {
       <Header />
       <main className="main">
         <aside className="card sidebar">
-          <AddressSearch busy={status.kind === 'busy' || !geocoding || !places} onSearch={mapAddress} />
+          <div className="sidebar-head">
+            <AddressSearch busy={status.kind === 'busy' || !geocoding || !places} onSearch={mapAddress} />
+          </div>
           {/* Scrolls inside the card when side by side with the map, so the sidebar never outgrows it. */}
           <div className="sidebar-scroll">
             <RingPicker rings={ringMinutes} hidden={hiddenRings} onToggle={toggleRing} onAdd={addRing} onRemove={removeRing} />
@@ -124,6 +130,7 @@ function Ambit() {
               focused={focused}
               onFocus={setFocused}
               onToggleCategory={toggleCategory}
+              onClearCategories={clearCategories}
             />
           </div>
         </aside>

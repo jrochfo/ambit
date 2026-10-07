@@ -13,6 +13,7 @@ export function NearbyList({
   focused,
   onFocus,
   onToggleCategory,
+  onClearCategories,
 }: {
   catalog: Category[];
   /** Enabled categories, in catalog order. */
@@ -23,6 +24,7 @@ export function NearbyList({
   focused: string | null;
   onFocus: (id: string | null) => void;
   onToggleCategory: (id: string) => void;
+  onClearCategories: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const enabled = new Set(categories.map((c) => c.id));
@@ -37,8 +39,8 @@ export function NearbyList({
           {editing ? 'Done' : `Choose (${categories.length})`}
         </button>
       </div>
-      {editing && <CategoryPicker categories={catalog} enabled={enabled} onToggle={onToggleCategory} />}
-      {categories.length > 0 && <div className="field-hint">Tap a row to see every match</div>}
+      {editing && <CategoryPicker categories={catalog} enabled={enabled} onToggle={onToggleCategory} onClear={onClearCategories} />}
+      <div className="field-hint">{categories.length > 0 ? 'Tap a row to see every match' : 'Choose categories to see what’s within a walk.'}</div>
       <div className="nearby-list" role="group" aria-labelledby="nearby-label">
         {categories.map((c) => {
           const result = results[c.id];
