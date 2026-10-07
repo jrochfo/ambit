@@ -300,6 +300,10 @@ button, input { font: inherit; }
 }
 .pin:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
+/* Material Symbols icons (see Icon.tsx) */
+.icon { display: inline-flex; flex: 0 0 auto; }
+.icon svg { width: 100%; height: 100%; fill: currentColor; }
+
 /* Ring picker */
 .pills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .pill-chip {
@@ -321,7 +325,7 @@ button, input { font: inherit; }
   cursor: pointer;
 }
 .pill-toggle { flex: 1 1 auto; min-width: 0; padding: 0 2px 0 10px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pill-remove { flex: 0 0 auto; width: 24px; font-size: 16px; opacity: 0.7; }
+.pill-remove { flex: 0 0 auto; width: 26px; display: inline-flex; align-items: center; justify-content: center; padding: 0; opacity: 0.7; }
 .pill-remove:hover { opacity: 1; }
 .pill-toggle:focus-visible, .pill-remove:focus-visible, .chip:focus-visible, .link-btn:focus-visible {
   outline: 2px solid var(--teal);
@@ -364,6 +368,9 @@ button, input { font: inherit; }
 
 /* Category picker */
 .link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   background: none;
   border: 0;
   padding: 2px 0;
@@ -427,9 +434,10 @@ button, input { font: inherit; }
 .nearby-avatar-btn { padding: 0; cursor: pointer; font: inherit; font-size: 17px; }
 /* Editable emoji: swaps to a pencil on hover or keyboard focus. */
 .avatar-edit { display: none; color: var(--teal-ink); }
+.nearby-avatar-btn .avatar-edit { display: none; }
 .nearby-avatar-btn:hover, .nearby-avatar-btn:focus-visible, .nearby-avatar-btn[aria-expanded='true'] { background: var(--card) !important; }
 .nearby-avatar-btn:hover .avatar-emoji, .nearby-avatar-btn:focus-visible .avatar-emoji { display: none; }
-.nearby-avatar-btn:hover .avatar-edit, .nearby-avatar-btn:focus-visible .avatar-edit { display: block; }
+.nearby-avatar-btn:hover .avatar-edit, .nearby-avatar-btn:focus-visible .avatar-edit { display: inline-flex; }
 .nearby-avatar-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 .emoji-picker {
   margin-top: 6px;
@@ -465,7 +473,7 @@ button, input { font: inherit; }
   text-transform: uppercase;
   color: var(--ink-3);
 }
-.category-option-row { display: flex; align-items: center; min-width: 0; }
+.category-option-row { grid-column: 1 / -1; display: flex; align-items: center; min-width: 0; }
 .category-option-row .category-option { flex: 1 1 auto; min-width: 0; }
 .category-remove {
   flex: 0 0 auto;
@@ -475,7 +483,10 @@ button, input { font: inherit; }
   border-radius: 999px;
   background: none;
   color: var(--ink-3);
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   cursor: pointer;
 }
 .category-remove:hover { background: var(--card); color: var(--danger); }

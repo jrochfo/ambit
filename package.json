@@ -11,6 +11,7 @@
     "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@material-symbols/svg-400": "^0.47.6",
     "@turf/helpers": "^7.4.0",
     "@turf/point-to-polygon-distance": "^7.4.0",
     "@vis.gl/react-google-maps": "^1.10.1",

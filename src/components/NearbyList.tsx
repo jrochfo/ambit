@@ -6,6 +6,7 @@ import { formatMinutes, pillColors } from '../lib/rings';
 import type { CategoryResult } from '../lib/useAnalysis';
 import { AddCategory, type AddOption } from './AddCategory';
 import { CategoryPicker } from './CategoryPicker';
+import { Icon } from './Icon';
 
 export function NearbyList({
   catalog,
@@ -113,7 +114,7 @@ export function NearbyList({
                     onClick={() => setEmojiFor((id) => (id === c.id ? null : c.id))}
                   >
                     <span className="avatar-emoji">{emoji}</span>
-                    <PencilIcon />
+                    <Icon name="edit" size={16} className="avatar-edit" />
                   </button>
                 ) : (
                   <span className="nearby-avatar" style={avatarStyle} aria-hidden="true">
@@ -165,13 +166,6 @@ function EmojiPicker({ category, current, onPick }: { category: Category; curren
   );
 }
 
-function PencilIcon() {
-  return (
-    <svg className="avatar-edit" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M11.5 2.5l2 2L5 13l-3 1 1-3 8.5-8.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 /** Nearby Search returns at most 20 places, so a full page means "at least this many". */
 function MoreCount({ count }: { count: number }) {

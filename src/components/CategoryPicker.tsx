@@ -1,5 +1,6 @@
 import type { Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
+import { Icon } from './Icon';
 
 /** Checklist of every category; each checked one costs one search per address. */
 export function CategoryPicker({
@@ -43,7 +44,7 @@ export function CategoryPicker({
             <div key={c.id} className="category-option-row">
               <Option category={c} checked={enabled.has(c.id)} onToggle={onToggle} />
               <button type="button" className="category-remove" aria-label={`Remove ${c.label}`} onClick={() => onRemove(c.id)}>
-                ×
+                <Icon name="close" size={18} />
               </button>
             </div>
           ))}

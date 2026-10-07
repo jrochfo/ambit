@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { MAX_RING, MAX_RINGS, MIN_RING } from '../../shared/isochrones';
 import { formatMinutes, pillColors } from '../lib/rings';
+import { Icon } from './Icon';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
 /**
- * Active walking rings as pills, three to a row: tap to show or hide, × to remove, "+ Add time" for a preset or
+ * Active walking rings as pills, three to a row: tap to show or hide, close icon to remove, "Add time" for a preset or
  * custom time. Adding a ring costs one Isochrones call per address; hiding is free.
  */
 export function RingPicker({
@@ -47,7 +48,14 @@ export function RingPicker({
         </div>
         {canAdd && (
           <button type="button" className="link-btn" aria-expanded={adding} aria-controls="ring-add" onClick={() => setAdding((a) => !a)}>
-            {adding ? 'Done' : '+ Add time'}
+            {adding ? (
+              'Done'
+            ) : (
+              <>
+                <Icon name="add" size={18} />
+                Add time
+              </>
+            )}
           </button>
         )}
       </div>
@@ -63,7 +71,7 @@ export function RingPicker({
               </button>
               {rings.length > 1 && (
                 <button type="button" className="pill-remove" aria-label={`Remove ${formatMinutes(m)} ring`} onClick={() => onRemove(m)}>
-                  ×
+                  <Icon name="close" size={16} />
                 </button>
               )}
             </span>
