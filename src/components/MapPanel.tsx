@@ -2,7 +2,7 @@ import { Map } from '@vis.gl/react-google-maps';
 import type { Ring } from '../../shared/isochrones';
 import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MAP_STYLE, MAP_STYLE_BLANK, START_ZOOM, randomStartView } from '../lib/mapStyle';
 import { formatMinutes, ringStyle } from '../lib/rings';
 import { CategoryPin } from './CategoryPin';
@@ -33,6 +33,9 @@ export function MapPanel({
 }) {
   const largest = rings[rings.length - 1];
   const [startView] = useState(randomStartView);
+  // At most one spot card held open by a click or tap; cleared for a new address or a map click.
+  const [pinnedSpot, setPinnedSpot] = useState<string | null>(null);
+  useEffect(() => setPinnedSpot(null), [origin]);
   return (
     <section className="card map-panel" aria-label="Map">
       <div className="map-frame">
@@ -45,12 +48,23 @@ export function MapPanel({
           zoomControl
           clickableIcons={false}
           style={{ position: 'absolute', inset: 0 }}
+          onClick={() => setPinnedSpot(null)}
         >
           {rings.map((r, rank) => (hidden.has(r.minutes) ? null : <RingLayer key={r.minutes} ring={r} rank={rank} count={rings.length} />))}
           <FitToRing ring={largest} />
-          {pins.map(({ category, place }) => (
-            <CategoryPin key={`${category.id}:${place.id}`} category={category} place={place} outerRing={largest?.minutes} />
-          ))}
+          {pins.map(({ category, place }) => {
+            const key = `${category.id}:${place.id}`;
+            return (
+              <CategoryPin
+                key={key}
+                category={category}
+                place={place}
+                outerRing={largest?.minutes}
+                pinned={pinnedSpot === key}
+                onTogglePinned={(open) => setPinnedSpot(open ? key : null)}
+              />
+            );
+          })}
           {origin && (
             <MapOverlay position={origin.position}>
               <div className="origin">

@@ -491,3 +491,48 @@ button, input { font: inherit; }
 }
 .category-remove:hover { background: var(--card); color: var(--danger); }
 .category-remove:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+
+/* Spot pins and their cards */
+button.pin { padding: 0; cursor: pointer; font-family: inherit; }
+.spot { position: absolute; }
+.spot-card {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  transform: translateX(-50%);
+  width: max-content;
+  min-width: 180px;
+  max-width: 260px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  box-shadow: 0 8px 24px rgba(20, 32, 31, 0.16);
+  font-family: var(--font);
+  color: var(--ink);
+  text-align: left;
+  cursor: auto;
+}
+/* Near the map's edges, open toward the middle instead of getting clipped. */
+[data-edge-top='true'] .spot-card { bottom: auto; top: 22px; }
+[data-edge-left='true'] .spot-card { transform: none; left: -18px; }
+[data-edge-right='true'] .spot-card { transform: none; left: auto; right: -18px; }
+.spot-card-name { font-size: 15px; font-weight: 700; line-height: 1.25; }
+.spot-card-meta { font-size: 13px; color: var(--ink-3); line-height: 1.35; }
+.spot-card-line { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.spot-card-line .icon { color: var(--teal); }
+.spot-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal);
+  text-decoration: none;
+}
+.spot-card-link:hover { text-decoration: underline; }
+.spot-card-link:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 4px; }

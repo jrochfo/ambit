@@ -10,11 +10,14 @@ import { useMap } from '@vis.gl/react-google-maps';
 export function MapOverlay({
   position,
   interactive = false,
+  zIndex,
   children,
 }: {
   position: google.maps.LatLngLiteral;
   /** Interactive overlays sit in the pane that receives mouse events and don't pan the map. */
   interactive?: boolean;
+  /** Raise an overlay (an open spot card) above its neighbors. */
+  zIndex?: number;
   children: ReactNode;
 }) {
   const map = useMap();
@@ -49,9 +52,21 @@ export function MapOverlay({
       if (!point) return;
       container.style.left = `${point.x}px`;
       container.style.top = `${point.y}px`;
+      // Flag overlays near the map's edges so popups can open the other way (see .spot-card).
+      const onScreen = overlay.getProjection()?.fromLatLngToContainerPixel(position);
+      const mapDiv = overlay.getMap() instanceof google.maps.Map ? (overlay.getMap() as google.maps.Map).getDiv() : null;
+      if (onScreen && mapDiv) {
+        container.dataset.edgeTop = String(onScreen.y < 190);
+        container.dataset.edgeLeft = String(onScreen.x < 140);
+        container.dataset.edgeRight = String(onScreen.x > mapDiv.clientWidth - 140);
+      }
     };
     overlay.draw();
   }, [overlay, position, container]);
+
+  useEffect(() => {
+    container.style.zIndex = zIndex === undefined ? '' : String(zIndex);
+  }, [container, zIndex]);
 
   return createPortal(children, container);
 }

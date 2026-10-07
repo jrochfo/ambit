@@ -8,6 +8,13 @@ export interface FoundPlace {
   id: string;
   name: string;
   position: google.maps.LatLngLiteral;
+  /** Google's label for the place's main type ("Climbing gym"). */
+  typeLabel?: string;
+  /** Street-level address ("3450 20th St"). */
+  address?: string;
+  /** Accessibility features Google reports as present (absent ones may just be unknown). */
+  accessible?: { entrance?: boolean; restroom?: boolean; parking?: boolean };
+  mapsUrl?: string;
 }
 
 /** Raw Nearby Search result for one category at one address, kept so rings can change without re-searching. */
@@ -32,8 +39,18 @@ export interface CategoryMatches {
   within: NearbyPlace[];
 }
 
-// Fields kept to the Nearby Search Pro tier; adding ratings, hours etc. bumps every call to Enterprise.
-const FIELDS = ['id', 'displayName', 'location'];
+// All Pro tier (same price as id/name/location). Ratings, hours, price or website would bump
+// every search to Enterprise ($35/1k, 1k free): fetch those per spot on demand instead.
+const FIELDS = [
+  'id',
+  'displayName',
+  'location',
+  'primaryTypeDisplayName',
+  'shortFormattedAddress',
+  'businessStatus',
+  'accessibilityOptions',
+  'googleMapsURI',
+];
 const MAX_RESULTS = 20;
 
 /**
@@ -63,7 +80,28 @@ export async function searchCategory(
         rankPreference: places.SearchNearbyRankPreference.DISTANCE,
         maxResultCount: MAX_RESULTS,
       });
-  const located = found.flatMap((p) => (p.location ? [{ id: p.id, name: p.displayName ?? 'Unnamed place', position: p.location.toJSON() }] : []));
+  const located = found.flatMap((p): FoundPlace[] => {
+    // A closed laundromat doesn't count as one nearby.
+    if (!p.location || p.businessStatus === 'CLOSED_PERMANENTLY' || p.businessStatus === 'CLOSED_TEMPORARILY') return [];
+    const a = p.accessibilityOptions;
+    return [
+      {
+        id: p.id,
+        name: p.displayName ?? 'Unnamed spot',
+        position: p.location.toJSON(),
+        typeLabel: p.primaryTypeDisplayName ?? undefined,
+        address: p.shortFormattedAddress ?? undefined,
+        accessible: a
+          ? {
+              entrance: a.hasWheelchairAccessibleEntrance ?? undefined,
+              restroom: a.hasWheelchairAccessibleRestroom ?? undefined,
+              parking: a.hasWheelchairAccessibleParking ?? undefined,
+            }
+          : undefined,
+        mapsUrl: p.googleMapsURI ?? undefined,
+      },
+    ];
+  });
   // Callers rely on nearest-first order; Text Search results arrive by relevance.
   if (category.query) located.sort((a, b) => metersBetween(origin, a.position) - metersBetween(origin, b.position));
   return { radius, places: located };
