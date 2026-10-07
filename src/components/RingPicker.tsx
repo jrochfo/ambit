@@ -5,7 +5,7 @@ import { formatMinutes, pillColors } from '../lib/rings';
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
 /**
- * Active walking rings as pills: tap to show or hide, × to remove, + to add a preset or
+ * Active walking rings as pills, three to a row: tap to show or hide, × to remove, "+ Add time" for a preset or
  * custom time. Adding a ring costs one Isochrones call per address; hiding is free.
  */
 export function RingPicker({
@@ -45,8 +45,13 @@ export function RingPicker({
         <div className="field-label" id="walking-time-label">
           Walking time
         </div>
-        <div className="field-hint">Tap to show or hide</div>
+        {canAdd && (
+          <button type="button" className="link-btn" aria-expanded={adding} aria-controls="ring-add" onClick={() => setAdding((a) => !a)}>
+            {adding ? 'Done' : '+ Add time'}
+          </button>
+        )}
       </div>
+      <div className="field-hint">Tap to show or hide</div>
       <div className="pills">
         {rings.map((m, rank) => {
           const shown = !hidden.has(m);
@@ -64,18 +69,6 @@ export function RingPicker({
             </span>
           );
         })}
-        {canAdd && (
-          <button
-            type="button"
-            className="pill-add"
-            aria-expanded={adding}
-            aria-controls="ring-add"
-            aria-label="Add a walking time"
-            onClick={() => setAdding((a) => !a)}
-          >
-            +
-          </button>
-        )}
       </div>
       {adding && canAdd && (
         <div className="ring-add" id="ring-add">

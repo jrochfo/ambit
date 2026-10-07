@@ -2,7 +2,8 @@ export function formatMinutes(m: number): string {
   if (m < 60) return `${m} min`;
   const h = Math.floor(m / 60);
   const rest = m % 60;
-  return rest ? `${h} hr ${rest} min` : `${h} hr`;
+  // Compact form so long custom times still fit a pill (three to a row).
+  return rest ? `${h}h ${rest}m` : `${h} hr`;
 }
 
 // Teal ramp, darkest for the smallest ring. Index by the ring's rank among active rings.

@@ -267,10 +267,9 @@ button, input { font: inherit; }
 .pin:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 /* Ring picker */
-.pills { flex-wrap: wrap; }
+.pills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .pill-chip {
-  flex: 1 1 0;
-  min-width: 72px;
+  min-width: 0;
   min-height: 44px;
   display: inline-flex;
   align-items: stretch;
@@ -287,23 +286,12 @@ button, input { font: inherit; }
   font: inherit;
   cursor: pointer;
 }
-.pill-toggle { flex: 1 1 auto; padding: 0 2px 0 10px; font-size: 15px; font-weight: 600; white-space: nowrap; }
+.pill-toggle { flex: 1 1 auto; min-width: 0; padding: 0 2px 0 10px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pill-remove { flex: 0 0 auto; width: 24px; font-size: 16px; opacity: 0.7; }
 .pill-remove:hover { opacity: 1; }
-.pill-toggle:focus-visible, .pill-remove:focus-visible, .pill-add:focus-visible, .chip:focus-visible, .link-btn:focus-visible {
+.pill-toggle:focus-visible, .pill-remove:focus-visible, .chip:focus-visible, .link-btn:focus-visible {
   outline: 2px solid var(--teal);
   outline-offset: -2px;
-}
-.pill-add {
-  flex: 0 0 44px;
-  min-height: 44px;
-  border-radius: var(--radius-control);
-  border: 1px dashed var(--teal);
-  background: var(--card);
-  color: var(--teal);
-  font-size: 20px;
-  font-weight: 600;
-  cursor: pointer;
 }
 .ring-add {
   display: flex;
