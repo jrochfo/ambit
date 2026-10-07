@@ -1,20 +1,24 @@
 import type { Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 
-/** Checklist of every category; each checked one costs one Nearby Search per address. */
+/** Checklist of every category; each checked one costs one search per address. */
 export function CategoryPicker({
   categories,
+  customs,
   enabled,
   onToggle,
   onClear,
   onReset,
+  onRemove,
   isDefault,
 }: {
   categories: Category[];
+  customs: Category[];
   enabled: ReadonlySet<string>;
   onToggle: (id: string) => void;
   onClear: () => void;
   onReset: () => void;
+  onRemove: (id: string) => void;
   /** Selection already matches the defaults. */
   isDefault: boolean;
 }) {
@@ -32,13 +36,33 @@ export function CategoryPicker({
           </button>
         </span>
       </div>
+      {customs.length > 0 && (
+        <>
+          <div className="category-picker-section">Your categories</div>
+          {customs.map((c) => (
+            <div key={c.id} className="category-option-row">
+              <Option category={c} checked={enabled.has(c.id)} onToggle={onToggle} />
+              <button type="button" className="category-remove" aria-label={`Remove ${c.label}`} onClick={() => onRemove(c.id)}>
+                ×
+              </button>
+            </div>
+          ))}
+          <div className="category-picker-section">Suggested</div>
+        </>
+      )}
       {categories.map((c) => (
-        <label key={c.id} className="category-option">
-          <input type="checkbox" checked={enabled.has(c.id)} onChange={() => onToggle(c.id)} />
-          <span aria-hidden="true">{pickEmoji(c.emoji)}</span>
-          <span className="category-option-label">{c.label}</span>
-        </label>
+        <Option key={c.id} category={c} checked={enabled.has(c.id)} onToggle={onToggle} />
       ))}
     </fieldset>
+  );
+}
+
+function Option({ category, checked, onToggle }: { category: Category; checked: boolean; onToggle: (id: string) => void }) {
+  return (
+    <label className="category-option">
+      <input type="checkbox" checked={checked} onChange={() => onToggle(category.id)} />
+      <span aria-hidden="true">{pickEmoji(category.emoji)}</span>
+      <span className="category-option-label">{category.label}</span>
+    </label>
   );
 }

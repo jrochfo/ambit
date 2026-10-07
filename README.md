@@ -10,7 +10,7 @@ Origin: comparing apartment locations during a move. Google Maps has no "show me
 
 ## Status
 
-Phase 1 built (address search + 5/10/15 minute walking rings). Not yet verified against live Google APIs.
+Phases 1–3 built and live behind Cloudflare Access at ambit.zone: walking rings (custom times), preset and custom categories with pins. Next: phase 4 (saved addresses + comparison grid).
 
 ## Run locally
 

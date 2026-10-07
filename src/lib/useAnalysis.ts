@@ -95,8 +95,8 @@ export function useAnalysis(
           searchCache.set(addr, cached);
         })
         .catch((err: unknown) => {
-          console.error(`Nearby search failed for ${c.label}`, err);
-          failed.current.set(key, err instanceof Error ? err.message : 'Search failed');
+          console.error(`Search failed for ${c.label}`, err);
+          failed.current.set(key, describeSearchError(err));
         })
         .finally(() => {
           pending.current.delete(key);
@@ -131,4 +131,11 @@ export function useAnalysis(
     results,
     retry,
   };
+}
+
+/** Google's quota errors are long and technical; the per-day caps are the common case. */
+function describeSearchError(err: unknown): string {
+  const message = err instanceof Error ? err.message : String(err);
+  if (/RESOURCE_EXHAUSTED|Quota exceeded/i.test(message)) return 'Daily search limit reached. It resets at midnight Pacific time.';
+  return message || 'Search failed';
 }

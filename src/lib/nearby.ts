@@ -36,24 +36,37 @@ export interface CategoryMatches {
 const FIELDS = ['id', 'displayName', 'location'];
 const MAX_RESULTS = 20;
 
-/** One Nearby Search (billed) for a category. */
+/**
+ * One billed search for a category: Nearby Search by place type, or Text Search for
+ * free-text custom categories. Text Search only takes a rectangle, so it gets the circle's
+ * bounding box (ring sorting trims the corners), and it ranks by relevance: ranking by
+ * distance lets weak matches win just by being close ("climbing gym" → any gym).
+ */
 export async function searchCategory(
   places: google.maps.PlacesLibrary,
   origin: google.maps.LatLngLiteral,
   radius: number,
   category: Category,
 ): Promise<CategorySearch> {
-  const { places: found } = await places.Place.searchNearby({
-    fields: FIELDS,
-    includedPrimaryTypes: category.types,
-    locationRestriction: { center: origin, radius },
-    rankPreference: places.SearchNearbyRankPreference.DISTANCE,
-    maxResultCount: MAX_RESULTS,
-  });
-  return {
-    radius,
-    places: found.flatMap((p) => (p.location ? [{ id: p.id, name: p.displayName ?? 'Unnamed place', position: p.location.toJSON() }] : [])),
-  };
+  const { places: found } = category.query
+    ? await places.Place.searchByText({
+        textQuery: category.query,
+        fields: FIELDS,
+        locationRestriction: boundsAround(origin, radius),
+        rankPreference: places.SearchByTextRankPreference.RELEVANCE,
+        maxResultCount: MAX_RESULTS,
+      })
+    : await places.Place.searchNearby({
+        fields: FIELDS,
+        includedPrimaryTypes: category.types,
+        locationRestriction: { center: origin, radius },
+        rankPreference: places.SearchNearbyRankPreference.DISTANCE,
+        maxResultCount: MAX_RESULTS,
+      });
+  const located = found.flatMap((p) => (p.location ? [{ id: p.id, name: p.displayName ?? 'Unnamed place', position: p.location.toJSON() }] : []));
+  // Callers rely on nearest-first order; Text Search results arrive by relevance.
+  if (category.query) located.sort((a, b) => metersBetween(origin, a.position) - metersBetween(origin, b.position));
+  return { radius, places: located };
 }
 
 /**
@@ -98,6 +111,12 @@ export function searchRadius(origin: google.maps.LatLngLiteral, largest: Ring): 
     for (const p of outer ?? []) max = Math.max(max, metersBetween(origin, p));
   }
   return Math.min(Math.max(Math.ceil(max) + 50, 200), 50_000);
+}
+
+function boundsAround(center: google.maps.LatLngLiteral, radius: number): google.maps.LatLngBoundsLiteral {
+  const dLat = radius / 111_320;
+  const dLng = radius / (111_320 * Math.cos((center.lat * Math.PI) / 180));
+  return { north: center.lat + dLat, south: center.lat - dLat, east: center.lng + dLng, west: center.lng - dLng };
 }
 
 function metersBetween(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral): number {

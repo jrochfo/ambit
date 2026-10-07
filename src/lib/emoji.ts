@@ -8,7 +8,7 @@ export function pickEmoji(options: readonly string[]): string {
   return options.find(isSupported) ?? options[options.length - 1]!;
 }
 
-function isSupported(emoji: string): boolean {
+export function isSupported(emoji: string): boolean {
   let ok = support.get(emoji);
   if (ok === undefined) {
     ok = drawsInColor(emoji);
@@ -39,3 +39,11 @@ function drawsInColor(emoji: string): boolean {
     return true;
   }
 }
+
+/** Choices offered when changing a custom category's emoji (unsupported ones are hidden). */
+export const EMOJI_CHOICES = [
+  '📍', '⭐', '❤️', '🏠', '🛍️', '🎁', '🎨', '🎵', '🎮', '📷',
+  '🍕', '🍣', '🍔', '🌮', '🍜', '🥗', '🍦', '🍩', '🧋', '🍺',
+  '🍷', '🧗', '🚲', '🏊', '⛳', '🎾', '🏀', '⚽', '🛹', '🐶',
+  '🐱', '🌸', '🌲', '🏛️', '⛪', '💈', '💅', '🧹', '🔧', '💻',
+];

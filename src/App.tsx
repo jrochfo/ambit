@@ -6,7 +6,8 @@ import { AddressSearch, type SearchTarget } from './components/AddressSearch';
 import { RingPicker } from './components/RingPicker';
 import { MapPanel, type Origin, type Pin } from './components/MapPanel';
 import { NearbyList } from './components/NearbyList';
-import { CATEGORIES, DEFAULT_CATEGORY_IDS } from './lib/categories';
+import { CATEGORIES, DEFAULT_CATEGORY_IDS, isCustomCategoryList, makeCustomCategory, type Category } from './lib/categories';
+import type { AddOption } from './components/AddCategory';
 import { loadPref, savePref } from './lib/storage';
 import { useAnalysis } from './lib/useAnalysis';
 
@@ -43,13 +44,15 @@ function Ambit() {
   );
   const [hiddenRings, setHiddenRings] = useState<ReadonlySet<number>>(() => new Set());
   const [categoryIds, setCategoryIds] = useState<ReadonlySet<string>>(() => new Set(loadPref('categories', DEFAULT_CATEGORY_IDS, isStringList)));
+  const [customs, setCustoms] = useState<Category[]>(() => loadPref('customCategories', [], isCustomCategoryList));
   const [focused, setFocused] = useState<string | null>(null);
   const lookup = useRef(0);
 
   useEffect(() => savePref('rings', ringMinutes), [ringMinutes]);
   useEffect(() => savePref('categories', [...categoryIds]), [categoryIds]);
+  useEffect(() => savePref('customCategories', customs), [customs]);
 
-  const categories = useMemo(() => CATEGORIES.filter((c) => categoryIds.has(c.id)), [categoryIds]);
+  const categories = useMemo(() => [...CATEGORIES, ...customs].filter((c) => categoryIds.has(c.id)), [categoryIds, customs]);
   const position = origin?.position ?? null;
   const analysis = useAnalysis(places, position, ringMinutes, categories);
   const { retry } = analysis;
@@ -91,6 +94,37 @@ function Ambit() {
     setCategoryIds(new Set());
     setFocused(null);
   }, []);
+  // Adding turns the category on; a type or query that already exists is reused, not duplicated.
+  const addCategory = useCallback(
+    (option: AddOption) => {
+      let id: string;
+      if (option.kind === 'existing') id = option.category.id;
+      else {
+        const match = customs.find((c) => (option.kind === 'type' ? c.types[0] === option.type : c.query?.toLowerCase() === option.text.toLowerCase()));
+        if (match) id = match.id;
+        else {
+          const label = option.kind === 'type' ? option.label : option.text.charAt(0).toUpperCase() + option.text.slice(1);
+          const created = makeCustomCategory(option.kind === 'type' ? { label, type: option.type } : { label, query: option.text }, customs);
+          setCustoms((prev) => [...prev, created]);
+          id = created.id;
+        }
+      }
+      setCategoryIds((prev) => new Set([...prev, id]));
+    },
+    [customs],
+  );
+  const removeCustom = useCallback((id: string) => {
+    setCustoms((prev) => prev.filter((c) => c.id !== id));
+    setCategoryIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    setFocused((f) => (f === id ? null : f));
+  }, []);
+  const setCustomEmoji = useCallback((id: string, emoji: string) => {
+    setCustoms((prev) => prev.map((c) => (c.id === id ? { ...c, emoji: [emoji] } : c)));
+  }, []);
   const toggleCategory = useCallback((id: string) => {
     setCategoryIds((prev) => toggled(prev, id));
     setFocused((f) => (f === id ? null : f));
@@ -128,6 +162,7 @@ function Ambit() {
             <StatusLine status={shownStatus} />
             <NearbyList
               catalog={CATEGORIES}
+              customs={customs}
               categories={categories}
               results={analysis.results}
               rings={analysis.rings.map((r) => r.minutes)}
@@ -136,6 +171,9 @@ function Ambit() {
               onToggleCategory={toggleCategory}
               onClearCategories={clearCategories}
               onResetCategories={resetCategories}
+              onAddCategory={addCategory}
+              onRemoveCustom={removeCustom}
+              onSetEmoji={setCustomEmoji}
             />
           </div>
         </aside>

@@ -12,6 +12,10 @@ export interface Category {
    * point per place; for parks and campuses that's the middle, while you walk to the edge.
    */
   edgeTolerance?: number;
+  /** Free-text custom category: found with Text Search instead of by type. */
+  query?: string;
+  /** Added by the user (stored in their browser), so it can be removed or re-emojied. */
+  custom?: boolean;
 }
 
 /** Slack for ordinary places: absorbs small gaps between the Isochrones API and Maps directions. */
@@ -53,3 +57,36 @@ export const CATEGORIES: Category[] = [
 ];
 
 export const DEFAULT_CATEGORY_IDS = ['grocery', 'transit', 'drugstore', 'park', 'coffee'];
+
+// Custom categories rotate through these so each gets its own pin border.
+const CUSTOM_COLORS = ['#0E7C74', '#C0562E', '#5A4B8C', '#2F7D32', '#B53A5A', '#1F5FA8', '#A86300', '#7B3FA0'];
+export const CUSTOM_EMOJI = '📍';
+
+/** A user-added category: either a Google place type (precise) or free text (Text Search). */
+export function makeCustomCategory(spec: { label: string; type?: string; query?: string }, existing: Category[]): Category {
+  return {
+    id: `custom-${Date.now().toString(36)}`,
+    label: spec.label,
+    emoji: [CUSTOM_EMOJI],
+    color: CUSTOM_COLORS[existing.length % CUSTOM_COLORS.length]!,
+    types: spec.type ? [spec.type] : [],
+    ...(spec.query ? { query: spec.query } : {}),
+    custom: true,
+  };
+}
+
+export function isCustomCategoryList(v: unknown): v is Category[] {
+  return (
+    Array.isArray(v) &&
+    v.every(
+      (c) =>
+        c &&
+        typeof c.id === 'string' &&
+        typeof c.label === 'string' &&
+        Array.isArray(c.emoji) &&
+        typeof c.color === 'string' &&
+        Array.isArray(c.types) &&
+        (c.types.length > 0 || typeof c.query === 'string'),
+    )
+  );
+}
