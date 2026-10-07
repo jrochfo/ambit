@@ -112,17 +112,20 @@ function Ambit() {
       <main className="main">
         <aside className="card sidebar">
           <AddressSearch busy={status.kind === 'busy' || !geocoding || !places} onSearch={mapAddress} />
-          <RingPicker rings={ringMinutes} hidden={hiddenRings} onToggle={toggleRing} onAdd={addRing} onRemove={removeRing} />
-          <StatusLine status={shownStatus} />
-          <NearbyList
-            catalog={CATEGORIES}
-            categories={categories}
-            results={analysis.results}
-            rings={analysis.rings.map((r) => r.minutes)}
-            focused={focused}
-            onFocus={setFocused}
-            onToggleCategory={toggleCategory}
-          />
+          {/* Scrolls inside the card when side by side with the map, so the sidebar never outgrows it. */}
+          <div className="sidebar-scroll">
+            <RingPicker rings={ringMinutes} hidden={hiddenRings} onToggle={toggleRing} onAdd={addRing} onRemove={removeRing} />
+            <StatusLine status={shownStatus} />
+            <NearbyList
+              catalog={CATEGORIES}
+              categories={categories}
+              results={analysis.results}
+              rings={analysis.rings.map((r) => r.minutes)}
+              focused={focused}
+              onFocus={setFocused}
+              onToggleCategory={toggleCategory}
+            />
+          </div>
         </aside>
         <MapPanel origin={origin} rings={analysis.rings} hidden={hiddenRings} pins={pins} />
       </main>
