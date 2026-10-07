@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DEFAULT_CATEGORY_IDS, type Category } from '../lib/categories';
-import { EMOJI_CHOICES, isSupported, pickEmoji } from '../lib/emoji';
+import { pickEmoji } from '../lib/emoji';
+import { allEmoji, suggestEmoji } from '../lib/emojiTags';
 import { formatMinutes, pillColors } from '../lib/rings';
 import type { CategoryResult } from '../lib/useAnalysis';
 import { AddCategory, type AddOption } from './AddCategory';
@@ -111,7 +112,8 @@ export function NearbyList({
                     aria-expanded={emojiFor === c.id}
                     onClick={() => setEmojiFor((id) => (id === c.id ? null : c.id))}
                   >
-                    {emoji}
+                    <span className="avatar-emoji">{emoji}</span>
+                    <PencilIcon />
                   </button>
                 ) : (
                   <span className="nearby-avatar" style={avatarStyle} aria-hidden="true">
@@ -119,22 +121,14 @@ export function NearbyList({
                   </span>
                 )}
                 {emojiFor === c.id && (
-                  <div className="emoji-grid" role="group" aria-label={`Emoji for ${c.label}`}>
-                    {EMOJI_CHOICES.filter(isSupported).map((e) => (
-                      <button
-                        key={e}
-                        type="button"
-                        className="emoji-choice"
-                        aria-pressed={e === emoji}
-                        onClick={() => {
-                          onSetEmoji(c.id, e);
-                          setEmojiFor(null);
-                        }}
-                      >
-                        {e}
-                      </button>
-                    ))}
-                  </div>
+                  <EmojiPicker
+                    category={c}
+                    current={emoji}
+                    onPick={(e) => {
+                      onSetEmoji(c.id, e);
+                      setEmojiFor(null);
+                    }}
+                  />
                 )}
               </div>
             );
@@ -143,6 +137,39 @@ export function NearbyList({
       </div>
       <AddCategory categories={[...catalog, ...customs]} enabled={enabled} onAdd={onAddCategory} />
     </>
+  );
+}
+
+/** Suggested emoji for the category's name first, then everything else. */
+function EmojiPicker({ category, current, onPick }: { category: Category; current: string; onPick: (emoji: string) => void }) {
+  const suggested = suggestEmoji(category.label, category.types[0])
+    .slice(0, 6)
+    .map((s) => s.emoji);
+  const more = allEmoji().filter((e) => !suggested.includes(e));
+  const choice = (e: string) => (
+    <button key={e} type="button" className="emoji-choice" aria-pressed={e === current} onClick={() => onPick(e)}>
+      {e}
+    </button>
+  );
+  return (
+    <div className="emoji-picker" role="group" aria-label={`Emoji for ${category.label}`}>
+      {suggested.length > 0 && (
+        <>
+          <div className="emoji-section">Suggested</div>
+          <div className="emoji-grid">{suggested.map(choice)}</div>
+          <div className="emoji-section">More</div>
+        </>
+      )}
+      <div className="emoji-grid emoji-grid-more">{more.map(choice)}</div>
+    </div>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg className="avatar-edit" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M11.5 2.5l2 2L5 13l-3 1 1-3 8.5-8.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
   );
 }
 

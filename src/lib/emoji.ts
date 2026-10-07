@@ -40,10 +40,3 @@ function drawsInColor(emoji: string): boolean {
   }
 }
 
-/** Choices offered when changing a custom category's emoji (unsupported ones are hidden). */
-export const EMOJI_CHOICES = [
-  '📍', '⭐', '❤️', '🏠', '🛍️', '🎁', '🎨', '🎵', '🎮', '📷',
-  '🍕', '🍣', '🍔', '🌮', '🍜', '🥗', '🍦', '🍩', '🧋', '🍺',
-  '🍷', '🧗', '🚲', '🏊', '⛳', '🎾', '🏀', '⚽', '🛹', '🐶',
-  '🐱', '🌸', '🌲', '🏛️', '⛪', '💈', '💅', '🧹', '🔧', '💻',
-];

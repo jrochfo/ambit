@@ -425,17 +425,24 @@ button, input { font: inherit; }
 .nearby-item .nearby-row { padding-left: 54px; }
 .nearby-item > .nearby-avatar { position: absolute; left: 13px; top: 11px; }
 .nearby-avatar-btn { padding: 0; cursor: pointer; font: inherit; font-size: 17px; }
-.nearby-avatar-btn:hover { box-shadow: 0 0 0 3px var(--teal-pale); }
+/* Editable emoji: swaps to a pencil on hover or keyboard focus. */
+.avatar-edit { display: none; color: var(--teal-ink); }
+.nearby-avatar-btn:hover, .nearby-avatar-btn:focus-visible, .nearby-avatar-btn[aria-expanded='true'] { background: var(--card) !important; }
+.nearby-avatar-btn:hover .avatar-emoji, .nearby-avatar-btn:focus-visible .avatar-emoji { display: none; }
+.nearby-avatar-btn:hover .avatar-edit, .nearby-avatar-btn:focus-visible .avatar-edit { display: block; }
 .nearby-avatar-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-.emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
-  gap: 4px;
+.emoji-picker {
   margin-top: 6px;
   padding: 8px;
   border-radius: var(--radius-control);
   background: var(--page);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+.emoji-section { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); padding: 2px 4px 0; }
+.emoji-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(36px, 1fr)); gap: 4px; }
+.emoji-grid-more { max-height: 164px; overflow-y: auto; }
 .emoji-choice {
   height: 36px;
   border: 1px solid transparent;

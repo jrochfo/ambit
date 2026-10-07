@@ -63,11 +63,11 @@ const CUSTOM_COLORS = ['#0E7C74', '#C0562E', '#5A4B8C', '#2F7D32', '#B53A5A', '#
 export const CUSTOM_EMOJI = '📍';
 
 /** A user-added category: either a Google place type (precise) or free text (Text Search). */
-export function makeCustomCategory(spec: { label: string; type?: string; query?: string }, existing: Category[]): Category {
+export function makeCustomCategory(spec: { label: string; type?: string; query?: string; emoji?: string }, existing: Category[]): Category {
   return {
     id: `custom-${Date.now().toString(36)}`,
     label: spec.label,
-    emoji: [CUSTOM_EMOJI],
+    emoji: [spec.emoji ?? CUSTOM_EMOJI],
     color: CUSTOM_COLORS[existing.length % CUSTOM_COLORS.length]!,
     types: spec.type ? [spec.type] : [],
     ...(spec.query ? { query: spec.query } : {}),

@@ -8,6 +8,7 @@ import { MapPanel, type Origin, type Pin } from './components/MapPanel';
 import { NearbyList } from './components/NearbyList';
 import { CATEGORIES, DEFAULT_CATEGORY_IDS, isCustomCategoryList, makeCustomCategory, type Category } from './lib/categories';
 import type { AddOption } from './components/AddCategory';
+import { strongEmojiMatch } from './lib/emojiTags';
 import { loadPref, savePref } from './lib/storage';
 import { useAnalysis } from './lib/useAnalysis';
 
@@ -104,7 +105,12 @@ function Ambit() {
         if (match) id = match.id;
         else {
           const label = option.kind === 'type' ? option.label : option.text.charAt(0).toUpperCase() + option.text.slice(1);
-          const created = makeCustomCategory(option.kind === 'type' ? { label, type: option.type } : { label, query: option.text }, customs);
+          // Start from a confident emoji match ("Climbing gym" → 🧗), else the pin.
+          const emoji = strongEmojiMatch(label, option.kind === 'type' ? option.type : undefined) ?? undefined;
+          const created = makeCustomCategory(
+            option.kind === 'type' ? { label, type: option.type, emoji } : { label, query: option.text, emoji },
+            customs,
+          );
           setCustoms((prev) => [...prev, created]);
           id = created.id;
         }
