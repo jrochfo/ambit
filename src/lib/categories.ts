@@ -7,7 +7,16 @@ export interface Category {
   color: string;
   /** Google place types (Places API (New), Table A), matched against each place's primary type. */
   types: string[];
+  /**
+   * How far outside a ring edge (meters) a place still counts as inside it. Google gives one
+   * point per place; for parks and campuses that's the middle, while you walk to the edge.
+   */
+  edgeTolerance?: number;
 }
+
+/** Slack for ordinary places: absorbs small gaps between the Isochrones API and Maps directions. */
+export const DEFAULT_EDGE_TOLERANCE = 40;
+const AREA_TOLERANCE = 120;
 
 // Each enabled category costs one Nearby Search per mapped address.
 export const CATEGORIES: Category[] = [
@@ -15,7 +24,7 @@ export const CATEGORIES: Category[] = [
   { id: 'coffee', label: 'Coffee shop', emoji: ['☕'], color: '#8A5A2B', types: ['coffee_shop', 'cafe', 'coffee_roastery'] },
   { id: 'drugstore', label: 'Drugstore', emoji: ['💊'], color: '#B53A2D', types: ['pharmacy', 'drugstore'] },
   { id: 'gym', label: 'Gym', emoji: ['🏋️', '💪'], color: '#A86300', types: ['gym', 'fitness_center'] },
-  { id: 'park', label: 'Park', emoji: ['🌳'], color: '#3F7F3A', types: ['park'] },
+  { id: 'park', label: 'Park', emoji: ['🌳'], color: '#3F7F3A', types: ['park'], edgeTolerance: AREA_TOLERANCE },
   { id: 'transit', label: 'Transit stop', emoji: ['🚇', '🚉'], color: '#1F5FA8', types: ['subway_station', 'train_station', 'light_rail_station'] },
   { id: 'bus', label: 'Bus stop', emoji: ['🚏'], color: '#3B6E9E', types: ['bus_stop'] },
   { id: 'restaurant', label: 'Restaurant', emoji: ['🍽️', '🍴'], color: '#C0562E', types: ['restaurant'] },
@@ -28,12 +37,12 @@ export const CATEGORIES: Category[] = [
   { id: 'liquor', label: 'Liquor store', emoji: ['🍷'], color: '#7A2E3B', types: ['liquor_store'] },
   { id: 'hardware', label: 'Hardware store', emoji: ['🔨'], color: '#6B5B4B', types: ['hardware_store', 'home_improvement_store'] },
   { id: 'library', label: 'Library', emoji: ['📚'], color: '#4B5A8C', types: ['library'] },
-  { id: 'school', label: 'School', emoji: ['🏫'], color: '#8C6B1F', types: ['school', 'primary_school'] },
-  { id: 'dogpark', label: 'Dog park', emoji: ['🐕'], color: '#7A5A3A', types: ['dog_park'] },
+  { id: 'school', label: 'School', emoji: ['🏫'], color: '#8C6B1F', types: ['school', 'primary_school'], edgeTolerance: AREA_TOLERANCE },
+  { id: 'dogpark', label: 'Dog park', emoji: ['🐕'], color: '#7A5A3A', types: ['dog_park'], edgeTolerance: AREA_TOLERANCE },
   { id: 'vet', label: 'Vet', emoji: ['🐾'], color: '#5A7A5A', types: ['veterinary_care'] },
   { id: 'doctor', label: 'Doctor', emoji: ['🩺', '🏥'], color: '#B53A5A', types: ['doctor'] },
   { id: 'post', label: 'Post office', emoji: ['📮'], color: '#B04A2A', types: ['post_office'] },
   { id: 'bank', label: 'Bank or ATM', emoji: ['🏦'], color: '#3A5A7A', types: ['bank', 'atm'] },
 ];
 
-export const DEFAULT_CATEGORY_IDS = ['grocery', 'coffee', 'drugstore', 'gym', 'park'];
+export const DEFAULT_CATEGORY_IDS = ['grocery', 'transit', 'drugstore', 'park', 'coffee'];

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { Ring } from '../../shared/isochrones';
 import { fetchIsochrones } from './api';
-import type { Category } from './categories';
+import { DEFAULT_EDGE_TOLERANCE, type Category } from './categories';
 import { classify, needsWiderSearch, ringShapes, searchCategory, searchRadius, type CategoryMatches, type CategorySearch } from './nearby';
 
 export type CategoryResult = { status: 'loading' } | { status: 'error'; message: string } | ({ status: 'done' } & CategoryMatches);
@@ -72,7 +72,7 @@ export function useAnalysis(
     const cached = addr ? searchCache.get(addr) : undefined;
     for (const c of categories) {
       const search = cached?.get(c.id);
-      if (search) out[c.id] = classify(search, shapes);
+      if (search) out[c.id] = classify(search, shapes, c.edgeTolerance ?? DEFAULT_EDGE_TOLERANCE);
     }
     return out;
   }, [addr, categories, shapes, version]);

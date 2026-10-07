@@ -1,5 +1,5 @@
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { multiPolygon, point } from '@turf/helpers';
+import pointToPolygonDistance from '@turf/point-to-polygon-distance';
 import type { Ring } from '../../shared/isochrones';
 import type { Category } from './categories';
 import { toPolygonPaths } from './geojson';
@@ -77,10 +77,13 @@ export function ringShapes(rings: Ring[]): RingShapes {
     }));
 }
 
-export function classify(search: CategorySearch, shapes: RingShapes): CategoryMatches {
+/** Sorts places into rings. A place counts as inside a ring if it's within `edgeTolerance` meters of its edge. */
+export function classify(search: CategorySearch, shapes: RingShapes, edgeTolerance: number): CategoryMatches {
   const placed: NearbyPlace[] = search.places.map((p) => {
     const pt = point([p.position.lng, p.position.lat]);
-    return { ...p, ring: shapes.find((s) => booleanPointInPolygon(pt, s.shape))?.minutes ?? null };
+    // Negative inside the ring, positive outside.
+    const ring = shapes.find((s) => pointToPolygonDistance(pt, s.shape, { units: 'meters' }) <= edgeTolerance);
+    return { ...p, ring: ring?.minutes ?? null };
   });
   // Places arrive nearest first, so the first one in the best ring is the one to pin.
   const rank = (r: number | null) => r ?? Infinity;
