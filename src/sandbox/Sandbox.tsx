@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Icon } from '../components/Icon';
+import { loadPref, savePref } from '../lib/storage';
 import { DEFAULT_RINGS, MAX_RINGS } from '../../shared/isochrones';
 import { AddressSearch } from '../components/AddressSearch';
 import type { AddOption } from '../components/AddCategory';
@@ -198,7 +200,10 @@ export function Sandbox() {
   );
 }
 
-/** Sandbox-only controls for jumping between states. */
+/**
+ * Sandbox-only controls for jumping between states: a panel floating at the bottom of the
+ * window (out of the page's layout), collapsible to a small pill. Remembers which per browser.
+ */
 function SandboxBar(props: {
   mapped: boolean;
   onMapped: (on: boolean) => void;
@@ -207,13 +212,27 @@ function SandboxBar(props: {
   savedCount: number;
   onSaved: (on: boolean) => void;
 }) {
+  const [open, setOpen] = useState(() => loadPref('sandboxBarOpen', true, (v): v is boolean => typeof v === 'boolean'));
+  useEffect(() => savePref('sandboxBarOpen', open), [open]);
+
+  if (!open)
+    return (
+      <button type="button" className="sandbox-pill" aria-expanded={false} aria-controls="sandbox-bar" onClick={() => setOpen(true)}>
+        <Icon name="tune" size={18} />
+        Sandbox
+      </button>
+    );
+
   return (
-    <div className="sandbox-bar" role="region" aria-label="Design sandbox controls">
+    <div className="sandbox-bar" id="sandbox-bar" role="region" aria-label="Design sandbox controls">
       <strong>Design sandbox</strong>
       <span className="sandbox-note">Fake data, no Google calls</span>
       <Choice label="Map" value={props.mapped ? 'mapped' : 'empty'} options={['mapped', 'empty']} onChange={(v) => props.onMapped(v === 'mapped')} />
       <Choice label="Results" value={props.results} options={['loaded', 'loading', 'limit']} onChange={(v) => props.onResults(v as Results)} />
       <Choice label="Saved" value={props.savedCount > 0 ? 'some' : 'none'} options={['some', 'none']} onChange={(v) => props.onSaved(v === 'some')} />
+      <button type="button" className="sandbox-hide" aria-label="Hide sandbox controls" aria-expanded={true} onClick={() => setOpen(false)}>
+        <Icon name="keyboardArrowDown" size={20} />
+      </button>
     </div>
   );
 }

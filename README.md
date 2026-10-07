@@ -26,7 +26,7 @@ npm run dev            # http://localhost:5173 — serves the app and the /api/i
 
 ## Design sandbox
 
-`npm run dev`, then open http://localhost:5173/sandbox.html. It renders the real components (sidebar, ring picker, categories and custom categories, save control, spot cards, comparison grid) with deterministic fake data on a drawn map, and makes no Google calls, so styling can be edited without spending quota. Everything is interactive (add rings, categories, custom categories, focus a category, click grid cells), and the yellow bar switches between states: mapped or empty map, loaded / loading / daily-limit results, saved addresses or none.
+`npm run dev`, then open http://localhost:5173/sandbox.html. It renders the real components (sidebar, ring picker, categories and custom categories, save control, spot cards, comparison grid) with deterministic fake data on a drawn map, and makes no Google calls, so styling can be edited without spending quota. Everything is interactive (add rings, categories, custom categories, focus a category, click grid cells), and the floating panel at the bottom (hide it to a "Sandbox" pill with the arrow) switches between states: mapped or empty map, loaded / loading / daily-limit results, saved addresses or none.
 
 - App styles: `src/styles.css` (color and type tokens at the top). Edits hot-reload in both the app and the sandbox.
 - The real map's basemap colors live in `src/lib/mapStyle.ts`; the sandbox's drawn map only approximates them.
