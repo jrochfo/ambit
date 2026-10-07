@@ -1,7 +1,7 @@
 import type { Ring } from '../../shared/isochrones';
 import { fetchIsochrones } from './api';
 import { DEFAULT_EDGE_TOLERANCE, type Category } from './categories';
-import { classify, needsWiderSearch, searchCategory, type CategoryMatches, type CategorySearch, type RingShapes } from './nearby';
+import { MAX_RESULTS, classify, needsWiderSearch, searchCategory, type CategoryMatches, type CategorySearch, type RingShapes } from './nearby';
 
 /**
  * Shared, session-only caches for every address on screen (the map and each comparison
@@ -17,6 +17,8 @@ export interface CachedSearch extends CategorySearch {
 }
 
 const ringCache = new Map<string, Map<number, Ring>>();
+/** Spot names by place ID: from searches (free) or looked up for the grid (Place Details). */
+const nameCache = new Map<string, string>();
 const searchCache = new Map<string, Map<string, CachedSearch>>();
 const pending = new Set<string>();
 // Failures aren't retried automatically (that could loop on billed calls); clearFailures() resets.
@@ -37,6 +39,9 @@ export const getVersion = () => version;
 export const addressKey = (p: google.maps.LatLngLiteral) => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`;
 const ringKey = (addr: string, m: number) => `ring|${addr}|${m}`;
 const searchKey = (addr: string, categoryId: string) => `search|${addr}|${categoryId}`;
+const spreadKey = (addr: string, categoryId: string) => `spread|${addr}|${categoryId}`;
+const nameKey = (placeId: string) => `name|${placeId}`;
+const SPREAD = '#spread';
 
 /** Cached rings for an address among `minutes`, ascending. */
 export function ringsFor(addr: string, minutes: number[]): Ring[] {
@@ -97,7 +102,6 @@ export function ensureSearch(
   places: google.maps.PlacesLibrary,
   origin: google.maps.LatLngLiteral,
   radius: number,
-  shapes: RingShapes,
   category: Category,
   needNames: boolean,
 ): void {
@@ -105,7 +109,7 @@ export function ensureSearch(
   const key = searchKey(addr, category.id);
   if (pending.has(key) || failed.has(key)) return;
   const cached = getSearch(addr, category.id);
-  if (cached && (cached.named || !needNames) && !needsWiderSearch(cached, radius, classifyFor(cached, shapes, category))) return;
+  if (cached && (cached.named || !needNames) && !needsWiderSearch(cached, radius)) return;
 
   pending.add(key);
   emit();
@@ -114,6 +118,7 @@ export function ensureSearch(
       const byCategory = searchCache.get(addr) ?? new Map<string, CachedSearch>();
       byCategory.set(category.id, { ...result, at: Date.now(), named: true });
       searchCache.set(addr, byCategory);
+      result.places.forEach((p) => nameCache.set(p.id, p.name));
     })
     .catch((err: unknown) => {
       console.error(`Search failed for ${category.label}`, err);
@@ -123,6 +128,77 @@ export function ensureSearch(
       pending.delete(key);
       emit();
     });
+}
+
+/**
+ * For a focused category whose nearest-first search was full (20), one more search for the
+ * 20 most popular across the whole area, so outer rings show spots too. Type categories only:
+ * Text Search already ranks by relevance across the area.
+ */
+export function ensureSpreadSearch(
+  places: google.maps.PlacesLibrary,
+  origin: google.maps.LatLngLiteral,
+  radius: number,
+  category: Category,
+): void {
+  const addr = addressKey(origin);
+  const primary = getSearch(addr, category.id);
+  if (category.query || !primary?.named || primary.places.length < MAX_RESULTS) return;
+  const key = spreadKey(addr, category.id);
+  const cached = getSpreadSearch(addr, category.id);
+  if (pending.has(key) || failed.has(key) || (cached && cached.radius >= radius)) return;
+
+  pending.add(key);
+  emit();
+  searchCategory(places, origin, radius, category, 'spread')
+    .then((result) => {
+      const byCategory = searchCache.get(addr) ?? new Map<string, CachedSearch>();
+      byCategory.set(category.id + SPREAD, { ...result, at: Date.now(), named: true });
+      searchCache.set(addr, byCategory);
+      result.places.forEach((p) => nameCache.set(p.id, p.name));
+    })
+    .catch((err: unknown) => {
+      console.error(`Spread search failed for ${category.label}`, err);
+      failed.set(key, describeSearchError(err));
+    })
+    .finally(() => {
+      pending.delete(key);
+      emit();
+    });
+}
+
+export function getSpreadSearch(addr: string, categoryId: string): CachedSearch | undefined {
+  return searchCache.get(addr)?.get(categoryId + SPREAD);
+}
+
+export function getName(placeId: string): string | undefined {
+  return nameCache.get(placeId);
+}
+
+/**
+ * Looks up names for spots shown in the comparison grid (one Place Details call each, name
+ * only; cached for the session, never stored, per Google's terms).
+ */
+export function ensureNames(places: google.maps.PlacesLibrary, placeIds: string[]): void {
+  for (const id of new Set(placeIds)) {
+    const key = nameKey(id);
+    if (nameCache.has(id) || pending.has(key) || failed.has(key)) continue;
+    pending.add(key);
+    const place = new places.Place({ id });
+    place
+      .fetchFields({ fields: ['displayName'] })
+      .then(() => {
+        if (place.displayName) nameCache.set(id, place.displayName);
+      })
+      .catch((err: unknown) => {
+        console.error('Name lookup failed', err);
+        failed.set(key, describeSearchError(err));
+      })
+      .finally(() => {
+        pending.delete(key);
+        emit();
+      });
+  }
 }
 
 /** Restores a saved search (IDs and coordinates only) without a call; never overwrites a live one. */

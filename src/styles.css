@@ -542,7 +542,7 @@ button, input { font: inherit; }
 .compare-table thead th { border-bottom-color: var(--border); }
 .compare-corner { white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--ink-3); }
 .compare-category { font-size: 15px; font-weight: 500; white-space: nowrap; }
-.compare-col { position: relative; font-size: 14px; min-width: 170px; max-width: 240px; padding-right: 40px !important; }
+.compare-col { position: relative; font-size: 14px; min-width: 200px; max-width: 260px; padding-right: 40px !important; }
 .compare-col[aria-current='true'], .compare-table td[aria-current='true'] { background: #f2f8f7; }
 .compare-col-head { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .compare-col-name {
@@ -566,14 +566,23 @@ button, input { font: inherit; }
 .compare-col:hover .compare-rename-btn, .compare-rename-btn:focus-visible { opacity: 1; }
 .compare-remove { position: absolute; top: 8px; right: 6px; }
 .compare-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 240px;
   padding: 0;
   border: 0;
   border-radius: 999px;
   background: none;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
 }
+.compare-spot { min-width: 0; font-size: 13px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compare-spot-loading { color: var(--muted-border); }
+.compare-cell:hover .compare-spot { color: var(--teal); text-decoration: underline; }
 .compare-cell:hover .grid-pill { box-shadow: 0 0 0 3px var(--teal-pale); }
-.compare-cell:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.compare-cell:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; border-radius: 8px; }
 .icon-btn {
   width: 28px;
   height: 28px;

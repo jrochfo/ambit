@@ -97,7 +97,9 @@ export function NearbyList({
                     {place && (
                       <span className="nearby-place">
                         {place.name}
-                        {isFocused && result?.status === 'done' && result.within.length > 1 && <MoreCount count={result.within.length} />}
+                        {isFocused && result?.status === 'done' && result.within.length > 1 && (
+                          <MoreCount count={result.within.length} capped={result.capped} />
+                        )}
                       </span>
                     )}
                   </span>
@@ -167,9 +169,9 @@ function EmojiPicker({ category, current, onPick }: { category: Category; curren
 }
 
 
-/** Nearby Search returns at most 20 places, so a full page means "at least this many". */
-function MoreCount({ count }: { count: number }) {
-  return <>{count >= 20 ? ` + ${count - 1} more spots (nearest 20 shown)` : ` + ${count - 1} more ${count === 2 ? 'spot' : 'spots'}`}</>;
+/** Searches return at most 20 places, so a capped search means there are likely more. */
+function MoreCount({ count, capped }: { count: number; capped: boolean }) {
+  return <>{` + ${count - 1} more ${count === 2 ? 'spot' : 'spots'}${capped ? ' (not all shown)' : ''}`}</>;
 }
 
 function RingPill({ result, rings }: { result: CategoryResult | undefined; rings: number[] }) {

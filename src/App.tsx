@@ -87,7 +87,7 @@ function Ambit() {
 
   const categories = useMemo(() => [...CATEGORIES, ...customs].filter((c) => categoryIds.has(c.id)), [categoryIds, customs]);
   const position = origin?.position ?? null;
-  const analysis = useAnalysis(places, position, ringMinutes, categories);
+  const analysis = useAnalysis(places, position, ringMinutes, categories, focused);
   const currentSaved = origin ? saved.find((a) => addressKey(a.position) === addressKey(origin.position)) : undefined;
 
   const updateResults = useCallback((id: string, results: SavedResults) => {

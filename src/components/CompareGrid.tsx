@@ -102,6 +102,7 @@ export function CompareGrid({
                         onClick={() => onSelectCell(a, c.id)}
                       >
                         <CellPill cell={cells[a.id]?.[c.id]} rings={rings} />
+                        <CellName cell={cells[a.id]?.[c.id]} />
                       </button>
                     </td>
                   ))}
@@ -135,7 +136,8 @@ export function CompareGrid({
 function describeCell(cell: Cell | undefined, within: string): string {
   if (!cell || cell.status === 'loading') return 'loading';
   if (cell.status === 'error') return cell.message;
-  return cell.ring === null ? `nothing within ${within}` : `within ${formatMinutes(cell.ring)}`;
+  if (cell.ring === null) return `nothing within ${within}`;
+  return `within ${formatMinutes(cell.ring)}${cell.spotName ? `, ${cell.spotName}` : ''}`;
 }
 
 function CellPill({ cell, rings }: { cell: Cell | undefined; rings: number[] }) {
@@ -163,6 +165,11 @@ function CellPill({ cell, rings }: { cell: Cell | undefined; rings: number[] }) 
       {cell.ring < 60 ? cell.ring : formatMinutes(cell.ring)}
     </span>
   );
+}
+
+function CellName({ cell }: { cell: Cell | undefined }) {
+  if (cell?.status !== 'done' || !cell.spotId) return null;
+  return <span className={cell.spotName ? 'compare-spot' : 'compare-spot compare-spot-loading'}>{cell.spotName ?? 'Loading name…'}</span>;
 }
 
 function RenameField({ initial, onDone }: { initial: string; onDone: (label: string | null) => void }) {

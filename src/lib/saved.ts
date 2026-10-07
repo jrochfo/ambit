@@ -14,6 +14,8 @@ export interface SavedResults {
   ringsKey: string;
   /** Nearest ring per category (null = nothing inside the rings). */
   cells: Record<string, number | null>;
+  /** Place ID of that nearest spot, for looking up its name (names themselves aren't stored). */
+  nearest?: Record<string, string | null>;
   /** Search results per category: when fetched, radius searched, spots nearest first. */
   spots: Record<string, { at: number; radius: number; spots: StoredSpot[] }>;
 }
@@ -55,12 +57,14 @@ export function pruneExpired(list: SavedAddress[], now = Date.now()): SavedAddre
     if (!a.results) return a;
     const spots = { ...a.results.spots };
     const cells = { ...a.results.cells };
+    const nearest = { ...(a.results.nearest ?? {}) };
     for (const [id, s] of Object.entries(spots)) {
       if (now - s.at > MAX_AGE_MS) {
         delete spots[id];
         delete cells[id];
+        delete nearest[id];
       }
     }
-    return { ...a, results: { ...a.results, spots, cells } };
+    return { ...a, results: { ...a.results, spots, cells, nearest } };
   });
 }

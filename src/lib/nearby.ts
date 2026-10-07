@@ -35,8 +35,10 @@ export interface CategoryMatches {
   ring: number | null;
   /** Closest match by ring, then distance; may be outside the rings. */
   nearest: NearbyPlace | null;
-  /** Every match inside the rings, nearest first (at most 20: the search's result cap). */
+  /** Every match inside the rings, nearest first. */
   within: NearbyPlace[];
+  /** The search hit Google's 20-result cap, so more spots likely exist than are shown. */
+  capped: boolean;
 }
 
 // All Pro tier (same price as id/name/location). Ratings, hours, price or website would bump
@@ -51,7 +53,7 @@ const FIELDS = [
   'accessibilityOptions',
   'googleMapsURI',
 ];
-const MAX_RESULTS = 20;
+export const MAX_RESULTS = 20;
 
 /**
  * One billed search for a category: Nearby Search by place type, or Text Search for
@@ -64,6 +66,8 @@ export async function searchCategory(
   origin: google.maps.LatLngLiteral,
   radius: number,
   category: Category,
+  /** 'spread': the 20 most popular in the whole area instead of the 20 nearest (type categories only). */
+  mode: 'nearest' | 'spread' = 'nearest',
 ): Promise<CategorySearch> {
   const { places: found } = category.query
     ? await places.Place.searchByText({
@@ -77,7 +81,7 @@ export async function searchCategory(
         fields: FIELDS,
         includedPrimaryTypes: category.types,
         locationRestriction: { center: origin, radius },
-        rankPreference: places.SearchNearbyRankPreference.DISTANCE,
+        rankPreference: mode === 'spread' ? places.SearchNearbyRankPreference.POPULARITY : places.SearchNearbyRankPreference.DISTANCE,
         maxResultCount: MAX_RESULTS,
       });
   const located = found.flatMap((p): FoundPlace[] => {
@@ -102,18 +106,26 @@ export async function searchCategory(
       },
     ];
   });
-  // Callers rely on nearest-first order; Text Search results arrive by relevance.
-  if (category.query) located.sort((a, b) => metersBetween(origin, a.position) - metersBetween(origin, b.position));
+  // Callers rely on nearest-first order; Text Search and spread results arrive by relevance.
+  if (category.query || mode === 'spread') located.sort((a, b) => metersBetween(origin, a.position) - metersBetween(origin, b.position));
   return { radius, places: located };
 }
 
 /**
- * Whether a cached search still answers the question after rings grow. A wider search
- * only matters when nothing was found inside the rings and the old search wasn't full
- * (a full page of 20 already reaches past anything nearer).
+ * Whether a cached search needs redoing after rings grow. Only a search that came back short
+ * of 20 found everything in its area, so a wider one can add spots; a full page of 20 nearest
+ * would come back the same (the focused view adds a spread search for those instead).
  */
-export function needsWiderSearch(search: CategorySearch, radius: number, matches: CategoryMatches): boolean {
-  return search.radius < radius && matches.ring === null && search.places.length < MAX_RESULTS;
+export function needsWiderSearch(search: CategorySearch, radius: number): boolean {
+  return search.radius < radius && search.places.length < MAX_RESULTS;
+}
+
+/** One search's places plus extras (a spread search), deduplicated and nearest first. */
+export function mergeSearches(origin: google.maps.LatLngLiteral, primary: CategorySearch, extra: CategorySearch): CategorySearch {
+  const seen = new Set(primary.places.map((p) => p.id));
+  const places = [...primary.places, ...extra.places.filter((p) => !seen.has(p.id))];
+  places.sort((a, b) => metersBetween(origin, a.position) - metersBetween(origin, b.position));
+  return { radius: primary.radius, places };
 }
 
 export type RingShapes = { minutes: number; shape: ReturnType<typeof multiPolygon> }[];
@@ -139,7 +151,7 @@ export function classify(search: CategorySearch, shapes: RingShapes, edgeToleran
   // Places arrive nearest first, so the first one in the best ring is the one to pin.
   const rank = (r: number | null) => r ?? Infinity;
   const nearest = placed.reduce<NearbyPlace | null>((best, p) => (!best || rank(p.ring) < rank(best.ring) ? p : best), null);
-  return { ring: nearest?.ring ?? null, nearest, within: placed.filter((p) => p.ring !== null) };
+  return { ring: nearest?.ring ?? null, nearest, within: placed.filter((p) => p.ring !== null), capped: search.places.length >= MAX_RESULTS };
 }
 
 /** A circle just big enough to cover the largest ring (Nearby Search only takes circles). */

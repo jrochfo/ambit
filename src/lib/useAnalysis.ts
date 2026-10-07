@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { Category } from './categories';
 import type { CategoryMatches } from './nearby';
-import { ringShapes, searchRadius } from './nearby';
+import { mergeSearches, ringShapes, searchRadius } from './nearby';
 import {
   addressKey,
   classifyFor,
   ensureSearch,
+  ensureSpreadSearch,
   getSearch,
+  getSpreadSearch,
   getVersion,
   requestRings,
   ringError as storedRingError,
@@ -30,6 +32,8 @@ export function useAnalysis(
   origin: google.maps.LatLngLiteral | null,
   ringMinutes: number[],
   categories: Category[],
+  /** Focused category: also gets a spread search so outer rings show spots. */
+  focused: string | null,
 ) {
   const version = useStoreVersion();
   const addr = origin ? addressKey(origin) : null;
@@ -47,8 +51,10 @@ export function useAnalysis(
 
   useEffect(() => {
     if (!places || !origin || !ringsReady || !radius) return;
-    for (const c of categories) ensureSearch(places, origin, radius, shapes, c, true);
-  }, [places, origin, ringsReady, radius, shapes, categories, version]);
+    for (const c of categories) ensureSearch(places, origin, radius, c, true);
+    const focusedCategory = categories.find((c) => c.id === focused);
+    if (focusedCategory) ensureSpreadSearch(places, origin, radius, focusedCategory);
+  }, [places, origin, ringsReady, radius, categories, focused, version]);
 
   const results = useMemo(() => {
     const out: Record<string, CategoryResult> = {};
@@ -58,10 +64,14 @@ export function useAnalysis(
       const search = getSearch(addr, c.id);
       if (error) out[c.id] = { status: 'error', message: error };
       else if (pending || !search?.named || !ringsReady) out[c.id] = { status: 'loading' };
-      else out[c.id] = { status: 'done', ...classifyFor(search, shapes, c) };
+      else {
+        // The focused category's spread search adds spots across all rings; nearest is unchanged.
+        const spread = c.id === focused ? getSpreadSearch(addr, c.id) : undefined;
+        out[c.id] = { status: 'done', ...classifyFor(spread && origin ? mergeSearches(origin, search, spread) : search, shapes, c) };
+      }
     }
     return out;
-  }, [addr, categories, shapes, ringsReady, version]);
+  }, [addr, origin, categories, shapes, ringsReady, focused, version]);
 
   return {
     rings,
