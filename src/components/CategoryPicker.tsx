@@ -7,20 +7,30 @@ export function CategoryPicker({
   enabled,
   onToggle,
   onClear,
+  onReset,
+  isDefault,
 }: {
   categories: Category[];
   enabled: ReadonlySet<string>;
   onToggle: (id: string) => void;
   onClear: () => void;
+  onReset: () => void;
+  /** Selection already matches the defaults. */
+  isDefault: boolean;
 }) {
   return (
     <fieldset className="category-picker" id="category-picker">
       <legend className="sr-only">Categories to look for</legend>
       <div className="category-picker-head">
         <span>{enabled.size} selected</span>
-        <button type="button" className="link-btn" onClick={onClear} disabled={enabled.size === 0}>
-          Clear all
-        </button>
+        <span className="category-picker-actions">
+          <button type="button" className="link-btn" onClick={onReset} disabled={isDefault}>
+            Reset to defaults
+          </button>
+          <button type="button" className="link-btn" onClick={onClear} disabled={enabled.size === 0}>
+            Clear all
+          </button>
+        </span>
       </div>
       {categories.map((c) => (
         <label key={c.id} className="category-option">

@@ -2,7 +2,8 @@ import { Map } from '@vis.gl/react-google-maps';
 import type { Ring } from '../../shared/isochrones';
 import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
-import { MAP_STYLE } from '../lib/mapStyle';
+import { useState } from 'react';
+import { MAP_STYLE, MAP_STYLE_BLANK, START_ZOOM, randomStartView } from '../lib/mapStyle';
 import { formatMinutes, ringStyle } from '../lib/rings';
 import { CategoryPin } from './CategoryPin';
 import { MapOverlay } from './MapOverlay';
@@ -18,8 +19,6 @@ export interface Pin {
   place: NearbyPlace;
 }
 
-const DEFAULT_CENTER = { lat: 39.5, lng: -98.35 }; // continental US until an address is mapped
-
 export function MapPanel({
   origin,
   rings,
@@ -33,13 +32,14 @@ export function MapPanel({
   pins: Pin[];
 }) {
   const largest = rings[rings.length - 1];
+  const [startView] = useState(randomStartView);
   return (
     <section className="card map-panel" aria-label="Map">
       <div className="map-frame">
         <Map
-          defaultCenter={DEFAULT_CENTER}
-          defaultZoom={4}
-          styles={MAP_STYLE}
+          defaultCenter={startView}
+          defaultZoom={START_ZOOM}
+          styles={origin ? MAP_STYLE : MAP_STYLE_BLANK}
           gestureHandling="cooperative"
           disableDefaultUI
           zoomControl
@@ -60,7 +60,11 @@ export function MapPanel({
             </MapOverlay>
           )}
         </Map>
-        {!origin && <div className="map-empty">Enter an address to see how far you can walk.</div>}
+        {!origin && (
+          <div className="map-empty">
+            <p className="map-empty-text">Enter an address to see how far you can walk.</p>
+          </div>
+        )}
       </div>
       <div className="legend">
         {rings.map((r, rank) => (

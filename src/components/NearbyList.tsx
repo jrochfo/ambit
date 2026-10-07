@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Category } from '../lib/categories';
+import { DEFAULT_CATEGORY_IDS, type Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { formatMinutes, pillColors } from '../lib/rings';
 import type { CategoryResult } from '../lib/useAnalysis';
@@ -14,6 +14,7 @@ export function NearbyList({
   onFocus,
   onToggleCategory,
   onClearCategories,
+  onResetCategories,
 }: {
   catalog: Category[];
   /** Enabled categories, in catalog order. */
@@ -25,6 +26,7 @@ export function NearbyList({
   onFocus: (id: string | null) => void;
   onToggleCategory: (id: string) => void;
   onClearCategories: () => void;
+  onResetCategories: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const enabled = new Set(categories.map((c) => c.id));
@@ -39,7 +41,16 @@ export function NearbyList({
           {editing ? 'Done' : `Choose (${categories.length})`}
         </button>
       </div>
-      {editing && <CategoryPicker categories={catalog} enabled={enabled} onToggle={onToggleCategory} onClear={onClearCategories} />}
+      {editing && (
+        <CategoryPicker
+          categories={catalog}
+          enabled={enabled}
+          onToggle={onToggleCategory}
+          onClear={onClearCategories}
+          onReset={onResetCategories}
+          isDefault={enabled.size === DEFAULT_CATEGORY_IDS.length && DEFAULT_CATEGORY_IDS.every((id) => enabled.has(id))}
+        />
+      )}
       <div className="field-hint">{categories.length > 0 ? 'Tap a row to see every match' : 'Choose categories to see what’s within a walk.'}</div>
       <div className="nearby-list" role="group" aria-labelledby="nearby-label">
         {categories.map((c) => {

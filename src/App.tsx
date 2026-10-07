@@ -83,6 +83,10 @@ function Ambit() {
   const toggleRing = useCallback((m: number) => setHiddenRings((prev) => toggled(prev, m)), []);
   const addRing = useCallback((m: number) => setRingMinutes((prev) => [...new Set([...prev, m])].sort((a, b) => a - b).slice(0, MAX_RINGS)), []);
   const removeRing = useCallback((m: number) => setRingMinutes((prev) => (prev.length > 1 ? prev.filter((x) => x !== m) : prev)), []);
+  const resetCategories = useCallback(() => {
+    setCategoryIds(new Set(DEFAULT_CATEGORY_IDS));
+    setFocused(null);
+  }, []);
   const clearCategories = useCallback(() => {
     setCategoryIds(new Set());
     setFocused(null);
@@ -131,6 +135,7 @@ function Ambit() {
               onFocus={setFocused}
               onToggleCategory={toggleCategory}
               onClearCategories={clearCategories}
+              onResetCategories={resetCategories}
             />
           </div>
         </aside>

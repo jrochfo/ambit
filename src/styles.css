@@ -127,10 +127,20 @@ button, input { font: inherit; }
   display: grid;
   place-items: center;
   padding: 24px;
-  text-align: center;
-  color: var(--ink-3);
-  font-size: 15px;
+  background: rgba(244, 246, 245, 0.55);
   pointer-events: none;
+}
+.map-empty-text {
+  margin: 0;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(20, 32, 31, 0.08);
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink-2);
 }
 .legend {
   display: flex;
@@ -391,6 +401,8 @@ button, input { font: inherit; }
   font-size: 13px;
   color: var(--ink-3);
 }
+.category-picker-actions { display: flex; gap: 14px; }
+.category-picker-actions .link-btn { font-size: 13px; }
 .link-btn:disabled { color: var(--muted-border); cursor: default; }
 
 /* Emoji avatars, focus state and pins */
