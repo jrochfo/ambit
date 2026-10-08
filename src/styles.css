@@ -1,4 +1,6 @@
-:root {
+/* Light tokens. `[data-theme]` on any element scopes a theme to it (used by the style guide). */
+:root,
+[data-theme='light'] {
   color-scheme: light;
   /* Teal as a fill (buttons, swatches; white text on it) and as text/outlines. */
   --teal: #0e7c74;
@@ -38,7 +40,8 @@
 }
 
 /* Dark theme: set by the header switch (data-theme on <html>); defaults to the system setting. */
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+[data-theme='dark'] {
   color-scheme: dark;
   --teal-text: #5cc4b8;
   --teal-ink: #7fd1c7;

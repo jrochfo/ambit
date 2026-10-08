@@ -32,6 +32,8 @@ npm run dev            # http://localhost:5173 — serves the app and the /api/i
 - The real map's basemap colors live in `src/lib/mapStyle.ts`; the sandbox's drawn map only approximates them.
 - Sandbox code is in `src/sandbox/` and is never part of the deployed build.
 
+**Brand stylesheet:** http://localhost:5173/styleguide.html shows every token and component style, light and dark side by side, read live from `src/styles.css` (with contrast checks where WCAG sets a minimum), plus the values that live in code: ring pill colors and opacities (`src/lib/rings.ts`), category colors (`src/lib/categories.ts`), icons (`src/components/Icon.tsx`) and the Google basemap colors (`src/lib/mapStyle.ts`). Also dev-only. Open it beside the sandbox while editing.
+
 ## Terms
 
 Use these consistently in UI copy and when discussing the app.

@@ -22,6 +22,7 @@ import visibilityOff from '@material-symbols/svg-400/rounded/visibility_off.svg?
 const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, darkMode, directionsWalk, edit, info, keyboardArrowDown, lightMode, openInNew, star, starFill, tune, visibility, visibilityOff };
 
 export type IconName = keyof typeof ICONS;
+export const ICON_NAMES = Object.keys(ICONS) as IconName[];
 
 /** Decorative icon; give its button an aria-label or visible text. */
 export function Icon({ name, size = 20, className }: { name: IconName; size?: number; className?: string }) {
