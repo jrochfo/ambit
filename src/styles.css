@@ -871,13 +871,18 @@ a.pin { text-decoration: none; }
 
 /* Logo pulse: the rings brighten in turn, inner then outer, like a slow ripple from the point.
    Opacity only. Always on in the intro card and About dialog; in the nav, only on hover. */
+/* Each ring goes rest → bright → dim → rest, so both swing about the same amount (the inner ring
+   starts strong at 0.65, so brightening alone barely shows). Starts and ends at the resting
+   opacities, so hover-triggered pulses don't jump. */
 @keyframes mark-pulse-inner {
   0%, 100% { stroke-opacity: 0.65; }
-  30% { stroke-opacity: 1; }
+  20% { stroke-opacity: 1; }
+  60% { stroke-opacity: 0.3; }
 }
 @keyframes mark-pulse-outer {
   0%, 100% { stroke-opacity: 0.35; }
-  30% { stroke-opacity: 0.85; }
+  20% { stroke-opacity: 0.85; }
+  60% { stroke-opacity: 0.12; }
 }
 .map-intro .mark-ring-inner,
 .about .mark-ring-inner,
@@ -887,7 +892,7 @@ a.pin { text-decoration: none; }
 .map-intro .mark-ring-outer,
 .about .mark-ring-outer,
 .brand:hover .mark-ring-outer {
-  animation: mark-pulse-outer 3.2s ease-in-out 0.45s infinite;
+  animation: mark-pulse-outer 3.2s ease-in-out 0.5s infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .mark-ring-inner, .mark-ring-outer { animation: none !important; }
