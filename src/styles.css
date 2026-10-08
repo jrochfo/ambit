@@ -237,11 +237,12 @@ button, input { font: inherit; }
   width: 52px;
   height: var(--control-xs);
   padding: 0;
-  border: 1px solid var(--line-control);
+  border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   background: var(--card);
   cursor: pointer;
 }
+.theme-switch:hover { border-color: var(--line-control); }
 .theme-switch[aria-checked='true'] { background: var(--accent); border-color: var(--accent); }
 .theme-switch-knob {
   position: absolute;
