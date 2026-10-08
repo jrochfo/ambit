@@ -45,6 +45,7 @@ export function Sandbox() {
   const [saved, setSaved] = useState<SavedAddress[]>(FAKE_ADDRESSES.map(toSaved));
   const [focused, setFocused] = useState<string | null>(null);
   const [spotlight, setSpotlight] = useState<string | null>(null);
+  const [hiddenSpotIds, setHiddenSpots] = useState<ReadonlySet<string>>(new Set());
   // Picked spot per address and category (by fake spot ID).
   const [picks, setPicks] = useState<Record<string, Record<string, string>>>({});
   const setPick = (categoryId: string, spotId: string | null) => {
@@ -58,7 +59,11 @@ export function Sandbox() {
   };
 
   const categories = useMemo(() => [...CATEGORIES, ...customs].filter((c) => categoryIds.has(c.id)), [categoryIds, customs]);
-  const spotsFor = useCallback((addressId: string) => Object.fromEntries(categories.map((c) => [c.id, fakeSpots(addressId, c, ringMinutes)])), [categories, ringMinutes]);
+  const visibleSpots = useCallback(
+    (addressId: string, c: Category) => fakeSpots(addressId, c, ringMinutes).filter((s) => !hiddenSpotIds.has(s.id)),
+    [ringMinutes, hiddenSpotIds],
+  );
+  const spotsFor = useCallback((addressId: string) => Object.fromEntries(categories.map((c) => [c.id, visibleSpots(addressId, c)])), [categories, visibleSpots]);
   const spots = useMemo(() => (mapped ? spotsFor(mapped.id) : {}), [mapped, spotsFor]);
 
   const results = useMemo(() => {
@@ -78,7 +83,7 @@ export function Sandbox() {
       out[a.id] = Object.fromEntries(
         categories.map((c) => {
           if (resultsState === 'loading') return [c.id, { status: 'loading' } as Cell];
-          const r = fakeResult(fakeSpots(a.id, c, ringMinutes), picks[a.id]?.[c.id]);
+          const r = fakeResult(visibleSpots(a.id, c), picks[a.id]?.[c.id]);
           const nearest = r.status === 'done' ? r.nearest : null;
           const picked = r.status === 'done' && !!r.picked;
           return [c.id, { status: 'done', ring: nearest?.ring ?? null, spotId: nearest?.ring ? nearest.id : null, spotName: nearest?.ring ? nearest.name : undefined, picked } as Cell];
@@ -86,7 +91,7 @@ export function Sandbox() {
       );
     }
     return out;
-  }, [saved, categories, ringMinutes, resultsState, picks]);
+  }, [saved, categories, resultsState, picks, visibleSpots]);
 
   // Same pin logic as App.tsx: the spot that counts per category, or a focused category's spots.
   const pins = categories.flatMap((category) => {
@@ -103,6 +108,7 @@ export function Sandbox() {
         emphasize: focused === category.id && spot.id === current.id,
         onChoose: () => setPick(category.id, spot.id),
         onUseNearest: () => setPick(category.id, null),
+        onHide: () => setHiddenSpots((prev) => new Set([...prev, spot.id])),
       } satisfies PinPick,
     });
     const currentSpot = list.find((s) => s.id === current.id)!;
@@ -200,6 +206,8 @@ export function Sandbox() {
                 setCategoryIds((prev) => toggle(prev, id));
               }}
               onSetEmoji={(id, emoji) => setCustoms((prev) => prev.map((c) => (c.id === id ? { ...c, emoji: [emoji] } : c)))}
+              hiddenCount={hiddenSpotIds.size}
+              onUnhideAll={() => setHiddenSpots(new Set())}
             />
           </div>
         </aside>

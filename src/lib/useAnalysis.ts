@@ -5,6 +5,7 @@ import { mergeSearches, ringShapes, searchRadius } from './nearby';
 import {
   addressKey,
   classifyFor,
+  ensureLocality,
   ensureNames,
   ensureSearch,
   ensureSpreadSearch,
@@ -30,6 +31,7 @@ export function useStoreVersion() {
  */
 export function useAnalysis(
   places: google.maps.PlacesLibrary | null,
+  geocoding: google.maps.GeocodingLibrary | null,
   origin: google.maps.LatLngLiteral | null,
   ringMinutes: number[],
   categories: Category[],
@@ -53,11 +55,12 @@ export function useAnalysis(
   }, [origin, ringMinutes, version]);
 
   useEffect(() => {
-    if (!places || !origin || !ringsReady || !radius) return;
+    if (!places || !geocoding || !origin || !ringsReady || !radius) return;
+    ensureLocality(geocoding, origin);
     for (const c of categories) ensureSearch(places, origin, radius, c, true);
     const focusedCategory = categories.find((c) => c.id === focused);
     if (focusedCategory) ensureSpreadSearch(places, origin, radius, focusedCategory);
-  }, [places, origin, ringsReady, radius, categories, focused, version]);
+  }, [places, geocoding, origin, ringsReady, radius, categories, focused, version]);
 
   const results = useMemo(() => {
     const out: Record<string, CategoryResult> = {};

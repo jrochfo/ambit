@@ -14,6 +14,8 @@ export function CategoryPicker({
   onRemove,
   isDefault,
   add,
+  hiddenCount,
+  onUnhideAll,
 }: {
   categories: Category[];
   customs: Category[];
@@ -26,6 +28,9 @@ export function CategoryPicker({
   isDefault: boolean;
   /** The "Add your own category" field, shown at the top of the menu. */
   add: ReactNode;
+  /** Spots hidden from their cards, and a way to bring them back. */
+  hiddenCount: number;
+  onUnhideAll: () => void;
 }) {
   return (
     <fieldset className="category-picker" id="category-picker">
@@ -59,6 +64,16 @@ export function CategoryPicker({
       {categories.map((c) => (
         <Option key={c.id} category={c} checked={enabled.has(c.id)} onToggle={onToggle} />
       ))}
+      {hiddenCount > 0 && (
+        <div className="category-picker-hidden">
+          <span>
+            {hiddenCount} hidden {hiddenCount === 1 ? 'spot' : 'spots'}
+          </span>
+          <button type="button" className="link-btn" onClick={onUnhideAll}>
+            Show again
+          </button>
+        </div>
+      )}
     </fieldset>
   );
 }

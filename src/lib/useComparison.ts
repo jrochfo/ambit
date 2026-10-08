@@ -4,10 +4,12 @@ import { ringShapes, searchRadius } from './nearby';
 import {
   addressKey,
   classifyFor,
+  ensureLocality,
   ensureNames,
   ensureSearch,
   getName,
   getSearch,
+  isHidden,
   nameFailed,
   requestRings,
   ringError,
@@ -30,6 +32,7 @@ export type Cell =
  */
 export function useComparison(
   places: google.maps.PlacesLibrary | null,
+  geocoding: google.maps.GeocodingLibrary | null,
   saved: SavedAddress[],
   ringMinutes: number[],
   categories: Category[],
@@ -65,7 +68,9 @@ export function useComparison(
       for (const c of categories) {
         const search = getSearch(addr, c.id);
         const { pending, error } = searchState(addr, c.id);
-        if (stored && c.id in stored) {
+        // A stored cell pointing at a spot the user has since hidden is recomputed.
+        const storedUsable = stored && c.id in stored && !(storedNearest?.[c.id] && isHidden(storedNearest[c.id]!));
+        if (storedUsable) {
           const spotId = storedNearest?.[c.id] ?? null;
           const picked = a.picks?.[c.id]?.id !== undefined && a.picks[c.id]!.id === spotId;
           row[c.id] = { status: 'done', ring: stored[c.id]!, spotId, spotName: spotId ? getName(spotId) : undefined, nameFailed: !!spotId && nameFailed(spotId), picked };
@@ -93,18 +98,20 @@ export function useComparison(
 
   // Fetch whatever a column is missing.
   useEffect(() => {
-    if (!places) return;
+    if (!places || !geocoding) return;
     for (const a of saved) {
       const stored = a.results?.ringsKey === ringsKey ? a.results.cells : undefined;
-      const missing = categories.filter((c) => !(stored && c.id in stored));
+      const storedNearest = a.results?.ringsKey === ringsKey ? a.results.nearest : undefined;
+      const missing = categories.filter((c) => !(stored && c.id in stored) || (storedNearest?.[c.id] && isHidden(storedNearest[c.id]!)));
       if (missing.length === 0) continue;
       requestRings(a.position, ringMinutes);
       const rings = ringsFor(addressKey(a.position), ringMinutes);
       if (rings.length !== ringMinutes.length) continue;
       const radius = searchRadius(a.position, rings[rings.length - 1]!);
+      ensureLocality(geocoding, a.position);
       for (const c of missing) ensureSearch(places, a.position, radius, c, false);
     }
-  }, [places, saved, ringMinutes, ringsKey, categories, version]);
+  }, [places, geocoding, saved, ringMinutes, ringsKey, categories, version]);
 
   // Store newly computed cells and spots (IDs and coordinates only).
   useEffect(() => {

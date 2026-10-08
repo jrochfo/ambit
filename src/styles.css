@@ -834,3 +834,32 @@ a.pin { text-decoration: none; }
 .pin-pick { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--teal-text), 0 2px 8px rgba(var(--shadow), 0.3); }
 .pick-note { color: var(--teal-text); font-weight: 600; }
 .pick-star { color: var(--teal-text); margin-right: 3px; vertical-align: -1px; }
+
+/* Spot card footer: open hint and Hide */
+.spot-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; }
+.spot-card-foot .spot-card-hint { margin-top: 0; }
+.spot-card-hide {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.spot-card-hide:hover { color: var(--danger); }
+.spot-card-hide:focus-visible { outline: 2px solid var(--teal-text); outline-offset: 2px; border-radius: 4px; }
+.category-picker-hidden {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--ink-3);
+}

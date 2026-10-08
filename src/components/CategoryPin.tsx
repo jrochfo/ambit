@@ -18,6 +18,8 @@ export interface PinPick {
   emphasize: boolean;
   onChoose: () => void;
   onUseNearest: () => void;
+  /** Leave this spot out everywhere (junk listings, places that don't matter to you). */
+  onHide: () => void;
 }
 
 interface SpotPinProps {
@@ -119,9 +121,17 @@ export function SpotPin({
             </div>
           )}
           {pick && <PickLine pick={pick} noun={inSentence(category.label)} />}
-          <div className="spot-card-hint">
-            <Icon name="openInNew" size={14} />
-            Click the pin to open in Google Maps
+          <div className="spot-card-foot">
+            <span className="spot-card-hint">
+              <Icon name="openInNew" size={14} />
+              Click the pin to open in Google Maps
+            </span>
+            {pick && (
+              <button type="button" className="spot-card-hide" onClick={pick.onHide}>
+                <Icon name="visibilityOff" size={14} />
+                Hide
+              </button>
+            )}
           </div>
         </div>
       )}

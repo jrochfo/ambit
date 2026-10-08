@@ -132,7 +132,6 @@ Running list for phase 5 (polish). Add to it as things come up.
 - **Ring outlines**: optional smoothing for display only.
 - **Overlapping pins** near the origin.
 - **Picking on touch devices**: spot cards are hover-only, so phones can't choose a pick yet (needs a tap-friendly path, e.g. from the focused category's row).
-- **Junk listings**: the spread (popularity) search can surface odd Google entries (e.g. a "park" pinned at a city's center point); consider filtering.
 
 ## Sources
 

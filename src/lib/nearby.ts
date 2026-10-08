@@ -202,7 +202,7 @@ function boundsAround(center: google.maps.LatLngLiteral, radius: number): google
   return { north: center.lat + dLat, south: center.lat - dLat, east: center.lng + dLng, west: center.lng - dLng };
 }
 
-function metersBetween(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral): number {
+export function metersBetween(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral): number {
   const R = 6_371_000;
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(b.lat - a.lat);

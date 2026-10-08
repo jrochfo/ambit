@@ -4,6 +4,7 @@ import { DEFAULT_EDGE_TOLERANCE, type Category } from './categories';
 import {
   MAX_RESULTS,
   applyPick,
+  metersBetween,
   classify,
   needsWiderSearch,
   searchCategory,
@@ -27,6 +28,15 @@ export interface CachedSearch extends CategorySearch {
 }
 
 const ringCache = new Map<string, Map<number, Ring>>();
+/**
+ * Each address's city center (null if unknown). Listings Google can't locate get pinned to
+ * exactly that point (a "park" on San Francisco's center), so results within a few meters are
+ * dropped. Tested: real spots near a center, like Van Ness station, sit 35 m away.
+ */
+const localityCenters = new Map<string, google.maps.LatLngLiteral | null>();
+const CITY_CENTER_JUNK_METERS = 5;
+/** Spots the user hid (place IDs), left out everywhere. */
+let hiddenSpots: ReadonlySet<string> = new Set();
 /** Spot names by place ID: from searches (free) or looked up for the grid (Place Details). */
 const nameCache = new Map<string, string>();
 const searchCache = new Map<string, Map<string, CachedSearch>>();
@@ -51,6 +61,7 @@ const ringKey = (addr: string, m: number) => `ring|${addr}|${m}`;
 const searchKey = (addr: string, categoryId: string) => `search|${addr}|${categoryId}`;
 const spreadKey = (addr: string, categoryId: string) => `spread|${addr}|${categoryId}`;
 const nameKey = (placeId: string) => `name|${placeId}`;
+const localityKey = (addr: string) => `locality|${addr}`;
 const SPREAD = '#spread';
 
 /** Cached rings for an address among `minutes`, ascending. */
@@ -101,7 +112,46 @@ export function searchState(addr: string, categoryId: string): { pending: boolea
 
 export function classifyFor(search: CategorySearch, shapes: RingShapes, category: Category, pick?: SpotPick): CategoryMatches {
   const tolerance = category.edgeTolerance ?? DEFAULT_EDGE_TOLERANCE;
-  return applyPick(classify(search, shapes, tolerance), pick, shapes, tolerance, getName);
+  const visible = hiddenSpots.size ? { ...search, places: search.places.filter((p) => !hiddenSpots.has(p.id)) } : search;
+  return applyPick(classify(visible, shapes, tolerance), pick && !hiddenSpots.has(pick.id) ? pick : undefined, shapes, tolerance, getName);
+}
+
+export const isHidden = (placeId: string) => hiddenSpots.has(placeId);
+
+export function setHiddenSpots(ids: ReadonlySet<string>): void {
+  hiddenSpots = ids;
+  emit();
+}
+
+/**
+ * Finds an address's city center (one reverse-geocoding call per address per session).
+ * Searches wait for it so junk can be filtered before results are cached or stored.
+ */
+export function ensureLocality(geocoding: google.maps.GeocodingLibrary, origin: google.maps.LatLngLiteral): void {
+  const addr = addressKey(origin);
+  const key = localityKey(addr);
+  if (localityCenters.has(addr) || pending.has(key)) return;
+  pending.add(key);
+  new geocoding.Geocoder()
+    .geocode({ location: origin })
+    .then(({ results }) => {
+      const locality = results.find((r) => r.types.includes('locality'));
+      localityCenters.set(addr, locality ? locality.geometry.location.toJSON() : null);
+    })
+    .catch((err: unknown) => {
+      console.error('City lookup failed', err);
+      localityCenters.set(addr, null); // search anyway, just without this filter
+    })
+    .finally(() => {
+      pending.delete(key);
+      emit();
+    });
+}
+
+function dropCityCenterJunk<T extends CategorySearch>(addr: string, search: T): T {
+  const center = localityCenters.get(addr);
+  if (!center) return search;
+  return { ...search, places: search.places.filter((p) => metersBetween(p.position, center) > CITY_CENTER_JUNK_METERS) };
 }
 
 /**
@@ -118,14 +168,15 @@ export function ensureSearch(
 ): void {
   const addr = addressKey(origin);
   const key = searchKey(addr, category.id);
-  if (pending.has(key) || failed.has(key)) return;
+  if (pending.has(key) || failed.has(key) || !localityCenters.has(addr)) return;
   const cached = getSearch(addr, category.id);
   if (cached && (cached.named || !needNames) && !needsWiderSearch(cached, radius)) return;
 
   pending.add(key);
   emit();
   searchCategory(places, origin, radius, category)
-    .then((result) => {
+    .then((raw) => {
+      const result = dropCityCenterJunk(addr, raw);
       const byCategory = searchCache.get(addr) ?? new Map<string, CachedSearch>();
       byCategory.set(category.id, { ...result, at: Date.now(), named: true });
       searchCache.set(addr, byCategory);
@@ -157,12 +208,13 @@ export function ensureSpreadSearch(
   if (category.query || !primary?.named || primary.places.length < MAX_RESULTS) return;
   const key = spreadKey(addr, category.id);
   const cached = getSpreadSearch(addr, category.id);
-  if (pending.has(key) || failed.has(key) || (cached && cached.radius >= radius)) return;
+  if (pending.has(key) || failed.has(key) || !localityCenters.has(addr) || (cached && cached.radius >= radius)) return;
 
   pending.add(key);
   emit();
   searchCategory(places, origin, radius, category, 'spread')
-    .then((result) => {
+    .then((raw) => {
+      const result = dropCityCenterJunk(addr, raw);
       const byCategory = searchCache.get(addr) ?? new Map<string, CachedSearch>();
       byCategory.set(category.id + SPREAD, { ...result, at: Date.now(), named: true });
       searchCache.set(addr, byCategory);

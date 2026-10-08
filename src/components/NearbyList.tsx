@@ -22,6 +22,8 @@ export function NearbyList({
   onAddCategory,
   onRemoveCustom,
   onSetEmoji,
+  hiddenCount,
+  onUnhideAll,
 }: {
   catalog: Category[];
   customs: Category[];
@@ -38,6 +40,8 @@ export function NearbyList({
   onAddCategory: (option: AddOption) => void;
   onRemoveCustom: (id: string) => void;
   onSetEmoji: (id: string, emoji: string) => void;
+  hiddenCount: number;
+  onUnhideAll: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [emojiFor, setEmojiFor] = useState<string | null>(null);
@@ -68,6 +72,8 @@ export function NearbyList({
             onReset={onResetCategories}
             onRemove={onRemoveCustom}
             add={<AddCategory categories={[...catalog, ...customs]} enabled={enabled} onAdd={onAddCategory} />}
+            hiddenCount={hiddenCount}
+            onUnhideAll={onUnhideAll}
             isDefault={enabled.size === DEFAULT_CATEGORY_IDS.length && DEFAULT_CATEGORY_IDS.every((id) => enabled.has(id))}
           />
         )}

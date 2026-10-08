@@ -14,7 +14,7 @@ import { useTheme, type Theme } from './lib/theme';
 import { loadPref, savePref } from './lib/storage';
 import { useAnalysis, type CategoryResult } from './lib/useAnalysis';
 import type { NearbyPlace, SpotPick } from './lib/nearby';
-import { addressKey, clearFailures } from './lib/analysisStore';
+import { addressKey, clearFailures, setHiddenSpots } from './lib/analysisStore';
 import { MAX_AGE_MS, MAX_SAVED, isSavedList, pruneExpired, type SavedAddress, type SavedResults } from './lib/saved';
 import { useComparison } from './lib/useComparison';
 import { SaveControl } from './components/SaveControl';
@@ -57,6 +57,11 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   const [focused, setFocused] = useState<string | null>(null);
   // Category whose nearest spot's card is shown open (picked from the comparison grid).
   const [spotlight, setSpotlight] = useState<string | null>(null);
+  const [hiddenSpots, setHiddenSpotsState] = useState<ReadonlySet<string>>(() => new Set(loadPref('hiddenSpots', [], isStringList)));
+  useEffect(() => {
+    setHiddenSpots(hiddenSpots);
+    savePref('hiddenSpots', [...hiddenSpots]);
+  }, [hiddenSpots]);
   // Picks for addresses that aren't saved (saved ones keep theirs on the address); session only.
   const [sessionPicks, setSessionPicks] = useState<Record<string, Record<string, SpotPick>>>({});
   const [saved, setSaved] = useState<SavedAddress[]>(() => pruneExpired(loadPref('savedAddresses', [], isSavedList)));
@@ -94,7 +99,7 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   const position = origin?.position ?? null;
   const currentSaved = origin ? saved.find((a) => addressKey(a.position) === addressKey(origin.position)) : undefined;
   const currentPicks = currentSaved ? currentSaved.picks : origin ? sessionPicks[addressKey(origin.position)] : undefined;
-  const analysis = useAnalysis(places, position, ringMinutes, categories, focused, currentPicks);
+  const analysis = useAnalysis(places, geocoding, position, ringMinutes, categories, focused, currentPicks);
 
   // Choose which spot counts for a category at the mapped address (null = back to the nearest).
   const setPick = useCallback(
@@ -115,7 +120,7 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   const updateResults = useCallback((id: string, results: SavedResults) => {
     setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, results } : a)));
   }, []);
-  const comparison = useComparison(places, saved, ringMinutes, categories, updateResults);
+  const comparison = useComparison(places, geocoding, saved, ringMinutes, categories, updateResults);
 
   const mapAddress = useCallback(
     async (target: SearchTarget) => {
@@ -259,6 +264,7 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
         emphasize: focused === category.id && place.id === current.id,
         onChoose: () => setPick(category.id, place),
         onUseNearest: () => setPick(category.id, null),
+        onHide: () => setHiddenSpotsState((prev) => new Set([...prev, place.id])),
       },
     });
     if (focused === null) return [pin(current)];
@@ -316,6 +322,8 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
               onAddCategory={addCategory}
               onRemoveCustom={removeCustom}
               onSetEmoji={setCustomEmoji}
+              hiddenCount={hiddenSpots.size}
+              onUnhideAll={() => setHiddenSpotsState(new Set())}
             />
           </div>
         </aside>
