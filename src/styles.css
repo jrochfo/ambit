@@ -17,8 +17,8 @@
      Separate from the action accent so a palette can give actions and data different hues. */
   --data: #728d00;
   --data-ink: #4b5e00;
-  /* The logo: center point in the walk color at its brightest (the smallest ring's fill); rings
-     in the action color, kept within a small lightness gap of the point (palette.ts, markRing). */
+  /* The logo: all in the walk color at its brightest (the smallest ring's fill); the rings'
+     strokes are faded in Logomark.tsx. */
   --mark-dot: var(--ring-1);
   --mark-ring: var(--ring-1);
   --accent-pale: #e4e5e2;

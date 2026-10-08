@@ -1,3 +1,4 @@
+import { applyColorPreview, readColorPreview, writeColorPreview } from '../lib/palette';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { loadPref, savePref } from '../lib/storage';
@@ -264,6 +265,13 @@ function SandboxBar(props: {
 }) {
   const [open, setOpen] = useState(() => loadPref('sandboxBarOpen', true, (v): v is boolean => typeof v === 'boolean'));
   useEffect(() => savePref('sandboxBarOpen', open), [open]);
+  // Quick A/B between the shipped palette and Gold & ink (the color lab can preview any other).
+  const [palette, setPalette] = useState(() => (readColorPreview() === 'gold-ink' ? 'gold' : readColorPreview() ? 'other' : 'lime'));
+  const choosePalette = (v: string) => {
+    setPalette(v);
+    writeColorPreview(v === 'gold' ? 'gold-ink' : null);
+    applyColorPreview();
+  };
 
   if (!open)
     return (
@@ -280,6 +288,7 @@ function SandboxBar(props: {
       <Choice label="Map" value={props.mapped ? 'mapped' : 'empty'} options={['mapped', 'empty']} onChange={(v) => props.onMapped(v === 'mapped')} />
       <Choice label="Results" value={props.results} options={['loaded', 'loading', 'limit']} onChange={(v) => props.onResults(v as Results)} />
       <Choice label="Saved" value={props.savedCount > 0 ? 'some' : 'none'} options={['some', 'none']} onChange={(v) => props.onSaved(v === 'some')} />
+      <Choice label="Palette" value={palette} options={['lime', 'gold']} onChange={choosePalette} />
       <button type="button" className="sandbox-hide" aria-label="Hide sandbox controls" aria-expanded={true} onClick={() => setOpen(false)}>
         <Icon name="keyboardArrowDown" size={20} />
       </button>
