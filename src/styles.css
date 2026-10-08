@@ -102,7 +102,7 @@
   /* Line length for running text: paragraphs stop short of their card's right edge, so blocks
      of text keep some air on the right. --text-inset is that gap in wider cards (About);
      --measure-narrow caps lines in small cards like the map intro. */
-  --text-inset: 35px;
+  --text-inset: 20px;
   --measure-narrow: 34ch;
 
   /* Radius */
