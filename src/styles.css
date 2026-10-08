@@ -769,6 +769,7 @@ button, input { font: inherit; }
 [data-edge-right='true'] .spot-card { transform: none; left: auto; right: -18px; }
 .spot-card-name { font-size: var(--text-base); font-weight: 700; line-height: 1.25; }
 .spot-card-meta { font-size: var(--text-sm); color: var(--ink-3); line-height: 1.35; }
+.spot-card-facts { display: flex; flex-direction: column; gap: var(--space-2); }
 .spot-card-line { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink-2); }
 .spot-card-line .icon { color: var(--accent-text); }
 
@@ -854,7 +855,7 @@ button, input { font: inherit; }
 .compare-table tfoot th, .compare-table tfoot td { border-bottom: 0; font-size: var(--text-md); font-weight: 700; }
 .compare-total { font-variant-numeric: tabular-nums; }
 
-.spot-card-hint { display: flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1); font-size: var(--text-xs); color: var(--ink-3); }
+.spot-card-hint { margin-top: calc(-1 * var(--space-1)); padding-left: 24px; /* under the text after the star */ font-size: var(--text-xs); color: var(--ink-3); }
 a.pin { text-decoration: none; }
 
 /* About dialog */
@@ -995,35 +996,27 @@ html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style]
 .emoji, .nearby-avatar, .category-avatar, .pin, .emoji-choice { -webkit-user-select: none; user-select: none; }
 
 /* Picking which spot counts for a category */
-.spot-card-pick { display: flex; flex-direction: column; gap: var(--space-1); }
-.spot-card-pick .icon, .spot-card-action .icon { color: var(--accent-text); }
-.spot-card-action {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  align-self: flex-start;
-  margin-top: var(--space-1);
-  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-3);
-  border: 1px solid var(--accent-text);
-  border-radius: var(--radius-pill);
-  background: var(--card);
+/* Spot card actions: at most one chip (the decision this card offers), text links for the rest. */
+.spot-card-chip { align-self: flex-start; gap: 6px; padding: 0 var(--space-3) 0 10px; font-family: inherit; }
+.spot-card-chip:hover { background: var(--highlight); }
+.spot-card-inline-link {
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--accent-text);
   font: inherit;
-  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
 }
-.spot-card-action:hover { background: var(--highlight); }
-.spot-card-link-btn { align-self: flex-start; margin-left: 22px; /* lines up with the text after the star */ }
+.spot-card-inline-link:hover { text-decoration: underline; }
 /* The spot that counts, among a focused category's alternatives. */
 .pin-pick { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--accent-text), 0 2px 8px rgba(var(--shadow), 0.3); }
 .pick-note { color: var(--accent-text); font-weight: 600; }
 .pick-star { color: var(--accent-text); margin-right: 3px; vertical-align: -1px; }
 
-/* Spot card footer: open hint and Hide */
+/* Spot card footer: utility links (open in Google Maps, Hide). */
 .spot-card-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-1); }
-.spot-card-foot .spot-card-hint { margin-top: 0; }
-.spot-card-hide {
+.spot-card-foot-link {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -1033,9 +1026,10 @@ html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style]
   color: var(--ink-3);
   font: inherit;
   font-size: var(--text-xs);
+  text-decoration: none;
   cursor: pointer;
 }
-.spot-card-hide:hover { color: var(--danger); }
+.spot-card-foot-link:hover { color: var(--ink); text-decoration: underline; }
 .category-picker-hidden {
   grid-column: 1 / -1;
   display: flex;

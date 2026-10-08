@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type FocusEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
 import type { Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import type { NearbyPlace } from '../lib/nearby';
@@ -66,8 +66,11 @@ export function SpotPin({
   const cardId = useId();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  // Escape closes the card until the pointer or focus leaves the spot.
+  const [dismissed, setDismissed] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const open = spotlight || hovered || focused;
+  const pinRef = useRef<HTMLAnchorElement>(null);
+  const open = !dismissed && (spotlight || hovered || focused);
   useEffect(() => () => clearTimeout(hideTimer.current), []);
   useEffect(() => onOpenChange?.(open), [open, onOpenChange]);
 
@@ -82,10 +85,22 @@ export function SpotPin({
     setHovered(true);
   };
   const leave = () => {
-    hideTimer.current = setTimeout(() => setHovered(false), HIDE_DELAY_MS);
+    hideTimer.current = setTimeout(() => {
+      setHovered(false);
+      setDismissed(false);
+    }, HIDE_DELAY_MS);
   };
   const blur = (e: FocusEvent) => {
-    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+      setFocused(false);
+      setDismissed(false);
+    }
+  };
+  const keyDown = (e: KeyboardEvent) => {
+    if (e.key !== 'Escape' || !open) return;
+    e.stopPropagation();
+    setDismissed(true);
+    pinRef.current?.focus();
   };
 
   return (
@@ -96,8 +111,10 @@ export function SpotPin({
       // Keyboard focus only: a mouse click also focuses the pin, which shouldn't hold the card open.
       onFocus={(e) => setFocused(e.target.matches(':focus-visible'))}
       onBlur={blur}
+      onKeyDown={keyDown}
     >
       <a
+        ref={pinRef}
         className={pick?.role === 'hidden' ? 'pin pin-hidden' : pick?.emphasize ? 'pin pin-pick' : 'pin'}
         style={{ borderColor: category.color }}
         href={mapsUrl}
@@ -109,29 +126,33 @@ export function SpotPin({
         <span aria-hidden="true">{pickEmoji(category.emoji)}</span>
       </a>
       {open && (
-        <div className="spot-card" id={cardId} role="tooltip">
-          <div className="spot-card-name">{place.name}</div>
-          <div className="spot-card-meta">{[place.typeLabel ?? category.label, place.address].filter(Boolean).join(' · ')}</div>
-          {where && (
-            <div className="spot-card-line">
-              <Icon name="directionsWalk" size={16} />
-              {where}
-            </div>
-          )}
-          {access.length > 0 && (
-            <div className="spot-card-line">
-              <Icon name="accessible" size={16} />
-              Wheelchair-accessible {access.join(', ')}
-            </div>
-          )}
+        // An interactive popover (it holds actions), so a labelled group rather than a tooltip;
+        // the pin is described by the card's facts only.
+        <div className="spot-card" role="group" aria-label={place.name}>
+          <div className="spot-card-facts" id={cardId}>
+            <div className="spot-card-name">{place.name}</div>
+            <div className="spot-card-meta">{[place.typeLabel ?? category.label, place.address].filter(Boolean).join(' · ')}</div>
+            {where && (
+              <div className="spot-card-line">
+                <Icon name="directionsWalk" size={16} />
+                {where}
+              </div>
+            )}
+            {access.length > 0 && (
+              <div className="spot-card-line">
+                <Icon name="accessible" size={16} />
+                Wheelchair-accessible {access.join(', ')}
+              </div>
+            )}
+          </div>
           {pick && <PickLine pick={pick} noun={inSentence(category.label)} />}
           <div className="spot-card-foot">
-            <span className="spot-card-hint">
+            <a className="spot-card-foot-link" href={mapsUrl} target="_blank" rel="noreferrer">
               <Icon name="openInNew" size={16} />
-              Click the pin to open in Google Maps
-            </span>
+              Open in Google Maps
+            </a>
             {pick && pick.role !== 'hidden' && (
-              <button type="button" className="spot-card-hide" onClick={pick.onHide}>
+              <button type="button" className="spot-card-foot-link" onClick={pick.onHide}>
                 <Icon name="visibilityOff" size={16} />
                 Hide
               </button>
@@ -143,44 +164,55 @@ export function SpotPin({
   );
 }
 
-/** Which spot counts for this category, and how to change it. */
+/**
+ * Which spot counts for this category, and how to change it. Facts are plain lines; the one
+ * decision a card can offer (choose this spot, unhide it) is a chip; undoing a pick is a text
+ * link on the line it changes.
+ */
 function PickLine({ pick, noun }: { pick: PinPick; noun: string }) {
   if (pick.role === 'hidden')
     return (
-      <div className="spot-card-pick">
+      <>
         <div className="spot-card-line">
           <Icon name="visibilityOff" size={16} />
           Hidden, so it doesn’t count
         </div>
-        <button type="button" className="spot-card-action" onClick={pick.onUnhide}>
+        <button type="button" className="chip spot-card-chip" onClick={pick.onUnhide}>
           <Icon name="visibility" size={16} />
           Unhide
         </button>
-      </div>
+      </>
     );
   if (pick.role === 'other')
     return (
-      <button type="button" className="spot-card-action" onClick={pick.onChoose}>
+      <button type="button" className="chip spot-card-chip" onClick={pick.onChoose}>
         <Icon name="star" size={16} />
         Make this my {noun} pick
       </button>
     );
-  return (
-    <div className="spot-card-pick">
+  if (pick.role === 'chosen')
+    return (
       <div className="spot-card-line">
-        <Icon name={pick.role === 'chosen' ? 'starFill' : 'star'} size={16} />
-        {pick.role === 'chosen' ? `Your ${noun} pick` : `Nearest ${noun} · counts in your comparison`}
+        <Icon name="starFill" size={16} />
+        <span>
+          Your {noun} pick ·{' '}
+          <button type="button" className="spot-card-inline-link" onClick={pick.onUseNearest}>
+            Use nearest
+          </button>
+        </span>
       </div>
-      {pick.role === 'chosen' && (
-        <button type="button" className="link-btn spot-card-link-btn" onClick={pick.onUseNearest}>
-          Use the nearest instead
-        </button>
-      )}
-      {pick.role === 'nearest' && pick.others > 0 && (
+    );
+  return (
+    <>
+      <div className="spot-card-line">
+        <Icon name="star" size={16} />
+        Nearest {noun} · counts in your comparison
+      </div>
+      {pick.others > 0 && (
         <div className="spot-card-hint">
-          {pick.others} other {pick.others === 1 ? 'option' : 'options'} nearby. Tap the category in the list to choose one.
+          {pick.others} {pick.others === 1 ? 'other' : 'others'} nearby · pick one from the list
         </div>
       )}
-    </div>
+    </>
   );
 }
