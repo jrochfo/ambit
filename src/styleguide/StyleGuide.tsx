@@ -8,6 +8,7 @@ import { pickEmoji } from '../lib/emoji';
 import { MAP_STYLE, MAP_STYLE_DARK } from '../lib/mapStyle';
 import type { NearbyPlace } from '../lib/nearby';
 import { pillColors, ringStyle } from '../lib/rings';
+import { BUTTON_TEXTURES, PAGE_TEXTURES, applyTexturePreview, readTexturePreview, writeTexturePreview, type TexturePreview } from '../lib/texturePreview';
 import { RingTag } from '../components/RingTag';
 
 /**
@@ -151,6 +152,10 @@ export function StyleGuide() {
 
       <Section title="Map overlays" file="src/styles.css (.pin, .spot-card, .origin, .map-label)">
         <Themed>{() => <MapOverlays />}</Themed>
+      </Section>
+
+      <Section title="Texture" file="src/styles.css (Texture); previews live in an open sandbox tab">
+        <TextureLab />
       </Section>
 
       <Section title="Logo motion" file="src/styleguide/styleguide.css (variants); the app's current motion is in src/styles.css">
@@ -644,6 +649,76 @@ function MapOverlays() {
         ))}
       </div>
       <p className="sg-note">Map labels sit on --map-land halos; the intro card and wash appear before an address is mapped.</p>
+    </div>
+  );
+}
+
+function TextureLab() {
+  const [t, setT] = useState<TexturePreview>(readTexturePreview);
+  useEffect(() => {
+    applyTexturePreview(t);
+    writeTexturePreview(t);
+  }, [t]);
+  const rings = [5, 10, 15];
+  return (
+    <div className="sg-stack">
+      <p className="sg-note">
+        Applies to this page and to an open <a href="/sandbox" target="_blank" rel="noreferrer">sandbox</a> tab. Page texture shows on the
+        page background (cards stay smooth); button texture shows on filled controls.
+      </p>
+      <div className="sg-row">
+        <span className="sg-use">Page</span>
+        {PAGE_TEXTURES.map(([id, label]) => (
+          <button key={id} type="button" className={t.page === id ? 'chip sg-chip-on' : 'chip'} aria-pressed={t.page === id} onClick={() => setT({ ...t, page: id })}>
+            {label}
+          </button>
+        ))}
+      </div>
+      <div className="sg-row">
+        <span className="sg-use">Buttons</span>
+        {BUTTON_TEXTURES.map(([id, label]) => (
+          <button key={id} type="button" className={t.buttons === id ? 'chip sg-chip-on' : 'chip'} aria-pressed={t.buttons === id} onClick={() => setT({ ...t, buttons: id })}>
+            {label}
+          </button>
+        ))}
+      </div>
+      <label className="sg-use">
+        Strength {t.strength.toFixed(2)}×{' '}
+        <input type="range" min={0.25} max={2} step={0.05} value={t.strength} onChange={(e) => setT({ ...t, strength: Number(e.target.value) })} />
+      </label>
+      <div className="sg-themes">
+        {(['light', 'dark'] as const).map((theme) => (
+          <div key={theme} className="sg-panel page-texture sg-texture-panel" data-theme={theme}>
+            <div className="sg-panel-label">{theme}</div>
+            <div className="sg-row">
+              <button className="btn" type="button">
+                Map it
+              </button>
+              <button className="btn btn-sm btn-icon" type="button">
+                <Icon name="bookmarkAdd" size={20} />
+                Save
+              </button>
+              <ThemeSwitchDemo />
+            </div>
+            <div className="pills" style={{ maxWidth: 360 }}>
+              {rings.map((m, rank) => {
+                const { bg, fg } = pillColors(rank);
+                return (
+                  <span key={m} className="pill-chip" style={{ background: bg, color: fg, borderColor: bg }}>
+                    <button type="button" className="pill-toggle" aria-pressed>
+                      {m} min
+                    </button>
+                    <button type="button" className="pill-remove" aria-label="Remove">
+                      <Icon name="close" size={16} />
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+            <div className="card sg-texture-card">A card stays smooth: text always sits on a clean surface.</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

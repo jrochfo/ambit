@@ -204,3 +204,7 @@ body { background: var(--page); color: var(--ink); font-family: var(--font); }
 .m-c2 .mark-dot { animation-name: sg-dot-glow-soft; animation-duration: calc(3.6s * var(--sg-speed)); --lo: 0.72; --hi: 1; animation-delay: calc(-3.6s * var(--sg-speed)); }
 .m-c2 .mark-ring-inner { --lo: 0.3; --hi: 0.8; animation-delay: calc(-3.1s * var(--sg-speed)); }
 .m-c2 .mark-ring-outer { --lo: 0.08; --hi: 0.48; animation-delay: calc(-2.6s * var(--sg-speed)); }
+
+.sg-chip-on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.sg-texture-panel { display: flex; flex-direction: column; gap: var(--space-4); min-height: 260px; }
+.sg-texture-card { padding: var(--space-4); font-size: var(--text-md); color: var(--ink-2); }
