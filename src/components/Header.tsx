@@ -15,12 +15,12 @@ export function Header({ theme, onTheme }: { theme: Theme; onTheme: (theme: Them
       </div>
       <div className="header-actions">
         <button type="button" className="header-btn" onClick={() => about.current?.showModal()}>
-          <Icon name="info" size={20} />
+          <Icon name="info" size={16} />
           About
         </button>
         <button type="button" role="switch" aria-checked={dark} aria-label="Dark mode" className="theme-switch" onClick={() => onTheme(dark ? 'light' : 'dark')}>
           <span className="theme-switch-knob">
-            <Icon name={dark ? 'darkMode' : 'lightMode'} size={18} />
+            <Icon name={dark ? 'darkMode' : 'lightMode'} size={16} />
           </span>
         </button>
       </div>

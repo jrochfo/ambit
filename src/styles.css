@@ -218,24 +218,24 @@ button, input { font: inherit; }
 .header-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  height: var(--control-sm);
-  padding: 0 var(--space-3) 0 var(--space-3);
+  gap: 6px;
+  height: var(--control-xs);
+  padding: 0 var(--space-3) 0 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   background: var(--card);
   color: var(--ink-2);
-  font-size: var(--text-md);
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
 }
 .header-btn:hover { color: var(--ink); border-color: var(--line-control); }
-/* Dark mode switch: a track with a knob that slides right when on. Same height as the About
-   button beside it; the knob is the small control size, inset 3px. */
+/* Dark mode switch: a track with a knob that slides right when on. Chip height, like the About
+   button beside it. */
 .theme-switch {
   position: relative;
-  width: 64px;
-  height: var(--control-sm);
+  width: 52px;
+  height: var(--control-xs);
   padding: 0;
   border: 1px solid var(--line-control);
   border-radius: var(--radius-pill);
@@ -245,10 +245,10 @@ button, input { font: inherit; }
 .theme-switch[aria-checked='true'] { background: var(--accent); border-color: var(--accent); }
 .theme-switch-knob {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: var(--control-xs);
-  height: var(--control-xs);
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-pill);
@@ -256,7 +256,7 @@ button, input { font: inherit; }
   color: var(--card);
   transition: transform 160ms ease;
 }
-.theme-switch[aria-checked='true'] .theme-switch-knob { transform: translateX(28px); background: var(--on-accent); color: var(--accent); }
+.theme-switch[aria-checked='true'] .theme-switch-knob { transform: translateX(24px); background: var(--on-accent); color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .theme-switch-knob { transition: none; } }
 
 /* Layout */

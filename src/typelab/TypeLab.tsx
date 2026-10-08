@@ -46,7 +46,7 @@ export function TypeLab() {
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
             <span className="theme-switch-knob">
-              <Icon name={theme === 'dark' ? 'darkMode' : 'lightMode'} size={18} />
+              <Icon name={theme === 'dark' ? 'darkMode' : 'lightMode'} size={16} />
             </span>
           </button>
         </div>
