@@ -655,11 +655,26 @@ const MOTIONS: { id: string; name: string; note: string }[] = [
   { id: 'd', name: 'D. Two-ring phasing, slower', note: 'The current motion at a slower pace and a little stronger. Rings trade brightness back and forth.' },
   { id: 'e', name: 'E. Uneven shimmer', note: 'Each part on its own slow cycle (3.7s, 5.3s, 7.1s), so the pattern never quite repeats. Alive, ambient, directionless.' },
   { id: 'f', name: 'F. Traveling wave, slow fade', note: 'Like C but slower and wider: a long, soft pulse that drifts out from the dot.' },
+  {
+    id: 'g',
+    name: 'G. B with a soft tail',
+    note: 'B’s overlapping three-step wave (no start or end) on a 5s cycle, with each part rising a little faster than it fades (set by Rise).',
+  },
 ];
+
+/** G's keyframes: rise to the peak over `rise` of the cycle, fade over the rest. */
+function softTailKeyframes(rise: number): string {
+  const r = Math.round(rise * 100);
+  const frames = (prop: string) => `0% { ${prop}: var(--lo); animation-timing-function: ease-in-out; }
+  ${r}% { ${prop}: var(--hi); animation-timing-function: ease-in-out; }
+  100% { ${prop}: var(--lo); }`;
+  return `@keyframes sg-g-ring {\n  ${frames('stroke-opacity')}\n}\n@keyframes sg-g-dot {\n  ${frames('fill-opacity')}\n}`;
+}
 
 function LogoMotion() {
   const [speed, setSpeed] = useState(1);
   const [paused, setPaused] = useState(false);
+  const [rise, setRise] = useState(0.4);
   return (
     <div className="sg-stack">
       <div className="sg-row sg-motion-controls">
@@ -670,8 +685,13 @@ function LogoMotion() {
         <button type="button" className="chip" onClick={() => setPaused((p) => !p)}>
           {paused ? 'Play' : 'Pause'}
         </button>
-        <span className="sg-note">Opacity only. Speed multiplies every duration (higher = slower).</span>
+        <label className="sg-use">
+          G rise {Math.round(rise * 100)}%{' '}
+          <input type="range" min={0.2} max={0.5} step={0.01} value={rise} onChange={(e) => setRise(Number(e.target.value))} />
+        </label>
+        <span className="sg-note">Opacity only. Speed multiplies every duration (higher = slower). G rise 50% = B’s even wave.</span>
       </div>
+      <style>{softTailKeyframes(rise)}</style>
       <div
         className="sg-themes"
         style={{ '--sg-speed': speed, '--sg-play': paused ? 'paused' : 'running' } as CSSProperties}
