@@ -6,7 +6,8 @@
 
 import type { SpotPick } from './nearby';
 
-export const MAX_SAVED = 6;
+/** Three keeps the comparison grid readable at any width (and bounds per-change search costs). */
+export const MAX_SAVED = 3;
 export const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type StoredSpot = [id: string, lat: number, lng: number];

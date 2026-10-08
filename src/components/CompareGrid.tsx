@@ -55,6 +55,12 @@ export function CompareGrid({
         <div className="compare-scroll">
           <table className="compare-table">
             <caption className="sr-only">Nearest spot per category, in walking minutes, for each saved address</caption>
+            <colgroup>
+              <col className="compare-col-category" />
+              {saved.map((a) => (
+                <col key={a.id} />
+              ))}
+            </colgroup>
             <thead>
               <tr>
                 <th scope="col" className="compare-corner">
@@ -91,7 +97,12 @@ export function CompareGrid({
               {categories.map((c) => (
                 <tr key={c.id}>
                   <th scope="row" className="compare-category">
-                    <span className="emoji" aria-hidden="true">{pickEmoji(c.emoji)}</span> {c.label}
+                    <div className="compare-category-inner">
+                      <span className="category-avatar" style={{ background: `${c.color}22`, borderColor: c.color }} aria-hidden="true">
+                        {pickEmoji(c.emoji)}
+                      </span>
+                      <span className="compare-category-label">{c.label}</span>
+                    </div>
                   </th>
                   {saved.map((a) => (
                     <td key={a.id} aria-current={a.id === currentId ? 'true' : undefined}>

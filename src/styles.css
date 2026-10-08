@@ -377,7 +377,8 @@ button, input { font: inherit; }
   cursor: pointer;
 }
 .nearby-row:focus-visible { outline: 2px solid var(--teal-text); outline-offset: 2px; }
-.nearby-avatar {
+/* Category emoji in its color-tinted circle: sidebar rows and the comparison grid. */
+.nearby-avatar, .category-avatar {
   flex: 0 0 auto;
   width: 30px;
   height: 30px;
@@ -546,7 +547,7 @@ button, input { font: inherit; }
 .link-btn:disabled { color: var(--muted-border); cursor: default; }
 
 /* Emoji avatars, focus state and pins */
-.nearby-avatar { border: 2px solid transparent; font-size: 17px; }
+.nearby-avatar, .category-avatar { border: 2px solid transparent; font-size: 17px; }
 .nearby-row[aria-pressed='true'] { border-color: var(--teal-text); box-shadow: inset 0 0 0 1px var(--teal-text); }
 .nearby-row[data-dimmed='true'] { opacity: 0.55; }
 .pin {
@@ -685,12 +686,16 @@ button, input { font: inherit; }
 .compare-title { margin: 0; font-size: 18px; font-weight: 700; }
 .compare-note, .compare-empty { margin: 0; font-size: 14px; color: var(--ink-3); }
 .compare-scroll { overflow-x: auto; }
-.compare-table { width: 100%; border-collapse: collapse; }
+.compare-table { width: 100%; min-width: 640px; table-layout: fixed; border-collapse: collapse; }
+.compare-col-category { width: 24%; }
 .compare-table th, .compare-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--border-faint); vertical-align: middle; }
 .compare-table thead th { border-bottom-color: var(--border); }
 .compare-corner { white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--ink-3); }
-.compare-category { font-size: 15px; font-weight: 500; white-space: nowrap; }
-.compare-col { position: relative; font-size: 14px; min-width: 160px; padding-right: 40px !important; }
+.compare-category { font-size: 15px; font-weight: 500; }
+/* Same 12px emoji-to-label spacing as the sidebar rows. */
+.compare-category-inner { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.compare-category-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.compare-col { position: relative; font-size: 14px; padding-right: 40px !important; }
 .compare-col[aria-current='true'], .compare-table td[aria-current='true'] { background: var(--highlight); }
 .compare-table tbody tr:hover > * { background: var(--row-hover); }
 .compare-table tbody tr:hover > td[aria-current='true'] { background: var(--row-hover-current); }
@@ -794,7 +799,7 @@ a.pin { text-decoration: none; }
 .about a { color: var(--teal-text); font-weight: 600; }
 
 /* Emoji are pictures, not text: don't let them be selected. */
-.emoji, .nearby-avatar, .pin, .emoji-choice { -webkit-user-select: none; user-select: none; }
+.emoji, .nearby-avatar, .category-avatar, .pin, .emoji-choice { -webkit-user-select: none; user-select: none; }
 
 /* Picking which spot counts for a category */
 .spot-card-pick { display: flex; flex-direction: column; gap: 4px; }
