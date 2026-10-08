@@ -1,8 +1,8 @@
 // Palette generator for the color lab (dev only). A palette is a few choices (accent hue and
 // strength, neutral tint, ring hues); every color token is derived from them in OKLCH, a
 // perceptual color space, and each text/outline color's lightness is solved until it meets its
-// WCAG contrast minimum against every background it sits on. The current palette (teal) lives in
-// src/styles.css; generated palettes override it only in the sandbox until one is chosen.
+// WCAG contrast minimum against every background it sits on. The current palette lives in
+// src/styles.css (Citrus & ink since 2026-10-08); others override it only in the sandbox.
 
 export interface PaletteSpec {
   id: string;
@@ -345,7 +345,7 @@ export const PALETTES: PaletteSpec[] = [
   },
   {
     id: 'citrus-ink',
-    name: 'Citrus & ink',
+    name: 'Citrus & ink (current)',
     note: 'Lime for the walk, ink for actions. The loudest color confined to the data; everything else editorial.',
     kind: 'round3',
     accentHue: 110,

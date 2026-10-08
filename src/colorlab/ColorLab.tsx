@@ -29,12 +29,12 @@ export function ColorLab() {
           <p className="cl-lede">
             Every palette is generated from a few choices (accent hue, neutral tint, ring hues), with each text and outline color tuned until it
             meets WCAG contrast. Open the <a href="/sandbox.html" target="_blank" rel="noreferrer">sandbox</a> beside this page; “Preview in
-            sandbox” recolors it live. The real app keeps teal until we pick.
+            sandbox” recolors it live. The real app uses Citrus & ink (in styles.css).
           </p>
         </div>
         <div className="cl-head-actions">
           <span className="cl-current">
-            Sandbox: <strong>{current ? current.name : 'Teal (current, from styles.css)'}</strong>
+            Sandbox: <strong>{current ? current.name : 'Citrus & ink (current, from styles.css)'}</strong>
           </span>
           <button type="button" className="link-btn" onClick={() => choose(null)} disabled={!preview}>
             Reset

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { SpotPin, type PinPick } from '../components/CategoryPin';
 import { Icon, ICON_NAMES } from '../components/Icon';
 import { Logomark } from '../components/Logomark';
@@ -151,6 +151,10 @@ export function StyleGuide() {
 
       <Section title="Map overlays" file="src/styles.css (.pin, .spot-card, .origin, .map-label)">
         <Themed>{() => <MapOverlays />}</Themed>
+      </Section>
+
+      <Section title="Logo motion" file="src/styleguide/styleguide.css (variants); the app's current motion is in src/styles.css">
+        <LogoMotion />
       </Section>
 
       <Section title="Icons" file="src/components/Icon.tsx (Material Symbols, Rounded 400)">
@@ -640,6 +644,59 @@ function MapOverlays() {
         ))}
       </div>
       <p className="sg-note">Map labels sit on --map-land halos; the intro card and wash appear before an address is mapped.</p>
+    </div>
+  );
+}
+
+const MOTIONS: { id: string; name: string; note: string }[] = [
+  { id: 'a', name: 'A. Unison breathing', note: 'Dot and rings swell and settle together, slow and even. Calm, like a breath.' },
+  { id: 'b', name: 'B. Three-step wave', note: 'Dot, inner ring, outer ring, a third of a cycle apart and overlapping: brightness keeps moving outward with no start or end.' },
+  { id: 'c', name: 'C. Glow, then long fade', note: 'Each wave rises quickly and fades slowly, leaving the dot and passing outward. Feels emitted, like a signal.' },
+  { id: 'd', name: 'D. Two-ring phasing, slower', note: 'The current motion at a slower pace and a little stronger. Rings trade brightness back and forth.' },
+  { id: 'e', name: 'E. Uneven shimmer', note: 'Each part on its own slow cycle (3.7s, 5.3s, 7.1s), so the pattern never quite repeats. Alive, ambient, directionless.' },
+  { id: 'f', name: 'F. Traveling wave, slow fade', note: 'Like C but slower and wider: a long, soft pulse that drifts out from the dot.' },
+];
+
+function LogoMotion() {
+  const [speed, setSpeed] = useState(1);
+  const [paused, setPaused] = useState(false);
+  return (
+    <div className="sg-stack">
+      <div className="sg-row sg-motion-controls">
+        <label className="sg-use">
+          Speed {speed.toFixed(2)}×{' '}
+          <input type="range" min={0.5} max={2} step={0.05} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
+        </label>
+        <button type="button" className="chip" onClick={() => setPaused((p) => !p)}>
+          {paused ? 'Play' : 'Pause'}
+        </button>
+        <span className="sg-note">Opacity only. Speed multiplies every duration (higher = slower).</span>
+      </div>
+      <div
+        className="sg-themes"
+        style={{ '--sg-speed': speed, '--sg-play': paused ? 'paused' : 'running' } as CSSProperties}
+      >
+        {(['light', 'dark'] as const).map((theme) => (
+          <div key={theme} className="sg-panel" data-theme={theme}>
+            <div className="sg-panel-label">{theme}</div>
+            <div className="sg-motions">
+              {MOTIONS.map((m) => (
+                <div key={m.id} className={`sg-motion m-${m.id}`}>
+                  <div className="sg-motion-big">
+                    <Logomark size={88} />
+                  </div>
+                  <div className="brand sg-motion-nav">
+                    <Logomark size={26} />
+                    <span className="brand-name">Ambit</span>
+                  </div>
+                  <strong>{m.name}</strong>
+                  <span className="sg-note">{m.note}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -102,3 +102,80 @@ body { background: var(--page); color: var(--ink); font-family: var(--font); }
   border-radius: var(--radius-control);
   background: var(--card);
 }
+
+/* Logo motion variants (style guide only). Each part animates its own opacity between --lo and
+   --hi; durations and delays scale with --sg-speed. Resting values: dot 1, inner 0.65, outer 0.35. */
+.sg-motion-controls input { vertical-align: middle; }
+.sg-motions { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-4); }
+.sg-motion { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-control); background: var(--card); border: 1px solid var(--line-subtle); }
+.sg-motion-big { display: flex; justify-content: center; padding: var(--space-3) 0; color: var(--accent-text); }
+.sg-motion-nav { display: flex; align-items: center; gap: var(--space-2); }
+.sg-motion strong { font-size: var(--text-md); }
+
+@keyframes sg-ring { from { stroke-opacity: var(--lo); } to { stroke-opacity: var(--hi); } }
+@keyframes sg-dot { from { fill-opacity: var(--lo); } to { fill-opacity: var(--hi); } }
+/* Rise fast, fade long: a glow that leaves the center. */
+@keyframes sg-ring-glow {
+  0% { stroke-opacity: var(--lo); animation-timing-function: ease-out; }
+  14% { stroke-opacity: var(--hi); animation-timing-function: ease-in-out; }
+  100% { stroke-opacity: var(--lo); }
+}
+@keyframes sg-dot-glow {
+  0% { fill-opacity: var(--lo); animation-timing-function: ease-out; }
+  14% { fill-opacity: var(--hi); animation-timing-function: ease-in-out; }
+  100% { fill-opacity: var(--lo); }
+}
+.sg-motion .mark-ring-inner, .sg-motion .mark-ring-outer, .sg-motion .mark-dot {
+  animation-play-state: var(--sg-play, running);
+  animation-iteration-count: infinite;
+}
+.sg-motion .mark-ring-inner, .sg-motion .mark-ring-outer { animation-name: sg-ring; }
+.sg-motion .mark-dot { animation-name: sg-dot; }
+
+/* A. Unison breathing: all together, 6s cycle. */
+.m-a .mark-ring-inner, .m-a .mark-ring-outer, .m-a .mark-dot {
+  animation-duration: calc(3s * var(--sg-speed));
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+.m-a .mark-dot { --lo: 0.85; --hi: 1; }
+.m-a .mark-ring-inner { --lo: 0.5; --hi: 0.88; }
+.m-a .mark-ring-outer { --lo: 0.2; --hi: 0.52; }
+
+/* B. Three-step wave: dot, inner, outer a third of a 3.6s cycle apart, peaking in that order. */
+.m-b .mark-ring-inner, .m-b .mark-ring-outer, .m-b .mark-dot {
+  animation-duration: calc(1.8s * var(--sg-speed));
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+.m-b .mark-dot { --lo: 0.7; --hi: 1; animation-delay: calc(-1.8s * var(--sg-speed)); }
+.m-b .mark-ring-inner { --lo: 0.42; --hi: 0.92; animation-delay: calc(-0.6s * var(--sg-speed)); }
+.m-b .mark-ring-outer { --lo: 0.15; --hi: 0.58; animation-delay: calc(-3s * var(--sg-speed)); }
+
+/* C. Glow then long fade: 3.6s, each part 0.5s after the previous. */
+.m-c .mark-ring-inner, .m-c .mark-ring-outer { animation-name: sg-ring-glow; animation-duration: calc(3.6s * var(--sg-speed)); }
+.m-c .mark-dot { animation-name: sg-dot-glow; animation-duration: calc(3.6s * var(--sg-speed)); --lo: 0.72; --hi: 1; animation-delay: calc(-3.6s * var(--sg-speed)); }
+.m-c .mark-ring-inner { --lo: 0.4; --hi: 0.95; animation-delay: calc(-3.1s * var(--sg-speed)); }
+.m-c .mark-ring-outer { --lo: 0.14; --hi: 0.62; animation-delay: calc(-2.6s * var(--sg-speed)); }
+
+/* D. Two-ring phasing, slower: 6s, outer a quarter cycle behind; dot still. */
+.m-d .mark-ring-inner, .m-d .mark-ring-outer {
+  animation-duration: calc(3s * var(--sg-speed));
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+.m-d .mark-dot { animation: none; }
+.m-d .mark-ring-inner { --lo: 0.45; --hi: 0.88; animation-delay: calc(-1.5s * var(--sg-speed)); }
+.m-d .mark-ring-outer { --lo: 0.16; --hi: 0.54; }
+
+/* E. Uneven shimmer: unrelated cycles so it never repeats exactly. */
+.m-e .mark-ring-inner, .m-e .mark-ring-outer, .m-e .mark-dot { animation-timing-function: ease-in-out; animation-direction: alternate; }
+.m-e .mark-dot { --lo: 0.82; --hi: 1; animation-duration: calc(3.55s * var(--sg-speed)); animation-delay: calc(-2.1s * var(--sg-speed)); }
+.m-e .mark-ring-inner { --lo: 0.48; --hi: 0.88; animation-duration: calc(1.85s * var(--sg-speed)); animation-delay: calc(-0.7s * var(--sg-speed)); }
+.m-e .mark-ring-outer { --lo: 0.18; --hi: 0.52; animation-duration: calc(2.65s * var(--sg-speed)); animation-delay: calc(-1.9s * var(--sg-speed)); }
+
+/* F. Traveling wave, slow fade: 6s, each part 0.9s after the previous. */
+.m-f .mark-ring-inner, .m-f .mark-ring-outer { animation-name: sg-ring-glow; animation-duration: calc(6s * var(--sg-speed)); }
+.m-f .mark-dot { animation-name: sg-dot-glow; animation-duration: calc(6s * var(--sg-speed)); --lo: 0.75; --hi: 1; animation-delay: calc(-6s * var(--sg-speed)); }
+.m-f .mark-ring-inner { --lo: 0.38; --hi: 0.95; animation-delay: calc(-5.1s * var(--sg-speed)); }
+.m-f .mark-ring-outer { --lo: 0.1; --hi: 0.66; animation-delay: calc(-4.2s * var(--sg-speed)); }
