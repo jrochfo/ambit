@@ -15,8 +15,8 @@
   --on-accent: #ffffff;
   /* Data: the walk itself (map rings, legend, ring labels; the ring tags are --ring-*).
      Separate from the action accent so a palette can give actions and data different hues. */
-  --data: #a4780e;
-  --data-ink: #6f4f00;
+  --data: #a27900;
+  --data-ink: #6d5000;
   /* The logo: all in the walk color at its brightest (the smallest ring's fill); the rings'
      strokes are faded in Logomark.tsx. */
   --mark-dot: var(--ring-1);
@@ -46,18 +46,18 @@
   /* Walking-ring pills, smallest ring first, and their text (each pair >= 4.5:1). */
   /* Opacity of ring bands on the map (they're filled with --ring-N, like the pills). */
   --map-ring-fill: 0.6;
-  --ring-1: #deaf56;
-  --ring-1-ink: #312100;
-  --ring-2: #edc478;
-  --ring-2-ink: #312100;
-  --ring-3: #fad593;
-  --ring-3-ink: #312100;
-  --ring-4: #ffe4b4;
-  --ring-4-ink: #312100;
-  --ring-5: #ffeed0;
-  --ring-5-ink: #2f2207;
-  --ring-6: #fff6e5;
-  --ring-6-ink: #2d220f;
+  --ring-1: #ecbd51;
+  --ring-1-ink: #1e1a13;
+  --ring-2: #f7ce77;
+  --ring-2-ink: #1e1a13;
+  --ring-3: #ffdd96;
+  --ring-3-ink: #1e1a13;
+  --ring-4: #ffe9bb;
+  --ring-4-ink: #1e1a13;
+  --ring-5: #fff0d2;
+  --ring-5-ink: #1e1a13;
+  --ring-6: #fff7e6;
+  --ring-6-ink: #1e1a13;
 
   /* How strongly a category's color tints its emoji circle. */
   --tint: 13%;
@@ -134,8 +134,8 @@
 [data-theme='dark'] {
   color-scheme: dark;
   --accent-text: #a39d97;
-  --data: #a4780e;
-  --data-ink: #ca9d42;
+  --data: #a27900;
+  --data-ink: #cb9d2a;
   /* Re-declared so they resolve against this theme's colors in dark-scoped sections too. */
   --mark-dot: var(--ring-1);
   --mark-ring: var(--ring-1);
@@ -157,17 +157,17 @@
   --scroll-thumb: #403d36;
   /* Brightest pill for the smallest ring, dimming outward. */
   --map-ring-fill: 0.6;
-  --ring-1: #e0b769;
-  --ring-1-ink: #312100;
-  --ring-2: #8c703a;
+  --ring-1: #e2b75a;
+  --ring-1-ink: #1e1a13;
+  --ring-2: #996a15;
   --ring-2-ink: #ffffff;
-  --ring-3: #775f31;
+  --ring-3: #855900;
   --ring-3-ink: #ffffff;
-  --ring-4: #634f29;
+  --ring-4: #6f4a00;
   --ring-4-ink: #ffffff;
-  --ring-5: #504021;
+  --ring-5: #5a3b00;
   --ring-5-ink: #ffffff;
-  --ring-6: #40331b;
+  --ring-6: #492f00;
   --ring-6-ink: #ffffff;
   --tint: 24%;
   --map-land: #221f19;

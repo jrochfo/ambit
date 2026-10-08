@@ -36,6 +36,15 @@ export interface PaletteSpec {
   ringKeepLight?: number[];
   /** Light mode: lightness of rings 2–6 (default 0.77, 0.84, 0.9, 0.94, 0.965). */
   ringLightL?: number[];
+  /** Dark mode: share of the ring chroma kept by rings 2–6 (default 0.67 → 0.35). */
+  ringKeepDark?: number[];
+  /** Dark mode: hue of rings 2–6, when they should warm as they darken (dark yellows drift olive). */
+  ringHueDark?: number;
+  /**
+   * Text on light ring fills in the page's neutral ink instead of a dark shade of the ring's
+   * hue. Brown-on-gold reads muddy even when it passes contrast; ink reads crisp.
+   */
+  ringInkNeutral?: boolean;
   /** Error color hue; moved away from red-orange accents so errors don't read as brand. */
   dangerHue?: number;
   /** Page lightness in light mode (lower = more paper-like). */
@@ -181,7 +190,7 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     const ringL = [dataFillL, ...(spec.ringLightL ?? [0.77, 0.84, 0.9, 0.94, 0.965])];
     ringL.forEach((L, i) => {
       const chroma = i === 0 ? rc : rc * (spec.ringKeepLight?.[i - 1] ?? 0.75 - i * 0.1);
-      const ring = solveFill(L, Math.max(chroma, 0), rh);
+      const ring = solveFill(L, Math.max(chroma, 0), rh, spec.ringInkNeutral ? t['--ink'] : undefined);
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
     });
@@ -221,8 +230,9 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     t['--data-ink'] = solve(0.72, dc, dh, [t['--map-land']], TEXT, 1);
     const ringL = [0.8, 0.56, 0.5, 0.44, 0.38, 0.33];
     ringL.forEach((L, i) => {
-      const chroma = rc * (i === 0 ? 0.9 : 0.75 - i * 0.08);
-      const ring = solveFill(L, Math.max(chroma, 0), rh);
+      const chroma = rc * (i === 0 ? 0.9 : (spec.ringKeepDark?.[i - 1] ?? 0.75 - i * 0.08));
+      // Dark text on the bright first ring is the light theme's ink (dark), not this theme's.
+      const ring = solveFill(L, Math.max(chroma, 0), i > 0 && spec.ringHueDark !== undefined ? spec.ringHueDark : rh, spec.ringInkNeutral ? generate(spec, 'light')['--ink'] : undefined);
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
     });
@@ -244,7 +254,7 @@ const MUDDY: [number, number] = [0.6, 0.74];
  * shade of the fill's own hue (deep brown on gold, olive on lime) instead of neutral black. Fills
  * in the muddy band move to its nearer edge.
  */
-function solveFill(L: number, C: number, H: number): { color: string; text: string } {
+function solveFill(L: number, C: number, H: number, ink?: string): { color: string; text: string } {
   if (L > MUDDY[0] && L < MUDDY[1]) L = L < (MUDDY[0] + MUDDY[1]) / 2 ? MUDDY[0] - 0.02 : MUDDY[1] + 0.02;
   const white = '#ffffff';
   if (L < MUDDY[0]) {
@@ -254,7 +264,7 @@ function solveFill(L: number, C: number, H: number): { color: string; text: stri
     }
   }
   const color = oklch(L, C, H);
-  for (const text of [oklch(0.26, Math.min(C * 0.7, 0.07), H), oklch(0.2, Math.min(C * 0.5, 0.05), H), '#111111']) {
+  for (const text of [...(ink ? [ink] : []), oklch(0.26, Math.min(C * 0.7, 0.07), H), oklch(0.2, Math.min(C * 0.5, 0.05), H), '#111111']) {
     if (contrast(text, color) >= TEXT) return { color, text };
   }
   return { color, text: '#000000' };
@@ -320,14 +330,17 @@ export const PALETTES: PaletteSpec[] = [
     accentHue: 70,
     accentChroma: 0.012,
     accentFillL: 0.27,
-    dataHue: 82,
-    dataChroma: 0.12,
-    dataFillL: 0.78,
+    dataHue: 85,
+    dataChroma: 0.135,
+    dataFillL: 0.82,
     neutralHue: 80,
     neutralChroma: 0.012,
     pageL: 0.966,
-    ringKeepLight: [0.88, 0.78, 0.66, 0.54, 0.42],
-    ringLightL: [0.84, 0.89, 0.93, 0.955, 0.975],
+    ringKeepLight: [0.86, 0.74, 0.62, 0.5, 0.4],
+    ringLightL: [0.87, 0.91, 0.94, 0.96, 0.977],
+    ringKeepDark: [0.82, 0.78, 0.74, 0.7, 0.66],
+    ringHueDark: 76,
+    ringInkNeutral: true,
   },
   {
     id: 'coral-teal',
