@@ -8,8 +8,8 @@ export interface PaletteSpec {
   id: string;
   name: string;
   note: string;
-  /** Lab section: this round, the previous round's favorites, or earlier (collapsed). */
-  kind: 'round3' | 'favorite' | 'earlier';
+  /** Lab section: citrus variations, this round, the previous round's favorites, or earlier (collapsed). */
+  kind: 'citrus' | 'round3' | 'favorite' | 'earlier';
   /** Accent hue (OKLCH degrees, 0–360) and chroma (0 gray … ~0.2 vivid). */
   accentHue: number;
   accentChroma: number;
@@ -282,7 +282,37 @@ export function checks(t: Tokens): [string, string, string, number][] {
 
 // ── Palettes ────────────────────────────────────────────────────────────────
 
+/** Citrus & ink: ink actions, lime walk. The chosen palette (also written into styles.css). */
+const CITRUS_INK = {
+  accentHue: 110,
+  accentChroma: 0.012,
+  accentFillL: 0.27,
+  dataHue: 122,
+  dataChroma: 0.16,
+  dataFillL: 0.82,
+  neutralHue: 90,
+  neutralChroma: 0.006,
+};
+
+/** Citrus & ink with one property of the lime changed; ink and surfaces stay the same. */
+const citrus = (id: string, name: string, note: string, change: Partial<typeof CITRUS_INK>): PaletteSpec => ({
+  id: `citrus-${id}`,
+  name,
+  note,
+  kind: 'citrus',
+  ...CITRUS_INK,
+  ...change,
+});
+
 export const PALETTES: PaletteSpec[] = [
+  // Citrus variations: one property of the lime at a time (hue 122, chroma 0.16, fill lightness 0.82).
+  citrus('lemon', 'Lemon-lime', 'Hue 112: yellower, sunnier, closer to a highlighter.', { dataHue: 112 }),
+  citrus('chartreuse', 'Chartreuse', 'Hue 117: a touch yellower than current.', { dataHue: 117 }),
+  citrus('key-lime', 'Key lime', 'Hue 128: a touch greener than current.', { dataHue: 128 }),
+  citrus('green', 'Lime green', 'Hue 136: greener, fresher, closer to grass.', { dataHue: 136 }),
+  citrus('soft', 'Softer', 'Chroma 0.12: less saturated, calmer, a little more grown-up.', { dataChroma: 0.12 }),
+  citrus('vivid', 'More vivid', 'Chroma 0.19: punchier, more electric.', { dataChroma: 0.19 }),
+  citrus('pale', 'Paler', 'Fill lightness 0.87: lighter, airier tags and logo point.', { dataFillL: 0.87 }),
   // Round 3: energetic color on the walk, deep teal or ink for actions.
   {
     id: 'gold-ink',

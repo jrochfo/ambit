@@ -55,6 +55,13 @@ export function ColorLab() {
       </header>
 
       <Group
+        title="Citrus variations"
+        note="Citrus & ink (current) beside versions that each change one thing about the lime: hue, saturation or lightness. Ink and surfaces are identical."
+        palettes={[PALETTES.find((p) => p.id === 'citrus-ink')!, ...PALETTES.filter((p) => p.kind === 'citrus')]}
+        preview={preview}
+        choose={choose}
+      />
+      <Group
         title="Round 3"
         note="Two-tone with the energetic colors on the walk (rings, walking-time tags, map) and deep teal or ink for actions. Pills avoid muddy mid-tones and use a deep shade of their own hue for text."
         palettes={PALETTES.filter((p) => p.kind === 'round3')}
