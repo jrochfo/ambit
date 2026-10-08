@@ -682,7 +682,7 @@ function RingShapeLab() {
     <div className="sg-stack">
       <p className="sg-note">
         A real 5/10/15 min response (near the Embarcadero, SF). Display only: spots are still sorted into rings by the precise shape. Picking one
-        also applies it to the real map on localhost (reload or switch addresses to redraw).
+        also redraws the real map in an open localhost tab.
       </p>
       <div className="sg-row">
         <span className="sg-use">App draws</span>
