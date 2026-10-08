@@ -36,6 +36,8 @@ npm run dev            # http://localhost:5173 — serves the app and the /api/i
 
 **Type lab:** http://localhost:5173/typelab.html compares wordmark (display) candidates and UI sans candidates, each in a real slice of the interface, with a check that numbers line up (tabular figures). "Preview in sandbox" applies a choice to an open sandbox tab live; the deployed app is unaffected until a font is chosen in `src/styles.css` (`--font`, `--font-display` and the `--display-*` tokens).
 
+**Color lab:** http://localhost:5173/colorlab.html shows 14 generated palettes (hue swaps of the current structure, plus further-out directions), each in light and dark with real components. Palettes come from a few choices in `src/lib/palette.ts` (accent hue and chroma, neutral tint, ring hues); every text and outline color is solved in OKLCH until it meets WCAG contrast, and each card lists its checks. "Preview in sandbox" recolors an open sandbox tab live. The real app keeps the palette in `src/styles.css` until one is chosen.
+
 ## Terms
 
 Use these consistently in UI copy and when discussing the app.

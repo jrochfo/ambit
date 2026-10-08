@@ -38,14 +38,14 @@ const TOKEN_GROUPS: { title: string; note?: string; tokens: { name: string; use:
     ],
   },
   {
-    title: 'Brand teal',
-    note: '--teal is a fill (white text on it); --teal-text is teal used as text, links and outlines.',
+    title: 'Accent',
+    note: '--accent is a fill (--on-accent text on it); --accent-text is the accent as text, links and outlines.',
     tokens: [
-      { name: '--teal', use: 'Buttons, swatches, switch on' },
-      { name: '--teal-text', use: 'Links, focus outlines, accents' },
-      { name: '--teal-ink', use: 'Ring labels on the map' },
-      { name: '--teal-pale', use: 'Hover halos' },
-      { name: '--on-teal', use: 'Text on teal' },
+      { name: '--accent', use: 'Buttons, swatches, switch on' },
+      { name: '--accent-text', use: 'Links, focus outlines, accents' },
+      { name: '--accent-ink', use: 'Ring labels on the map' },
+      { name: '--accent-pale', use: 'Hover halos' },
+      { name: '--on-accent', use: 'Text on teal' },
     ],
   },
   {
@@ -220,8 +220,8 @@ const MIN_CONTRAST: Record<string, number> = {
   '--ink-2': 4.5,
   '--ink-3': 4.5,
   '--danger': 4.5,
-  '--teal-text': 4.5,
-  '--teal-ink': 4.5,
+  '--accent-text': 4.5,
+  '--accent-ink': 4.5,
   '--line-control': 3,
 };
 
@@ -282,7 +282,7 @@ function Rings() {
           <rect width="220" height="140" style={{ fill: 'var(--map-land)' }} />
           {[2, 1, 0].map((rank) => {
             const st = ringStyle(rank, 3);
-            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} style={{ fill: 'var(--teal)', stroke: 'var(--teal)' }} fillOpacity={st.fill} strokeOpacity={st.stroke} strokeWidth="2" />;
+            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} style={{ fill: 'var(--accent)', stroke: 'var(--accent)' }} fillOpacity={st.fill} strokeOpacity={st.stroke} strokeWidth="2" />;
           })}
         </svg>
         <div className="sg-note">
@@ -294,7 +294,7 @@ function Rings() {
               </div>
             );
           })}
-          <div>Polygons use --teal.</div>
+          <div>Polygons use --accent.</div>
         </div>
       </div>
     </div>
@@ -458,7 +458,7 @@ function Shape() {
         <div style={{ border: '1px solid var(--line)' }}>1px · cards, dividers</div>
         <div style={{ border: '1px solid var(--line-control)' }}>1px · controls</div>
         <div style={{ outline: 'var(--focus)', outlineOffset: 2 }}>2px · focus ring (--focus)</div>
-        <div style={{ border: '2px solid var(--teal-text)' }}>2px · emoji circles, pins, map rings</div>
+        <div style={{ border: '2px solid var(--accent-text)' }}>2px · emoji circles, pins, map rings</div>
       </div>
       <h3>Opacity</h3>
       <div className="sg-row sg-opacity">

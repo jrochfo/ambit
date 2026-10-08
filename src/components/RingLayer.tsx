@@ -16,7 +16,7 @@ export function RingLayer({ ring, rank, count }: { ring: Ring; rank: number; cou
     if (!map) return;
     const style = ringStyle(rank, count);
     // Google polygons need a literal color; take the theme's teal.
-    const teal = getComputedStyle(document.documentElement).getPropertyValue('--teal').trim() || '#0e7c74';
+    const teal = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0e7c74';
     const polygons = paths.map(
       (p) =>
         new google.maps.Polygon({
