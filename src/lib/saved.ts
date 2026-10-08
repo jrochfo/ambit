@@ -4,6 +4,8 @@
 // stored results hold only those (no names) and expire per category after 30 days; the
 // address's own coordinates are re-looked-up after 30 days too.
 
+import type { SpotPick } from './nearby';
+
 export const MAX_SAVED = 6;
 export const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -31,6 +33,8 @@ export interface SavedAddress {
   /** When `position` was looked up (ms). */
   positionAt: number;
   results?: SavedResults;
+  /** Spots the user chose per category (instead of the nearest). */
+  picks?: Record<string, SpotPick>;
 }
 
 export const ringsKeyOf = (minutes: number[]) => minutes.join(',');
@@ -54,6 +58,7 @@ export function isSavedList(v: unknown): v is SavedAddress[] {
 /** Drops stored search results older than 30 days (and the cells derived from them). */
 export function pruneExpired(list: SavedAddress[], now = Date.now()): SavedAddress[] {
   return list.slice(0, MAX_SAVED).map((a) => {
+    if (a.picks) a = { ...a, picks: Object.fromEntries(Object.entries(a.picks).filter(([, p]) => now - p.at <= MAX_AGE_MS)) };
     if (!a.results) return a;
     const spots = { ...a.results.spots };
     const cells = { ...a.results.cells };

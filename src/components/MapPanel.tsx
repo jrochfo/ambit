@@ -5,7 +5,7 @@ import type { NearbyPlace } from '../lib/nearby';
 import { useEffect, useState } from 'react';
 import { START_ZOOM, mapStyleFor, randomStartView } from '../lib/mapStyle';
 import type { Theme } from '../lib/theme';
-import { CategoryPin } from './CategoryPin';
+import { CategoryPin, type PinPick } from './CategoryPin';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
 import { EmptyMapPrompt, MapLegend, OriginMarker } from './MapParts';
 import { FitToRing, RingLayer } from './RingLayer';
@@ -22,6 +22,7 @@ export interface Origin {
 export interface Pin {
   category: Category;
   place: NearbyPlace;
+  pick?: PinPick;
 }
 
 export function MapPanel({
@@ -70,6 +71,7 @@ export function MapPanel({
                 place={place}
                 outerRing={largest?.minutes}
                 spotlight={spotlight === key}
+                pick={pins.find((p) => p.category === category && p.place === place)?.pick}
               />
             );
           })}

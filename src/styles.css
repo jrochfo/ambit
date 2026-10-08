@@ -795,3 +795,42 @@ a.pin { text-decoration: none; }
 
 /* Emoji are pictures, not text: don't let them be selected. */
 .emoji, .nearby-avatar, .pin, .emoji-choice { -webkit-user-select: none; user-select: none; }
+
+/* Picking which spot counts for a category */
+.spot-card-pick { display: flex; flex-direction: column; gap: 4px; }
+.spot-card-pick .icon, .spot-card-action .icon { color: var(--teal-text); }
+.spot-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 6px 12px 6px 10px;
+  border: 1px solid var(--teal-text);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--teal-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.spot-card-action:hover { background: var(--highlight); }
+.spot-card-link-btn {
+  align-self: flex-start;
+  margin-left: 22px; /* lines up with the text after the star */
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--teal-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.spot-card-link-btn:hover { text-decoration: underline; }
+.spot-card-action:focus-visible, .spot-card-link-btn:focus-visible { outline: 2px solid var(--teal-text); outline-offset: 2px; }
+/* The spot that counts, among a focused category's alternatives. */
+.pin-pick { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--teal-text), 0 2px 8px rgba(var(--shadow), 0.3); }
+.pick-note { color: var(--teal-text); font-weight: 600; }
+.pick-star { color: var(--teal-text); margin-right: 3px; vertical-align: -1px; }

@@ -16,7 +16,8 @@ import { strongEmojiMatch } from '../lib/emojiTags';
 import { MAX_SAVED, type SavedAddress } from '../lib/saved';
 import type { Cell } from '../lib/useComparison';
 import type { CategoryResult } from '../lib/useAnalysis';
-import { FAKE_ADDRESSES, fakeResult, fakeSpots, type FakeAddress } from './fakeData';
+import { FAKE_ADDRESSES, fakeResult, fakeSpots, type FakeAddress, type FakeSpot } from './fakeData';
+import type { PinPick } from '../components/CategoryPin';
 import { FakeMap } from './FakeMap';
 
 type Results = 'loaded' | 'loading' | 'limit';
@@ -44,6 +45,17 @@ export function Sandbox() {
   const [saved, setSaved] = useState<SavedAddress[]>(FAKE_ADDRESSES.map(toSaved));
   const [focused, setFocused] = useState<string | null>(null);
   const [spotlight, setSpotlight] = useState<string | null>(null);
+  // Picked spot per address and category (by fake spot ID).
+  const [picks, setPicks] = useState<Record<string, Record<string, string>>>({});
+  const setPick = (categoryId: string, spotId: string | null) => {
+    if (!mapped) return;
+    setPicks((prev) => {
+      const next = { ...(prev[mapped.id] ?? {}) };
+      if (spotId) next[categoryId] = spotId;
+      else delete next[categoryId];
+      return { ...prev, [mapped.id]: next };
+    });
+  };
 
   const categories = useMemo(() => [...CATEGORIES, ...customs].filter((c) => categoryIds.has(c.id)), [categoryIds, customs]);
   const spotsFor = useCallback((addressId: string) => Object.fromEntries(categories.map((c) => [c.id, fakeSpots(addressId, c, ringMinutes)])), [categories, ringMinutes]);
@@ -55,10 +67,10 @@ export function Sandbox() {
     categories.forEach((c, i) => {
       if (resultsState === 'loading') out[c.id] = { status: 'loading' };
       else if (resultsState === 'limit' && i % 2 === 1) out[c.id] = { status: 'error', message: 'Daily search limit reached. It resets at midnight Pacific time.' };
-      else out[c.id] = fakeResult(spots[c.id] ?? []);
+      else out[c.id] = fakeResult(spots[c.id] ?? [], picks[mapped.id]?.[c.id]);
     });
     return out;
-  }, [mapped, categories, resultsState, spots]);
+  }, [mapped, categories, resultsState, spots, picks]);
 
   const cells = useMemo(() => {
     const out: Record<string, Record<string, Cell>> = {};
@@ -66,21 +78,38 @@ export function Sandbox() {
       out[a.id] = Object.fromEntries(
         categories.map((c) => {
           if (resultsState === 'loading') return [c.id, { status: 'loading' } as Cell];
-          const nearest = fakeSpots(a.id, c, ringMinutes)[0];
-          return [c.id, { status: 'done', ring: nearest?.ring ?? null, spotId: nearest?.ring ? nearest.id : null, spotName: nearest?.ring ? nearest.name : undefined } as Cell];
+          const r = fakeResult(fakeSpots(a.id, c, ringMinutes), picks[a.id]?.[c.id]);
+          const nearest = r.status === 'done' ? r.nearest : null;
+          const picked = r.status === 'done' && !!r.picked;
+          return [c.id, { status: 'done', ring: nearest?.ring ?? null, spotId: nearest?.ring ? nearest.id : null, spotName: nearest?.ring ? nearest.name : undefined, picked } as Cell];
         }),
       );
     }
     return out;
-  }, [saved, categories, ringMinutes, resultsState]);
+  }, [saved, categories, ringMinutes, resultsState, picks]);
 
+  // Same pin logic as App.tsx: the spot that counts per category, or a focused category's spots.
   const pins = categories.flatMap((category) => {
     const list = spots[category.id] ?? [];
-    if (resultsState === 'loading' || list.length === 0) return [];
-    if (focused === null) return [{ category, spot: list[0]! }];
+    const r = results[category.id];
+    if (resultsState === 'loading' || list.length === 0 || r?.status !== 'done' || !r.nearest) return [];
+    const current = r.nearest;
+    const pin = (spot: FakeSpot) => ({
+      category,
+      spot,
+      pick: {
+        role: spot.id === current.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
+        others: r.within.filter((p) => p.id !== current.id).length,
+        emphasize: focused === category.id && spot.id === current.id,
+        onChoose: () => setPick(category.id, spot.id),
+        onUseNearest: () => setPick(category.id, null),
+      } satisfies PinPick,
+    });
+    const currentSpot = list.find((s) => s.id === current.id)!;
+    if (focused === null) return [pin(currentSpot)];
     if (focused !== category.id) return [];
     const within = list.filter((s) => s.ring !== null);
-    return (within.length ? within : [list[0]!]).map((spot) => ({ category, spot }));
+    return (within.some((s) => s.id === current.id) ? within : [currentSpot, ...within]).map(pin);
   });
 
   const status: Status = mapped ? { kind: 'done', address: mapped.address } : { kind: 'idle' };

@@ -165,8 +165,15 @@ function CellPill({ cell, rings }: { cell: Cell | undefined; rings: number[] }) 
 }
 
 function CellName({ cell }: { cell: Cell | undefined }) {
-  if (cell?.status !== 'done' || !cell.spotId) return null;
-  return <span className={cell.spotName ? 'compare-spot' : 'compare-spot compare-spot-loading'}>{cell.spotName ?? 'Loading name…'}</span>;
+  // A failed name lookup just leaves the pill (the cell still opens the spot on the map).
+  if (cell?.status !== 'done' || !cell.spotId || (cell.nameFailed && !cell.spotName)) return null;
+  return (
+    <span className={cell.spotName ? 'compare-spot' : 'compare-spot compare-spot-loading'}>
+      {cell.picked && <Icon name="starFill" size={13} className="pick-star" />}
+      {cell.spotName ?? 'Loading name…'}
+      {cell.picked && <span className="sr-only"> (your pick)</span>}
+    </span>
+  );
 }
 
 function RenameField({ initial, onDone }: { initial: string; onDone: (label: string | null) => void }) {

@@ -8,6 +8,7 @@ import {
   ensureSearch,
   getName,
   getSearch,
+  nameFailed,
   requestRings,
   ringError,
   ringsFor,
@@ -18,7 +19,7 @@ import { ringsKeyOf, type SavedAddress, type SavedResults } from './saved';
 import { useStoreVersion } from './useAnalysis';
 
 export type Cell =
-  | { status: 'done'; ring: number | null; spotId?: string | null; spotName?: string }
+  | { status: 'done'; ring: number | null; spotId?: string | null; spotName?: string; nameFailed?: boolean; picked?: boolean }
   | { status: 'loading' }
   | { status: 'error'; message: string };
 
@@ -66,11 +67,12 @@ export function useComparison(
         const { pending, error } = searchState(addr, c.id);
         if (stored && c.id in stored) {
           const spotId = storedNearest?.[c.id] ?? null;
-          row[c.id] = { status: 'done', ring: stored[c.id]!, spotId, spotName: spotId ? getName(spotId) : undefined };
+          const picked = a.picks?.[c.id]?.id !== undefined && a.picks[c.id]!.id === spotId;
+          row[c.id] = { status: 'done', ring: stored[c.id]!, spotId, spotName: spotId ? getName(spotId) : undefined, nameFailed: !!spotId && nameFailed(spotId), picked };
         } else if (search && ringsReady && !pending) {
-          const { ring, nearest } = classifyFor(search, shapes, c);
+          const { ring, nearest, picked } = classifyFor(search, shapes, c, a.picks?.[c.id]);
           const spotId = ring !== null ? (nearest?.id ?? null) : null;
-          row[c.id] = { status: 'done', ring, spotId, spotName: spotId ? getName(spotId) : undefined };
+          row[c.id] = { status: 'done', ring, spotId, spotName: spotId ? getName(spotId) : undefined, nameFailed: !!spotId && nameFailed(spotId), picked };
         }
         else if (error || ringError(addr, ringMinutes)) row[c.id] = { status: 'error', message: error ?? ringError(addr, ringMinutes)! };
         else row[c.id] = { status: 'loading' };
@@ -84,7 +86,7 @@ export function useComparison(
   useEffect(() => {
     if (!places) return;
     const ids = Object.values(cells).flatMap((row) =>
-      Object.values(row).flatMap((cell) => (cell.status === 'done' && cell.spotId && !cell.spotName ? [cell.spotId] : [])),
+      Object.values(row).flatMap((cell) => (cell.status === 'done' && cell.spotId && !cell.spotName && !cell.nameFailed ? [cell.spotId] : [])),
     );
     if (ids.length > 0) ensureNames(places, ids);
   }, [places, cells]);
@@ -123,7 +125,7 @@ export function useComparison(
       for (const c of categories) {
         const search = getSearch(addr, c.id);
         if (!search || searchState(addr, c.id).pending) continue;
-        const { ring, nearest } = classifyFor(search, shapes, c);
+        const { ring, nearest } = classifyFor(search, shapes, c, a.picks?.[c.id]);
         const spotId = ring !== null ? (nearest?.id ?? null) : null;
         if (next.cells[c.id] !== ring || next.nearest![c.id] !== spotId) {
           next.cells[c.id] = ring;

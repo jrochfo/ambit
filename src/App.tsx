@@ -13,6 +13,7 @@ import { strongEmojiMatch } from './lib/emojiTags';
 import { useTheme, type Theme } from './lib/theme';
 import { loadPref, savePref } from './lib/storage';
 import { useAnalysis, type CategoryResult } from './lib/useAnalysis';
+import type { NearbyPlace, SpotPick } from './lib/nearby';
 import { addressKey, clearFailures } from './lib/analysisStore';
 import { MAX_AGE_MS, MAX_SAVED, isSavedList, pruneExpired, type SavedAddress, type SavedResults } from './lib/saved';
 import { useComparison } from './lib/useComparison';
@@ -56,6 +57,8 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   const [focused, setFocused] = useState<string | null>(null);
   // Category whose nearest spot's card is shown open (picked from the comparison grid).
   const [spotlight, setSpotlight] = useState<string | null>(null);
+  // Picks for addresses that aren't saved (saved ones keep theirs on the address); session only.
+  const [sessionPicks, setSessionPicks] = useState<Record<string, Record<string, SpotPick>>>({});
   const [saved, setSaved] = useState<SavedAddress[]>(() => pruneExpired(loadPref('savedAddresses', [], isSavedList)));
   const lookup = useRef(0);
 
@@ -89,8 +92,25 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
 
   const categories = useMemo(() => [...CATEGORIES, ...customs].filter((c) => categoryIds.has(c.id)), [categoryIds, customs]);
   const position = origin?.position ?? null;
-  const analysis = useAnalysis(places, position, ringMinutes, categories, focused);
   const currentSaved = origin ? saved.find((a) => addressKey(a.position) === addressKey(origin.position)) : undefined;
+  const currentPicks = currentSaved ? currentSaved.picks : origin ? sessionPicks[addressKey(origin.position)] : undefined;
+  const analysis = useAnalysis(places, position, ringMinutes, categories, focused, currentPicks);
+
+  // Choose which spot counts for a category at the mapped address (null = back to the nearest).
+  const setPick = useCallback(
+    (categoryId: string, place: NearbyPlace | null) => {
+      if (!origin) return;
+      const update = (picks: Record<string, SpotPick> | undefined) => {
+        const next = { ...(picks ?? {}) };
+        if (place) next[categoryId] = { id: place.id, lat: place.position.lat, lng: place.position.lng, at: Date.now() };
+        else delete next[categoryId];
+        return next;
+      };
+      if (currentSaved) setSaved((prev) => prev.map((a) => (a.id === currentSaved.id ? { ...a, picks: update(a.picks) } : a)));
+      else setSessionPicks((prev) => ({ ...prev, [addressKey(origin.position)]: update(prev[addressKey(origin.position)]) }));
+    },
+    [origin, currentSaved],
+  );
 
   const updateResults = useCallback((id: string, results: SavedResults) => {
     setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, results } : a)));
@@ -139,11 +159,12 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
                 placeId: origin.placeId,
                 position: origin.position,
                 positionAt: Date.now(),
+                picks: sessionPicks[addressKey(origin.position)],
               },
             ],
       );
     },
-    [origin],
+    [origin, sessionPicks],
   );
   const removeSaved = useCallback((id: string) => setSaved((prev) => prev.filter((a) => a.id !== id)), []);
   const renameSaved = useCallback((id: string, label: string) => setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, label } : a))), []);
@@ -223,12 +244,27 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   }, []);
 
   // Overview: each category's nearest match. Focused: every match for that one category.
+  // Overview: the spot that counts per category. Focused: every spot in that category, each
+  // able to become the pick.
   const pins: Pin[] = categories.flatMap((category) => {
     const r = analysis.results[category.id];
     if (r?.status !== 'done' || !r.nearest) return [];
-    if (focused === null) return [{ category, place: r.nearest }];
+    const current = r.nearest;
+    const pin = (place: NearbyPlace): Pin => ({
+      category,
+      place,
+      pick: {
+        role: place.id === current.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
+        others: r.within.filter((p) => p.id !== current.id).length,
+        emphasize: focused === category.id && place.id === current.id,
+        onChoose: () => setPick(category.id, place),
+        onUseNearest: () => setPick(category.id, null),
+      },
+    });
+    if (focused === null) return [pin(current)];
     if (focused !== category.id) return [];
-    return (r.within.length ? r.within : [r.nearest]).map((place) => ({ category, place }));
+    const list = r.within.some((p) => p.id === current.id) ? r.within : [current, ...r.within];
+    return list.map(pin);
   });
 
   const spotlightResult = spotlight ? analysis.results[spotlight] : undefined;

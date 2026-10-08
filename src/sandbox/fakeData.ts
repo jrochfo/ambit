@@ -94,7 +94,9 @@ export function fakeSpots(addressId: string, category: Category, rings: number[]
   return spots.sort((a, b) => rank(a.ring) - rank(b.ring));
 }
 
-export function fakeResult(spots: FakeSpot[]): CategoryResult {
-  const nearest = spots[0] ?? null;
-  return { status: 'done', ring: nearest?.ring ?? null, nearest, within: spots.filter((s) => s.ring !== null), capped: false };
+/** A category's result; `pickId` makes that spot the one that counts, like a user's pick. */
+export function fakeResult(spots: FakeSpot[], pickId?: string): CategoryResult {
+  const picked = pickId ? spots.find((s) => s.id === pickId) : undefined;
+  const nearest = picked ?? spots[0] ?? null;
+  return { status: 'done', ring: nearest?.ring ?? null, nearest, within: spots.filter((s) => s.ring !== null), capped: false, picked: !!picked };
 }

@@ -1,7 +1,17 @@
 import type { Ring } from '../../shared/isochrones';
 import { fetchIsochrones } from './api';
 import { DEFAULT_EDGE_TOLERANCE, type Category } from './categories';
-import { MAX_RESULTS, classify, needsWiderSearch, searchCategory, type CategoryMatches, type CategorySearch, type RingShapes } from './nearby';
+import {
+  MAX_RESULTS,
+  applyPick,
+  classify,
+  needsWiderSearch,
+  searchCategory,
+  type CategoryMatches,
+  type CategorySearch,
+  type RingShapes,
+  type SpotPick,
+} from './nearby';
 
 /**
  * Shared, session-only caches for every address on screen (the map and each comparison
@@ -89,8 +99,9 @@ export function searchState(addr: string, categoryId: string): { pending: boolea
   return { pending: pending.has(key), error: failed.get(key) };
 }
 
-export function classifyFor(search: CategorySearch, shapes: RingShapes, category: Category): CategoryMatches {
-  return classify(search, shapes, category.edgeTolerance ?? DEFAULT_EDGE_TOLERANCE);
+export function classifyFor(search: CategorySearch, shapes: RingShapes, category: Category, pick?: SpotPick): CategoryMatches {
+  const tolerance = category.edgeTolerance ?? DEFAULT_EDGE_TOLERANCE;
+  return applyPick(classify(search, shapes, tolerance), pick, shapes, tolerance, getName);
 }
 
 /**
@@ -173,6 +184,11 @@ export function getSpreadSearch(addr: string, categoryId: string): CachedSearch 
 
 export function getName(placeId: string): string | undefined {
   return nameCache.get(placeId);
+}
+
+/** The name lookup for a spot failed (cleared by clearFailures, so a later search retries). */
+export function nameFailed(placeId: string): boolean {
+  return failed.has(nameKey(placeId));
 }
 
 /**

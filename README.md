@@ -39,6 +39,7 @@ Use these consistently in UI copy and when discussing the app.
 - **Category**: a row in "What's nearby" (Coffee shop, Grocery store, or one you add, like Climbing gym).
 - **Spot**: a real place found for a category (La Noisette, Mission Cliffs). Spots are the pins on the map.
 - **Ring**: a walking-time area (5, 10, 15 min, or a custom time).
+- **Pick**: the spot that counts for a category at an address. The nearest by default; choose another from a focused category's spot cards ("Make this my park pick").
 
 ## Goals
 
@@ -130,6 +131,8 @@ Running list for phase 5 (polish). Add to it as things come up.
 - **Exact walking minutes**: Routes API for the nearest 2–3 spots per category (about 10–15 calls per address), instead of ring buckets.
 - **Ring outlines**: optional smoothing for display only.
 - **Overlapping pins** near the origin.
+- **Picking on touch devices**: spot cards are hover-only, so phones can't choose a pick yet (needs a tap-friendly path, e.g. from the focused category's row).
+- **Junk listings**: the spread (popularity) search can surface odd Google entries (e.g. a "park" pinned at a city's center point); consider filtering.
 
 ## Sources
 

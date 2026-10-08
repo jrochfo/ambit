@@ -97,7 +97,8 @@ export function NearbyList({
                     <span className="nearby-label">{c.label}</span>
                     {place && (
                       <span className="nearby-place">
-                        {place.name}
+                        {place.name || '…'}
+                        {result?.status === 'done' && result.picked && <span className="pick-note"> · your pick</span>}
                         {isFocused && result?.status === 'done' && result.within.length > 1 && (
                           <MoreCount count={result.within.length} capped={result.capped} />
                         )}

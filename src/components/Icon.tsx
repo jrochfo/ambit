@@ -13,9 +13,11 @@ import info from '@material-symbols/svg-400/rounded/info.svg?raw';
 import keyboardArrowDown from '@material-symbols/svg-400/rounded/keyboard_arrow_down.svg?raw';
 import lightMode from '@material-symbols/svg-400/rounded/light_mode.svg?raw';
 import openInNew from '@material-symbols/svg-400/rounded/open_in_new.svg?raw';
+import star from '@material-symbols/svg-400/rounded/star.svg?raw';
+import starFill from '@material-symbols/svg-400/rounded/star-fill.svg?raw';
 import tune from '@material-symbols/svg-400/rounded/tune.svg?raw';
 
-const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, darkMode, directionsWalk, edit, info, keyboardArrowDown, lightMode, openInNew, tune };
+const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, darkMode, directionsWalk, edit, info, keyboardArrowDown, lightMode, openInNew, star, starFill, tune };
 
 export type IconName = keyof typeof ICONS;
 

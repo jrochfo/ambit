@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { Category } from './categories';
-import type { CategoryMatches } from './nearby';
+import type { CategoryMatches, SpotPick } from './nearby';
 import { mergeSearches, ringShapes, searchRadius } from './nearby';
 import {
   addressKey,
   classifyFor,
+  ensureNames,
   ensureSearch,
   ensureSpreadSearch,
   getSearch,
@@ -34,6 +35,8 @@ export function useAnalysis(
   categories: Category[],
   /** Focused category: also gets a spread search so outer rings show spots. */
   focused: string | null,
+  /** Spots the user picked per category at this address. */
+  picks: Record<string, SpotPick> | undefined,
 ) {
   const version = useStoreVersion();
   const addr = origin ? addressKey(origin) : null;
@@ -67,11 +70,18 @@ export function useAnalysis(
       else {
         // The focused category's spread search adds spots across all rings; nearest is unchanged.
         const spread = c.id === focused ? getSpreadSearch(addr, c.id) : undefined;
-        out[c.id] = { status: 'done', ...classifyFor(spread && origin ? mergeSearches(origin, search, spread) : search, shapes, c) };
+        out[c.id] = { status: 'done', ...classifyFor(spread && origin ? mergeSearches(origin, search, spread) : search, shapes, c, picks?.[c.id]) };
       }
     }
     return out;
-  }, [addr, origin, categories, shapes, ringsReady, focused, version]);
+  }, [addr, origin, categories, shapes, ringsReady, focused, picks, version]);
+
+  // A pick that isn't among this session's results needs its name looked up.
+  useEffect(() => {
+    if (!places) return;
+    const missing = Object.values(results).flatMap((r) => (r.status === 'done' && r.picked && r.nearest && !r.nearest.name ? [r.nearest.id] : []));
+    if (missing.length) ensureNames(places, missing);
+  }, [places, results]);
 
   return {
     rings,

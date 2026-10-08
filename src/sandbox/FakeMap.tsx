@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { Category } from '../lib/categories';
 import { ringStyle } from '../lib/rings';
-import { SpotPin } from '../components/CategoryPin';
+import { SpotPin, type PinPick } from '../components/CategoryPin';
 import { EmptyMapPrompt, MapLegend, OriginMarker, RingLabel } from '../components/MapParts';
 import { OVERLAY_Z } from '../components/MapOverlay';
 import { ringPoints, VIEW, type FakeSpot } from './fakeData';
@@ -21,7 +21,7 @@ export function FakeMap({
   originLabel: string | null;
   rings: number[];
   hidden: ReadonlySet<number>;
-  pins: { category: Category; spot: FakeSpot }[];
+  pins: { category: Category; spot: FakeSpot; pick?: PinPick }[];
   spotlight: string | null;
   onMapClick: () => void;
 }) {
@@ -59,8 +59,15 @@ export function FakeMap({
               </At>
             );
           })}
-          {pins.map(({ category, spot }) => (
-            <FakePin key={`${category.id}:${spot.id}`} category={category} spot={spot} outerRing={largest} spotlight={spotlight === `${category.id}:${spot.id}`} />
+          {pins.map(({ category, spot, pick }) => (
+            <FakePin
+              key={`${category.id}:${spot.id}`}
+              category={category}
+              spot={spot}
+              pick={pick}
+              outerRing={largest}
+              spotlight={spotlight === `${category.id}:${spot.id}`}
+            />
           ))}
           {originLabel && (
             <At x={VIEW.cx} y={VIEW.cy} z={OVERLAY_Z.origin}>
@@ -75,11 +82,23 @@ export function FakeMap({
   );
 }
 
-function FakePin({ category, spot, outerRing, spotlight }: { category: Category; spot: FakeSpot; outerRing: number; spotlight: boolean }) {
+function FakePin({
+  category,
+  spot,
+  pick,
+  outerRing,
+  spotlight,
+}: {
+  category: Category;
+  spot: FakeSpot;
+  pick?: PinPick;
+  outerRing: number;
+  spotlight: boolean;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <At x={spot.x} y={spot.y} z={open ? OVERLAY_Z.openPin : OVERLAY_Z.pin}>
-      <SpotPin category={category} place={spot} outerRing={outerRing} spotlight={spotlight} onOpenChange={setOpen} />
+      <SpotPin category={category} place={spot} pick={pick} outerRing={outerRing} spotlight={spotlight} onOpenChange={setOpen} />
     </At>
   );
 }

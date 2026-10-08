@@ -39,6 +39,17 @@ export interface CategoryMatches {
   within: NearbyPlace[];
   /** The search hit Google's 20-result cap, so more spots likely exist than are shown. */
   capped: boolean;
+  /** `nearest` is a spot the user picked for this category, not the nearest one. */
+  picked?: boolean;
+}
+
+/** A spot the user chose to represent a category at an address (ID and coordinates only). */
+export interface SpotPick {
+  id: string;
+  lat: number;
+  lng: number;
+  /** When chosen (ms); coordinates may be stored for 30 days. */
+  at: number;
 }
 
 // All Pro tier (same price as id/name/location). Ratings, hours, price or website would bump
@@ -140,14 +151,36 @@ export function ringShapes(rings: Ring[]): RingShapes {
     }));
 }
 
+/** Smallest ring a point is inside of (or within `edgeTolerance` meters of), else null. */
+export function ringOf(position: google.maps.LatLngLiteral, shapes: RingShapes, edgeTolerance: number): number | null {
+  const pt = point([position.lng, position.lat]);
+  // Negative inside the ring, positive outside.
+  return shapes.find((s) => pointToPolygonDistance(pt, s.shape, { units: 'meters' }) <= edgeTolerance)?.minutes ?? null;
+}
+
+/**
+ * Makes a picked spot the category's representative: its ring and name replace the nearest
+ * spot's everywhere (row, pill, pin, grid). A pick that's no longer inside the rings makes the
+ * category "beyond", since the user said that's the spot that matters.
+ */
+export function applyPick(
+  matches: CategoryMatches,
+  pick: SpotPick | undefined,
+  shapes: RingShapes,
+  edgeTolerance: number,
+  nameOf: (id: string) => string | undefined,
+): CategoryMatches {
+  if (!pick) return matches;
+  const known = [...matches.within, ...(matches.nearest ? [matches.nearest] : [])].find((p) => p.id === pick.id);
+  const position = { lat: pick.lat, lng: pick.lng };
+  const ring = known?.ring ?? ringOf(position, shapes, edgeTolerance);
+  const nearest: NearbyPlace = known ?? { id: pick.id, name: nameOf(pick.id) ?? '', position, ring };
+  return { ...matches, ring, nearest, picked: true };
+}
+
 /** Sorts places into rings. A place counts as inside a ring if it's within `edgeTolerance` meters of its edge. */
 export function classify(search: CategorySearch, shapes: RingShapes, edgeTolerance: number): CategoryMatches {
-  const placed: NearbyPlace[] = search.places.map((p) => {
-    const pt = point([p.position.lng, p.position.lat]);
-    // Negative inside the ring, positive outside.
-    const ring = shapes.find((s) => pointToPolygonDistance(pt, s.shape, { units: 'meters' }) <= edgeTolerance);
-    return { ...p, ring: ring?.minutes ?? null };
-  });
+  const placed: NearbyPlace[] = search.places.map((p) => ({ ...p, ring: ringOf(p.position, shapes, edgeTolerance) }));
   // Places arrive nearest first, so the first one in the best ring is the one to pin.
   const rank = (r: number | null) => r ?? Infinity;
   const nearest = placed.reduce<NearbyPlace | null>((best, p) => (!best || rank(p.ring) < rank(best.ring) ? p : best), null);
