@@ -25,8 +25,8 @@ export interface SansFont {
 }
 
 export const DISPLAY_FONTS: DisplayFont[] = [
-  { name: 'Figtree (current)', family: 'Figtree', query: 'Figtree:wght@700', weight: 700, note: 'Same as the interface. Quiet and consistent.' },
-  { name: 'Young Serif', family: 'Young Serif', query: 'Young+Serif', weight: 400, scale: 1.04, note: 'Warm, slightly odd old-style serif. Playful without shouting.' },
+  { name: 'Young Serif (current)', family: 'Young Serif', query: 'Young+Serif', weight: 400, scale: 1.04, note: 'Warm, slightly odd old-style serif. Playful without shouting.' },
+  { name: 'Figtree', family: 'Figtree', query: 'Figtree:wght@700', weight: 700, note: 'The previous UI font, bold. Quiet and consistent.' },
   { name: 'Oleo Script', family: 'Oleo Script', query: 'Oleo+Script:wght@400;700', weight: 700, scale: 1.08, note: 'Bold, rounded, upright-ish script. Friendly and very legible small.' },
   { name: 'Lily Script One', family: 'Lily Script One', query: 'Lily+Script+One', weight: 400, scale: 1.04, note: 'Chunky retro script with a lot of bounce. Mid-century packaging.' },
   { name: 'Leckerli One', family: 'Leckerli One', query: 'Leckerli+One', weight: 400, scale: 1.02, note: 'Heavy, marker-made script. Casual and cheerful, the most “hand” of the set.' },
@@ -45,8 +45,8 @@ export const DISPLAY_FONTS: DisplayFont[] = [
 ];
 
 export const SANS_FONTS: SansFont[] = [
-  { name: 'Figtree (current)', family: 'Figtree', query: 'Figtree:wght@400;600;700', note: 'Geometric and friendly, open shapes, clean numbers. A solid fit already.' },
-  { name: 'Hanken Grotesk', family: 'Hanken Grotesk', query: 'Hanken+Grotesk:wght@400;600;700', note: 'Crisp, slightly narrow grotesk. Fits more on a line; a bit more serious.' },
+  { name: 'Hanken Grotesk (current)', family: 'Hanken Grotesk', query: 'Hanken+Grotesk:wght@400;600;700', note: 'Crisp, slightly narrow grotesk. Fits more on a line; a bit more serious.' },
+  { name: 'Figtree', family: 'Figtree', query: 'Figtree:wght@400;600;700', note: 'The previous UI font: geometric and friendly, open shapes.' },
   { name: 'Rethink Sans', family: 'Rethink Sans', query: 'Rethink+Sans:wght@400;600;700', note: 'Friendly, contemporary, slightly rounded. Similar mood to Figtree, softer.' },
   {
     name: 'Atkinson Hyperlegible Next',
@@ -55,6 +55,9 @@ export const SANS_FONTS: SansFont[] = [
     note: 'Designed for low-vision readers: unmistakable letters and numbers. Distinctive and on-mission for accessibility.',
   },
 ];
+
+export const CURRENT_DISPLAY = 'Young Serif (current)';
+export const CURRENT_SANS = 'Hanken Grotesk (current)';
 
 export interface TypePreview {
   display?: string;

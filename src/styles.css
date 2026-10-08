@@ -62,16 +62,15 @@
   /* Shadow color (RGB) for the elevation scale. */
   --shadow: 20, 32, 31;
 
-  /* Type: one family, three weights (400, 600, 700). Numbers use tabular figures where they line up. */
-  --font: Figtree, system-ui, sans-serif;
-  /* The wordmark ("Ambit" in the nav and intro card) can use its own display face. Until one is
-     chosen it's the UI font; the type lab previews candidates by overriding these in the sandbox. */
-  --font-display: var(--font);
-  --display-weight: 700;
+  /* Type: Hanken Grotesk for everything (400, 600, 700; its digits are equal width, so numbers
+     line up), and Young Serif for the wordmark only ("Ambit" in the nav and intro card): a warm
+     counterweight to the data-heavy interface. The type lab can preview others in the sandbox. */
+  --font: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-display: 'Young Serif', Georgia, serif;
+  --display-weight: 400;
   --display-style: normal;
   --display-variation: normal;
-  /* Scripts and condensed faces read smaller at the same size. */
-  --display-scale: 1;
+  --display-scale: 1.04;
   --text-xs: 12px;
   --text-sm: 13px;
   --text-md: 14px;

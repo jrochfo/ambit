@@ -74,8 +74,8 @@ const TOKEN_GROUPS: { title: string; note?: string; tokens: { name: string; use:
 ];
 
 const TYPE_SCALE: { sample: string; className: string; spec: string }[] = [
-  { sample: 'Ambit', className: 'map-intro-name', spec: '24 / 700 · intro card name' },
-  { sample: 'Ambit', className: 'brand-name', spec: '20 / 700 · nav' },
+  { sample: 'Ambit', className: 'map-intro-name', spec: 'Young Serif 24 · intro card name' },
+  { sample: 'Ambit', className: 'brand-name', spec: 'Young Serif 18 · nav' },
   { sample: '2000 Mission St', className: 'address-street', spec: '18 / 700 · mapped address' },
   { sample: 'Compare addresses', className: 'compare-title', spec: '18 / 700 · section title' },
   { sample: 'What’s within a walk of here?', className: 'map-intro-tagline', spec: '17 / 600 · tagline' },
@@ -355,9 +355,18 @@ function Type() {
       <div className="sg-fonts">
         <div>
           <span className="sg-font-sample" style={{ fontFamily: 'var(--font)' }}>
-            Figtree Aa 0123
+            Hanken Grotesk Aa 0123
           </span>
-          <code>--font</code> <span className="sg-use">Everything. Weights 400, 600, 700. Numbers that line up use tabular figures.</span>
+          <code>--font</code> <span className="sg-use">Everything. Weights 400, 600, 700; digits are equal width, so numbers line up.</span>
+        </div>
+        <div>
+          <span
+            className="sg-font-sample"
+            style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--display-weight)' as unknown as number, fontSize: 'calc(26px * var(--display-scale))' }}
+          >
+            Young Serif Ambit
+          </span>
+          <code>--font-display</code> <span className="sg-use">The wordmark only: “Ambit” in the nav and the intro card.</span>
         </div>
       </div>
       <h3>Scale</h3>

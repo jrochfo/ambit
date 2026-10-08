@@ -5,7 +5,7 @@ import { RingTag } from '../components/RingTag';
 import { CATEGORIES, categoryTint } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { useTheme } from '../lib/theme';
-import { DISPLAY_FONTS, SANS_FONTS, readTypePreview, writeTypePreview, type DisplayFont, type TypePreview } from '../lib/typePreview';
+import { CURRENT_DISPLAY, CURRENT_SANS, DISPLAY_FONTS, SANS_FONTS, readTypePreview, writeTypePreview, type DisplayFont, type TypePreview } from '../lib/typePreview';
 
 /**
  * Type lab (dev only): wordmark and UI-font candidates side by side. "Preview in sandbox" saves a
@@ -32,7 +32,7 @@ export function TypeLab() {
         </div>
         <div className="tl-head-actions">
           <span className="tl-current">
-            Sandbox: <strong>{preview.display ?? 'Figtree (current)'}</strong> wordmark · <strong>{preview.sans ?? 'Figtree (current)'}</strong> UI
+            Sandbox: <strong>{preview.display ?? CURRENT_DISPLAY}</strong> wordmark · <strong>{preview.sans ?? CURRENT_SANS}</strong> UI
           </span>
           <button type="button" className="link-btn" onClick={() => choose({})} disabled={!preview.display && !preview.sans}>
             Reset
@@ -82,7 +82,7 @@ export function TypeLab() {
         <p className="tl-note">Young Serif for the name with each sans: the intro card, then a slice of the sidebar.</p>
         <div className="tl-grid tl-grid-sans">
           {SANS_FONTS.map((sans) => (
-            <Pairing key={sans.name} display={DISPLAY_FONTS.find((d) => d.name === 'Young Serif')!} sansFamily={sans.family} sansName={sans.name} onPreview={() => choose({ display: 'Young Serif', sans: sans.name === 'Figtree (current)' ? undefined : sans.name })} active={preview.display === 'Young Serif' && (preview.sans ?? 'Figtree (current)') === sans.name} />
+            <Pairing key={sans.name} display={DISPLAY_FONTS.find((d) => d.name === CURRENT_DISPLAY)!} sansFamily={sans.family} sansName={sans.name} onPreview={() => choose({ display: undefined, sans: sans.name === CURRENT_SANS ? undefined : sans.name })} active={!preview.display && (preview.sans ?? CURRENT_SANS) === sans.name} />
           ))}
         </div>
       </section>
@@ -94,10 +94,10 @@ export function TypeLab() {
         </p>
         <div className="tl-grid tl-grid-sans">
           {SANS_FONTS.map((f) => (
-            <article key={f.name} className="tl-card" aria-current={(preview.sans ?? 'Figtree (current)') === f.name ? 'true' : undefined}>
+            <article key={f.name} className="tl-card" aria-current={(preview.sans ?? CURRENT_SANS) === f.name ? 'true' : undefined}>
               <div className="tl-card-head">
                 <h3 style={{ fontFamily: `'${f.family}'` }}>{f.name}</h3>
-                <PreviewButton active={(preview.sans ?? 'Figtree (current)') === f.name} onClick={() => choose({ ...preview, sans: f.name === 'Figtree (current)' ? undefined : f.name })} />
+                <PreviewButton active={(preview.sans ?? CURRENT_SANS) === f.name} onClick={() => choose({ ...preview, sans: f.name === CURRENT_SANS ? undefined : f.name })} />
               </div>
               <SansSpecimen family={f.family} />
               <p className="tl-note">{f.note}</p>
@@ -121,10 +121,10 @@ function WordmarkCard({
   taglineFamily?: string;
 }) {
   return (
-    <article className="tl-card" aria-current={(preview.display ?? 'Figtree (current)') === f.name ? 'true' : undefined}>
+    <article className="tl-card" aria-current={(preview.display ?? CURRENT_DISPLAY) === f.name ? 'true' : undefined}>
       <div className="tl-card-head">
         <h3>{f.name}</h3>
-        <PreviewButton active={(preview.display ?? 'Figtree (current)') === f.name} onClick={() => choose({ ...preview, display: f.name === 'Figtree (current)' ? undefined : f.name })} />
+        <PreviewButton active={(preview.display ?? CURRENT_DISPLAY) === f.name} onClick={() => choose({ ...preview, display: f.name === CURRENT_DISPLAY ? undefined : f.name })} />
       </div>
       <div className="tl-nav">
         <span className="tl-mark">
@@ -153,7 +153,7 @@ function Pairing({ display, sansFamily, sansName, onPreview, active }: { display
     <article className="tl-card" aria-current={active ? 'true' : undefined}>
       <div className="tl-card-head">
         <h3>
-          {display.name} + {sansName.replace(' (current)', '')}
+          {display.name.replace(' (current)', '')} + {sansName.replace(' (current)', '')}
         </h3>
         <PreviewButton active={active} onClick={onPreview} />
       </div>
