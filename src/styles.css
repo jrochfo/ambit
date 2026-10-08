@@ -101,7 +101,7 @@
   --control-xs: 28px;
   /* Line length for running text: paragraphs stop short of their card's right edge, so wider
      blocks keep some air on the right. Narrow is for small cards like the map intro. */
-  --measure: 52ch;
+  --measure: 56ch;
   --measure-narrow: 34ch;
 
   /* Radius */
