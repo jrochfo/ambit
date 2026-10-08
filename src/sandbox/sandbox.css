@@ -64,3 +64,6 @@
   cursor: pointer;
 }
 .sandbox-choice button[aria-pressed='true'] { background: #5c4500; border-color: #5c4500; color: #fff; }
+
+/* Rings fade in like the real map's (RingLayer). */
+.fake-ring { animation: fade-in var(--motion-fade) ease-out; }

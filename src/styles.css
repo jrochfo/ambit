@@ -103,6 +103,9 @@
      of text keep some air on the right. --text-inset is that gap in wider cards (About);
      --measure-narrow caps lines in small cards like the map intro. */
   --text-inset: 20px;
+  /* Motion: barely-there fades so state changes don't snap. Opacity and color only. */
+  --motion-quick: 100ms; /* hover and press colors */
+  --motion-fade: 150ms; /* things appearing, dimming, popups */
   --measure-narrow: 34ch;
 
   /* Radius */
@@ -888,6 +891,32 @@ a.pin { text-decoration: none; }
 .about-lede { font-size: var(--text-base); color: var(--ink); }
 .about-credit { max-width: none !important; margin-top: var(--space-5) !important; padding-top: 14px; border-top: 1px solid var(--line-subtle); font-size: var(--text-md); color: var(--ink-3); }
 .about a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
+
+/* ── Motion ─────────────────────────────────────────────────────────────────────────────────────
+   Subtle fades in place of single-frame snaps: hover colors ease, dimmed rows and new pins fade,
+   popups and the About dialog fade in. Opacity and color only (nothing moves or resizes), and all
+   of it is off with reduced motion or while the theme switches. */
+:where(button, a, input, .nearby-row, .chip, .tag, .pill-chip, .combo-option, .compare-table :is(td, th)) {
+  transition-property: color, background-color, border-color, box-shadow, opacity, text-decoration-color;
+  transition-duration: var(--motion-quick);
+  transition-timing-function: ease;
+}
+/* Focusing a category dims the other rows; the counted pin's ring and hidden pins ease too. */
+.nearby-row, .pin { transition-duration: var(--motion-fade); }
+@keyframes fade-in { from { opacity: 0; } }
+/* Pins arriving (after Map it, or a category's alternatives) and popups opening. */
+.pin, .map-label, .combo-popup, .ring-add, .emoji-picker, .category-picker { animation: fade-in var(--motion-fade) ease-out; }
+.about, .about::backdrop {
+  transition: opacity var(--motion-fade) ease-out, overlay var(--motion-fade) allow-discrete, display var(--motion-fade) allow-discrete;
+}
+.about:not([open]), .about:not([open])::backdrop { opacity: 0; }
+@starting-style {
+  .about[open], .about[open]::backdrop { opacity: 0; }
+}
+html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after, ::backdrop { transition-duration: 0s !important; animation-duration: 0s !important; }
+}
 
 /* ── Texture (optional) ────────────────────────────────────────────────────────────────────────
    Film grain in the spirit of Arc Browser, generated from SVG turbulence (no image files). Each

@@ -18,7 +18,16 @@ function initialTheme(): Theme {
 export function useTheme(): [Theme, (theme: Theme) => void] {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
+    if (root.dataset.theme === theme) return;
+    // Swap every color at once: hover fades would otherwise lag a frame behind the page.
+    root.classList.add('theme-switching');
+    root.dataset.theme = theme;
+    const frame = requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
+    return () => {
+      cancelAnimationFrame(frame);
+      root.classList.remove('theme-switching');
+    };
   }, [theme]);
   // Only an explicit choice is saved, so a system setting change still applies otherwise.
   const choose = (next: Theme) => {
