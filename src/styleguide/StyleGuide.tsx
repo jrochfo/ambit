@@ -168,6 +168,10 @@ export function StyleGuide() {
         <TextureLab />
       </Section>
 
+      <Section title="Logo color" file="src/components/Logomark.tsx (--mark-ring, --mark-dot in src/styles.css)">
+        <LogoColor />
+      </Section>
+
       <Section title="Logo motion" file="src/styleguide/styleguide.css (variants); the app's current motion is in src/styles.css">
         <LogoMotion />
       </Section>
@@ -838,6 +842,48 @@ function softTailKeyframes(rise: number): string {
   ${r}% { ${prop}: var(--hi); animation-timing-function: ease-in-out; }
   100% { ${prop}: var(--lo); }`;
   return `@keyframes sg-g-ring {\n  ${frames('stroke-opacity')}\n}\n@keyframes sg-g-dot {\n  ${frames('fill-opacity')}\n}`;
+}
+
+const LOGO_COLORS: { name: string; note: string; vars: Record<string, string> }[] = [
+  { name: 'Current: warm gray', note: '--mark-ring, the ink action color lightened to sit near the dot.', vars: {} },
+  { name: 'Olive', note: 'Rings in --data, the map outline color. One family with the dot, deeper.', vars: { '--mark-ring': 'var(--data)' } },
+  { name: 'Lime', note: 'Rings in the dot’s own color (--ring-1). All one hue, softest.', vars: { '--mark-ring': 'var(--ring-1)' } },
+  { name: 'Lime ramp', note: 'Inner ring --ring-2, outer --ring-3: the 10 and 15 min band colors, like the map legend.', vars: { '--mark-ring-inner': 'var(--ring-2)', '--mark-ring-outer': 'var(--ring-3)' } },
+  { name: 'Ink', note: 'Rings in --accent, the near-black action color, unlightened.', vars: { '--mark-ring': 'var(--accent)' } },
+];
+
+function LogoColor() {
+  const [glow, setGlow] = useState(true);
+  return (
+    <div className="sg-stack">
+      <div className="sg-row">
+        <button type="button" className="chip" onClick={() => setGlow((g) => !g)}>
+          {glow ? 'Show at rest' : 'Show the glow'}
+        </button>
+        <span className="sg-note">The glow is how it appears in the intro card and About; the nav shows it at rest (glows on hover).</span>
+      </div>
+      <Themed>
+        {() => (
+          <div className={glow ? 'sg-logo-colors sg-logo-glow' : 'sg-logo-colors'}>
+            {LOGO_COLORS.map((c) => (
+              <figure key={c.name} className="sg-logo-color" style={c.vars as CSSProperties}>
+                <div className="sg-logo-big">
+                  <Logomark size={72} />
+                </div>
+                <div className="brand">
+                  <Logomark size={26} />
+                  <span className="brand-name">Ambit</span>
+                </div>
+                <figcaption>
+                  <strong>{c.name}</strong> {c.note}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+      </Themed>
+    </div>
+  );
 }
 
 function LogoMotion() {
