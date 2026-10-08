@@ -2,13 +2,16 @@ import { Map, useMap } from '@vis.gl/react-google-maps';
 import type { Ring } from '../../shared/isochrones';
 import type { Category } from '../lib/categories';
 import type { NearbyPlace } from '../lib/nearby';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { toPolygonPaths } from '../lib/geojson';
+import { ringBand } from '../lib/ringBands';
+import { shapePolygons } from '../lib/ringShape';
 import { START_ZOOM, mapStyleFor, randomStartView } from '../lib/mapStyle';
 import type { Theme } from '../lib/theme';
 import { CategoryPin, type PinPick } from './CategoryPin';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
 import { EmptyMapPrompt, MapLegend, OriginMarker } from './MapParts';
-import { FitToRing, RingLayer } from './RingLayer';
+import { FitToRing, RingLayer, useRingShape } from './RingLayer';
 
 export interface Origin {
   position: google.maps.LatLngLiteral;
@@ -46,6 +49,26 @@ export function MapPanel({
 }) {
   const largest = rings[rings.length - 1];
   const [startView] = useState(randomStartView);
+  const shape = useRingShape();
+  const shaped = useMemo(() => rings.map((r) => shapePolygons(toPolygonPaths(r.geoJson), shape)), [rings, shape]);
+  // Bands by ring and inner ring, kept while the shapes are, so toggling a ring only redraws (and
+  // fades) the band next to it.
+  const bandCache = useMemo(() => new globalThis.Map<string, google.maps.LatLngLiteral[][][]>(), [shaped]);
+  // Shown rings as bands: each minus the next smaller shown ring, so fills never stack.
+  const drawn = useMemo(() => {
+    const out: { minutes: number; rank: number; outline: google.maps.LatLngLiteral[][][]; band: google.maps.LatLngLiteral[][][] }[] = [];
+    let inner = -1;
+    rings.forEach((r, rank) => {
+      if (hidden.has(r.minutes)) return;
+      const outline = shaped[rank]!;
+      const key = `${rank}:${inner}`;
+      let band = bandCache.get(key);
+      if (!band) bandCache.set(key, (band = ringBand(outline, inner >= 0 ? shaped[inner]! : null)));
+      out.push({ minutes: r.minutes, rank, outline, band });
+      inner = rank;
+    });
+    return out;
+  }, [rings, hidden, shaped, bandCache]);
   return (
     <section className="card map-panel" aria-label="Walking rings map">
       <div className="map-frame">
@@ -60,7 +83,9 @@ export function MapPanel({
           style={{ position: 'absolute', inset: 0 }}
           onClick={onMapClick}
         >
-          {rings.map((r, rank) => (hidden.has(r.minutes) ? null : <RingLayer key={r.minutes} ring={r} rank={rank} count={rings.length} />))}
+          {drawn.map((d) => (
+            <RingLayer key={d.minutes} minutes={d.minutes} outline={d.outline} band={d.band} rank={d.rank} count={rings.length} theme={theme} />
+          ))}
           <FitToRing ring={largest} />
           {pins.map(({ category, place }) => {
             const key = `${category.id}:${place.id}`;

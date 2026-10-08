@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@material-symbols/svg-400": "^0.47.6",
+    "@turf/difference": "^7.4.0",
     "@turf/helpers": "^7.4.0",
     "@turf/point-to-polygon-distance": "^7.4.0",
     "@vis.gl/react-google-maps": "^1.10.1",

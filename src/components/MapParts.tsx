@@ -46,7 +46,10 @@ export function MapLegend({ minutes }: { minutes: number[] }) {
     <div className="legend">
       {minutes.map((m, rank) => (
         <span key={m} className="legend-item">
-          <span className="legend-swatch" style={{ opacity: Math.min(1, ringStyle(rank, minutes.length).fill * 2.6) }} />
+          <span
+            className="legend-swatch"
+            style={{ background: `color-mix(in srgb, var(${ringStyle(rank, minutes.length).fillVar}) calc(var(--map-ring-fill) * 100%), var(--map-land))` }}
+          />
           {formatMinutes(m)}
           {rank === 0 && ' walk'}
         </span>

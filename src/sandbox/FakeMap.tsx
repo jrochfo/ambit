@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { Category } from '../lib/categories';
 import { ringStyle } from '../lib/rings';
+import { ringBand } from '../lib/ringBands';
 import { SpotPin, type PinPick } from '../components/CategoryPin';
 import { EmptyMapPrompt, MapLegend, OriginMarker, RingLabel } from '../components/MapParts';
 import { OVERLAY_Z } from '../components/MapOverlay';
@@ -44,10 +45,19 @@ export function FakeMap({
           <rect x="110" y="120" width="110" height="80" rx="10" style={{ fill: 'var(--map-park)' }} />
           <path d="M0 420 L860 250" style={{ stroke: 'var(--map-highway)' }} strokeWidth="6" fill="none" />
           <path d="M300 0 L520 620" style={{ stroke: 'var(--map-highway)' }} strokeWidth="6" fill="none" />
-          {[...shown].reverse().map((m) => {
+          {shown.map((m, i) => {
+            // Same bands as the real map (RingLayer): each ring minus the next smaller shown one.
             const style = ringStyle(rings.indexOf(m), rings.length);
-            const d = `M${ringPoints(m, largest).map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')} Z`;
-            return <path key={m} className="fake-ring" d={d} style={{ fill: 'var(--data)', stroke: 'var(--data)' }} fillOpacity={style.fill} strokeOpacity={style.stroke} strokeWidth="2" />;
+            const asPolys = (mins: number) => [[closeRing(ringPoints(mins, largest).map(([x, y]) => ({ lat: -y, lng: x })))]];
+            const band = ringBand(asPolys(m), i > 0 ? asPolys(shown[i - 1]!) : null);
+            const toD = (polys: google.maps.LatLngLiteral[][][]) =>
+              polys.map((rs) => rs.map((r) => `M${r.map((p) => `${p.lng.toFixed(1)} ${(-p.lat).toFixed(1)}`).join(' L')}Z`).join(' ')).join(' ');
+            return (
+              <g key={m} className="fake-ring">
+                <path d={toD(band)} fillRule="evenodd" style={{ fill: `var(${style.fillVar})`, fillOpacity: 'var(--map-ring-fill)' }} />
+                <path d={toD(asPolys(m))} fill="none" style={{ stroke: 'var(--data)' }} strokeOpacity={style.stroke} strokeWidth="2" />
+              </g>
+            );
           })}
         </svg>
         <div className="fake-overlays">
@@ -115,4 +125,8 @@ function At({ x, y, z, children }: { x: number; y: number; z: number; children: 
       {children}
     </div>
   );
+}
+
+function closeRing<T>(ring: T[]): T[] {
+  return [...ring, ring[0]!];
 }

@@ -44,6 +44,8 @@
   --scroll-thumb: #cccac6;
 
   /* Walking-ring pills, smallest ring first, and their text (each pair >= 4.5:1). */
+  /* Opacity of ring bands on the map (they're filled with --ring-N, like the pills). */
+  --map-ring-fill: 0.6;
   --ring-1: #b3d452;
   --ring-1-ink: #1f2800;
   --ring-2: #a9bf73;
@@ -154,6 +156,7 @@
   --line-muted: #565552;
   --scroll-thumb: #3e3d3a;
   /* Brightest pill for the smallest ring, dimming outward. */
+  --map-ring-fill: 0.6;
   --ring-1: #aecc5b;
   --ring-1-ink: #1f2800;
   --ring-2: #677b2c;
@@ -389,7 +392,8 @@ button, input { font: inherit; }
   color: var(--ink-2);
 }
 .legend-item { display: inline-flex; align-items: center; gap: var(--space-2); }
-.legend-swatch { width: 14px; height: 14px; border-radius: var(--radius-xs); background: var(--data); }
+/* Swatches show a band as the map does: --ring-N at --map-ring-fill over the land color. */
+.legend-swatch { width: 14px; height: 14px; border-radius: var(--radius-xs); border: 1px solid var(--data); }
 .legend-note { margin-left: auto; color: var(--ink-3); }
 
 /* On-map HTML labels (drawn through an OverlayView) */

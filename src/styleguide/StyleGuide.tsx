@@ -7,7 +7,8 @@ import { CATEGORIES, categoryTint } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { MAP_STYLE, MAP_STYLE_DARK } from '../lib/mapStyle';
 import type { NearbyPlace } from '../lib/nearby';
-import { pillColors, ringStyle } from '../lib/rings';
+import { annulusPath, pillColors, ringStyle } from '../lib/rings';
+import { ringBand } from '../lib/ringBands';
 import { BUTTON_TEXTURES, PAGE_TEXTURES, applyTexturePreview, readTexturePreview, writeTexturePreview, type TexturePreview } from '../lib/texturePreview';
 import { RingTag } from '../components/RingTag';
 import { toPolygonPaths } from '../lib/geojson';
@@ -307,7 +308,17 @@ function Rings() {
           <rect width="220" height="140" style={{ fill: 'var(--map-land)' }} />
           {[2, 1, 0].map((rank) => {
             const st = ringStyle(rank, 3);
-            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} style={{ fill: 'var(--data)', stroke: 'var(--data)' }} fillOpacity={st.fill} strokeOpacity={st.stroke} strokeWidth="2" />;
+            const r = 28 + rank * 22;
+            return (
+              <path
+                key={rank}
+                d={annulusPath(110, 70, r, rank ? r - 22 : 0)}
+                fillRule="evenodd"
+                style={{ fill: `var(${st.fillVar})`, fillOpacity: 'var(--map-ring-fill)', stroke: 'var(--data)' }}
+                strokeOpacity={st.stroke}
+                strokeWidth="2"
+              />
+            );
           })}
         </svg>
         <div className="sg-note">
@@ -315,11 +326,11 @@ function Rings() {
             const st = ringStyle(rank, 3);
             return (
               <div key={rank}>
-                Ring {rank + 1}: fill {st.fill.toFixed(2)}, stroke {st.stroke.toFixed(2)}
+                Ring {rank + 1}: band {st.fillVar}, outline {st.stroke.toFixed(2)}
               </div>
             );
           })}
-          <div>Polygons use --data.</div>
+          <div>Bands don’t overlap; each is its pill color at --map-ring-fill. Outlines use --data.</div>
         </div>
       </div>
     </div>
@@ -706,13 +717,18 @@ function RingShapeLab() {
                       <line x1={i * 26 + 6} y1={0} x2={i * 26 + 12} y2={H} />
                     </g>
                   ))}
-                  {raw
-                    .map((polys, rank) => ({ polys, rank }))
-                    .reverse()
-                    .map(({ polys, rank }) => {
+                  {(() => {
+                    const shaped = raw.map((polys) => shapePolygons(polys, id));
+                    return shaped.map((polys, rank) => {
                       const st = ringStyle(rank, count);
-                      return <path key={rank} d={toD(shapePolygons(polys, id))} fill="var(--data)" fillOpacity={st.fill} stroke="var(--data)" strokeOpacity={st.stroke} strokeWidth={2} strokeLinejoin="round" fillRule="evenodd" />;
-                    })}
+                      return (
+                        <g key={rank}>
+                          <path d={toD(ringBand(polys, shaped[rank - 1] ?? null))} style={{ fill: `var(${st.fillVar})`, fillOpacity: 'var(--map-ring-fill)' }} fillRule="evenodd" />
+                          <path d={toD(polys)} fill="none" stroke="var(--data)" strokeOpacity={st.stroke} strokeWidth={2} strokeLinejoin="round" />
+                        </g>
+                      );
+                    });
+                  })()}
                 </svg>
                 <figcaption>
                   <strong>{label}</strong> {note}

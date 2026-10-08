@@ -5,7 +5,7 @@ import { RingTag } from '../components/RingTag';
 import { CATEGORIES, categoryTint } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { PALETTES, checks, generate, readColorPreview, writeColorPreview, type PaletteSpec, type Tokens } from '../lib/palette';
-import { ringStyle } from '../lib/rings';
+import { annulusPath, ringStyle } from '../lib/rings';
 import { useTheme } from '../lib/theme';
 
 /**
@@ -186,7 +186,17 @@ function Mini({ theme, tokens }: { theme: 'light' | 'dark'; tokens: Tokens }) {
             <rect x="170" y="8" width="44" height="26" rx="5" style={{ fill: 'var(--map-park)' }} />
             {[2, 1, 0].map((rank) => {
               const s = ringStyle(rank, 3);
-              return <circle key={rank} cx="90" cy="46" r={14 + rank * 13} style={{ fill: 'var(--data)', stroke: 'var(--data)' }} fillOpacity={s.fill} strokeOpacity={s.stroke} strokeWidth="1.5" />;
+              const r = 14 + rank * 13;
+              return (
+                <path
+                  key={rank}
+                  d={annulusPath(90, 46, r, rank ? r - 13 : 0)}
+                  fillRule="evenodd"
+                  style={{ fill: `var(${s.fillVar})`, fillOpacity: 'var(--map-ring-fill)', stroke: 'var(--data)' }}
+                  strokeOpacity={s.stroke}
+                  strokeWidth="1.5"
+                />
+              );
             })}
             <text x="90" y="9" textAnchor="middle" fontSize="9" fontWeight="700" style={{ fill: 'var(--data-ink)' }}>
               15 min

@@ -15,12 +15,23 @@ export function pillColors(rank: number) {
   return { bg: `var(--ring-${step})`, fg: `var(--ring-${step}-ink)` };
 }
 
-/** Map styling for ring `rank` (0 = smallest) of `count`. Fills stack, so inner rings read darker. */
+/**
+ * Map styling for ring `rank` (0 = smallest) of `count`. Each ring is drawn as a band (its area
+ * minus the next smaller ring) filled with its pill color, --ring-N, at --map-ring-fill opacity,
+ * so pills, legend, and map agree. Outlines use --data, inner ones stronger.
+ */
 export function ringStyle(rank: number, count: number) {
   const t = count <= 1 ? 0 : rank / (count - 1); // 0 inner → 1 outer
+  const step = Math.min(Math.max(rank, 0), 5) + 1;
   return {
-    fill: 0.3 - 0.2 * t,
+    fillVar: `--ring-${step}`,
     stroke: 0.9 - 0.35 * t,
     z: count - rank,
   };
+}
+
+/** SVG path for a ring band between two circles (fill-rule evenodd), for the design pages. */
+export function annulusPath(cx: number, cy: number, r: number, inner: number): string {
+  const circle = (rad: number) => `M${cx - rad} ${cy} a${rad} ${rad} 0 1 0 ${rad * 2} 0 a${rad} ${rad} 0 1 0 ${-rad * 2} 0Z`;
+  return inner > 0 ? `${circle(r)} ${circle(inner)}` : circle(r);
 }
