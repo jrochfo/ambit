@@ -20,6 +20,8 @@
   --scroll-thumb: #c9d1cd;
   --border-faint: #edf1ef;
   --highlight: #f2f8f7;
+  --row-hover: #f6f8f7;
+  --row-hover-current: #e6f2f0;
   --map-land: #eef1ef;
   --map-wash: rgba(244, 246, 245, 0.55);
   /* Sandbox's drawn map only; the real basemap is styled in src/lib/mapStyle.ts. */
@@ -51,6 +53,8 @@
   --border-soft: #24312f;
   --border-faint: #1f2b29;
   --highlight: #1c2d2b;
+  --row-hover: #1b2725;
+  --row-hover-current: #233a37;
   --field-border: #6f807b;
   --scroll-thumb: #3a4846;
   --map-land: #1b2524;
@@ -355,7 +359,7 @@ button, input { font: inherit; }
 }
 
 /* What's nearby */
-.field-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 24px; }
 .field-hint { font-size: 13px; color: var(--ink-3); }
 .nearby-list { display: flex; flex-direction: column; gap: 10px; }
 .nearby-row {
@@ -490,6 +494,7 @@ button, input { font: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  height: 24px;
   background: none;
   border: 0;
   padding: 2px 0;
@@ -641,6 +646,23 @@ button, input { font: inherit; }
   text-align: left;
   cursor: auto;
 }
+/* Tail pointing at the pin: a rotated square sharing the card's fill and border. */
+.spot-card::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  transform: rotate(45deg);
+}
+[data-edge-top='true'] .spot-card::after { bottom: auto; top: -6px; transform: rotate(225deg); }
+[data-edge-left='true'] .spot-card::after { left: 18px; }
+[data-edge-right='true'] .spot-card::after { left: auto; right: 18px; margin-left: 0; margin-right: -5px; }
 /* Near the map's edges, open toward the middle instead of getting clipped. */
 [data-edge-top='true'] .spot-card { bottom: auto; top: 22px; }
 [data-edge-left='true'] .spot-card { transform: none; left: -18px; }
@@ -670,6 +692,8 @@ button, input { font: inherit; }
 .compare-category { font-size: 15px; font-weight: 500; white-space: nowrap; }
 .compare-col { position: relative; font-size: 14px; min-width: 160px; padding-right: 40px !important; }
 .compare-col[aria-current='true'], .compare-table td[aria-current='true'] { background: var(--highlight); }
+.compare-table tbody tr:hover > * { background: var(--row-hover); }
+.compare-table tbody tr:hover > td[aria-current='true'] { background: var(--row-hover-current); }
 .compare-col-head { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .compare-col-name {
   min-width: 0;
