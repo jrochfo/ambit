@@ -3,17 +3,14 @@
 
 export const PAGE_TEXTURES = [
   ['none', 'None'],
-  ['grain-fine', 'Fine grain'],
-  ['grain-medium', 'Medium grain'],
-  ['paper', 'Paper'],
-  ['gradient', 'Gradient + grain'],
+  ['grain', 'Grain'],
+  ['grain-coarse', 'Coarse grain'],
+  ['grain-glow', 'Grain + glow'],
 ] as const;
 
 export const BUTTON_TEXTURES = [
   ['none', 'None'],
   ['grain', 'Grain'],
-  ['sheen', 'Sheen'],
-  ['sheen-grain', 'Sheen + grain'],
 ] as const;
 
 export interface TexturePreview {
@@ -27,7 +24,11 @@ export const NO_TEXTURE: TexturePreview = { page: 'none', buttons: 'none', stren
 
 export function readTexturePreview(): TexturePreview {
   try {
-    return { ...NO_TEXTURE, ...(JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<TexturePreview>) };
+    const t = { ...NO_TEXTURE, ...(JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<TexturePreview>) };
+    // Drop options that have since been removed.
+    if (!PAGE_TEXTURES.some(([id]) => id === t.page)) t.page = 'none';
+    if (!BUTTON_TEXTURES.some(([id]) => id === t.buttons)) t.buttons = 'none';
+    return t;
   } catch {
     return NO_TEXTURE;
   }

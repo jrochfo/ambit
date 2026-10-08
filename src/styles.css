@@ -875,17 +875,16 @@ a.pin { text-decoration: none; }
 .about a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
 
 /* ── Texture (optional) ────────────────────────────────────────────────────────────────────────
-   Film-grain noise in the spirit of Arc Browser, generated from SVG turbulence (no image files).
-   Turned on by attributes on <html>: data-texture-page (none | grain-fine | grain-medium | paper |
-   gradient) and data-texture-buttons (none | grain | sheen | sheen-grain); --texture-strength
-   scales it. The noise is mid-gray, blended with soft-light, so it adds grain without shifting
-   colors. Cards stay smooth so text always sits on a clean surface. The style guide previews
-   options live in the sandbox. */
+   Film grain in the spirit of Arc Browser, generated from SVG turbulence (no image files). Each
+   tile scatters dark and light specks with normal blending, so the grain reads on the near-white
+   light page as well as the dark one. Turned on by attributes on <html>: data-texture-page
+   (none | grain | grain-coarse | grain-glow) and data-texture-buttons (none | grain);
+   --texture-strength scales it. Cards stay smooth so text always sits on a clean surface. The
+   style guide previews options live in the sandbox. */
 :root {
   --texture-strength: 1;
-  --noise-fine: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/><feComponentTransfer><feFuncR type='linear' slope='1.8' intercept='-0.4'/><feFuncG type='linear' slope='1.8' intercept='-0.4'/><feFuncB type='linear' slope='1.8' intercept='-0.4'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  --noise-medium: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/><feComponentTransfer><feFuncR type='linear' slope='1.8' intercept='-0.4'/><feFuncG type='linear' slope='1.8' intercept='-0.4'/><feFuncB type='linear' slope='1.8' intercept='-0.4'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-  --noise-paper: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.035' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/><feComponentTransfer><feFuncR type='linear' slope='2.4' intercept='-0.7'/><feFuncG type='linear' slope='2.4' intercept='-0.7'/><feFuncB type='linear' slope='2.4' intercept='-0.7'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='d' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.5 0 0 0 0.72'/></filter><filter id='l' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' seed='8' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.5 0 0 0 -0.72'/></filter><rect width='100%' height='100%' filter='url(%23d)'/><rect width='100%' height='100%' filter='url(%23l)'/></svg>");
+  --grain-coarse: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='d' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.5 0 0 0 0.72'/></filter><filter id='l' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='3' seed='16' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.5 0 0 0 -0.72'/></filter><rect width='100%' height='100%' filter='url(%23d)'/><rect width='100%' height='100%' filter='url(%23l)'/></svg>");
 }
 
 /* Page: texture sits between the page color and the content. */
@@ -898,42 +897,36 @@ html[data-texture-page]:not([data-texture-page='none']) .page-texture::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  mix-blend-mode: soft-light;
-  opacity: calc(0.55 * var(--texture-strength));
+  background-image: var(--grain);
+  background-size: 200px;
+  opacity: calc(0.5 * var(--texture-strength));
 }
 html[data-texture-page]:not([data-texture-page='none']) .page-texture { position: relative; isolation: isolate; }
 html[data-texture-page]:not([data-texture-page='none']) .page-texture::before { position: absolute; border-radius: inherit; }
-html[data-texture-page='grain-fine'] :is(body, .page-texture)::before { background-image: var(--noise-fine); background-size: 200px; }
-html[data-texture-page='grain-medium'] :is(body, .page-texture)::before { background-image: var(--noise-medium); background-size: 240px; opacity: calc(0.7 * var(--texture-strength)); }
-html[data-texture-page='paper'] :is(body, .page-texture)::before { background-image: var(--noise-fine), var(--noise-paper); background-size: 200px, 480px; }
-/* Gradient + grain: a faint glow of the walk color in one corner and the action color in the other. */
-html[data-texture-page='gradient'] {
+html[data-texture-page='grain-coarse']:not([data-texture-page='none']) :is(body, .page-texture)::before { background-image: var(--grain-coarse); background-size: 320px; opacity: calc(0.35 * var(--texture-strength)); }
+/* Grain + glow: a soft wash of the walk color from one corner and the action color from the other. */
+html[data-texture-page='grain-glow'],
+html[data-texture-page='grain-glow'] .page-texture {
   background:
-    radial-gradient(ellipse 70% 60% at 0% 0%, color-mix(in srgb, var(--ring-1) 22%, transparent), transparent 70%),
-    radial-gradient(ellipse 60% 60% at 100% 100%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--ring-1) 45%, transparent), transparent 75%),
+    radial-gradient(ellipse 70% 70% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 75%),
     var(--page);
-  background-attachment: fixed;
 }
-html[data-texture-page='gradient'] :is(body, .page-texture)::before { background-image: var(--noise-fine); background-size: 200px; }
+html[data-texture-page='grain-glow'] { background-attachment: fixed; }
 
-/* Buttons: grain and/or a soft top sheen on filled controls. */
-/* isolation lets the grain layer (z-index -1) sit above the fill but under the label. */
-html[data-texture-buttons]:not([data-texture-buttons='none']) :is(.btn:not(.btn-outline), .pill-chip, .theme-switch[aria-checked='true']) { position: relative; isolation: isolate; }
-html[data-texture-buttons*='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .theme-switch[aria-checked='true'])::after {
+/* Buttons: the same grain over filled controls. isolation lets the grain layer (z-index -1) sit
+   above the fill but under the label. */
+html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .theme-switch[aria-checked='true']) { position: relative; isolation: isolate; }
+html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .theme-switch[aria-checked='true'])::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background-image: var(--noise-fine);
-  background-size: 140px;
-  mix-blend-mode: soft-light;
-  opacity: calc(0.7 * var(--texture-strength));
+  background-image: var(--grain);
+  background-size: 160px;
+  opacity: calc(0.4 * var(--texture-strength));
   z-index: -1;
-}
-html[data-texture-buttons*='sheen'] :is(.btn:not(.btn-outline), .pill-chip[style], .theme-switch[aria-checked='true']) {
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, calc(0.16 * var(--texture-strength))), rgba(255, 255, 255, 0) 55%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, calc(0.22 * var(--texture-strength))), inset 0 -1px 0 rgba(0, 0, 0, calc(0.1 * var(--texture-strength)));
 }
 
 /* Logo glow ("C2" in the style guide): every 3.6s the center point glows and the light passes

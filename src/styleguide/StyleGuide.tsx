@@ -684,7 +684,7 @@ function TextureLab() {
       </div>
       <label className="sg-use">
         Strength {t.strength.toFixed(2)}×{' '}
-        <input type="range" min={0.25} max={2} step={0.05} value={t.strength} onChange={(e) => setT({ ...t, strength: Number(e.target.value) })} />
+        <input type="range" min={0} max={2} step={0.05} value={t.strength} onChange={(e) => setT({ ...t, strength: Number(e.target.value) })} />
       </label>
       <div className="sg-themes">
         {(['light', 'dark'] as const).map((theme) => (
