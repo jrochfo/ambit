@@ -33,3 +33,5 @@ body { background: var(--page); color: var(--ink); font-family: var(--font); }
 .cl-mini-text { margin: 0; font-size: var(--text-sm); }
 .cl-check { margin: 0; font-size: var(--text-xs); font-weight: 600; color: var(--accent-text); }
 .cl-check-fail { color: var(--danger); }
+.cl-earlier summary { cursor: pointer; font-size: var(--text-lg); font-weight: 700; padding: var(--space-2) 0; }
+.cl-earlier[open] summary { margin-bottom: var(--space-3); }

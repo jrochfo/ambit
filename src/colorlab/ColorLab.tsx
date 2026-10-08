@@ -55,14 +55,17 @@ export function ColorLab() {
       </header>
 
       <Group
-        title="Two-tone"
-        note="A deep, legible color for actions (buttons, links, selection) and a vivid one for the walk (rings, walking-time tags, map)."
-        palettes={PALETTES.filter((p) => p.kind === 'two')}
+        title="Round 3"
+        note="Two-tone with the energetic colors on the walk (rings, walking-time tags, map) and deep teal or ink for actions. Pills avoid muddy mid-tones and use a deep shade of their own hue for text."
+        palettes={PALETTES.filter((p) => p.kind === 'round3')}
         preview={preview}
         choose={choose}
       />
-      <Group title="Warm, toned down" note="Single-hue warm palettes about 20% less saturated than round one, on warm near-neutral surfaces." palettes={PALETTES.filter((p) => p.kind === 'warm')} preview={preview} choose={choose} />
-      <Group title="Round one" note="For reference (Sunset rings and Electric retired)." palettes={PALETTES.filter((p) => p.kind === 'hue')} preview={preview} choose={choose} />
+      <Group title="Round 2 favorites" note="As they were, for comparison (with the new pill text)." palettes={PALETTES.filter((p) => p.kind === 'favorite')} preview={preview} choose={choose} />
+      <details className="cl-earlier">
+        <summary>Earlier rounds ({PALETTES.filter((p) => p.kind === 'earlier').length})</summary>
+        <Group title="Earlier" note="Rounds one and two, for reference." palettes={PALETTES.filter((p) => p.kind === 'earlier')} preview={preview} choose={choose} />
+      </details>
     </div>
   );
 }
