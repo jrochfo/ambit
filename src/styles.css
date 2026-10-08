@@ -869,30 +869,28 @@ a.pin { text-decoration: none; }
 .about-credit { margin-top: var(--space-5) !important; padding-top: 14px; border-top: 1px solid var(--line-subtle); font-size: var(--text-md); color: var(--ink-3); }
 .about a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
 
-/* Logo pulse: the rings brighten in turn, inner then outer, like a slow ripple from the point.
-   Opacity only. Always on in the intro card and About dialog; in the nav, only on hover. */
-/* Each ring goes rest → bright → dim → rest, so both swing about the same amount (the inner ring
-   starts strong at 0.65, so brightening alone barely shows). Starts and ends at the resting
-   opacities, so hover-triggered pulses don't jump. */
-@keyframes mark-pulse-inner {
-  0%, 100% { stroke-opacity: 0.65; }
-  20% { stroke-opacity: 1; }
-  60% { stroke-opacity: 0.3; }
+/* Logo pulse: a slow, continuous phasing. Each ring breathes a little around its resting opacity
+   (ease-in-out, alternating, so it's a smooth wave with no start, end or pause), and the outer ring
+   trails the inner by a quarter cycle so the light seems to radiate outward. Opacity only. Always
+   on in the intro card and About dialog; in the nav, only on hover. */
+@keyframes mark-phase-inner {
+  from { stroke-opacity: 0.5; }
+  to { stroke-opacity: 0.8; }
 }
-@keyframes mark-pulse-outer {
-  0%, 100% { stroke-opacity: 0.35; }
-  20% { stroke-opacity: 0.85; }
-  60% { stroke-opacity: 0.12; }
+@keyframes mark-phase-outer {
+  from { stroke-opacity: 0.22; }
+  to { stroke-opacity: 0.48; }
 }
 .map-intro .mark-ring-inner,
 .about .mark-ring-inner,
 .brand:hover .mark-ring-inner {
-  animation: mark-pulse-inner 3.2s ease-in-out infinite;
+  /* Starts mid-wave, at its resting opacity, so a hover doesn't jump. */
+  animation: mark-phase-inner 2.4s ease-in-out -1.2s infinite alternate;
 }
 .map-intro .mark-ring-outer,
 .about .mark-ring-outer,
 .brand:hover .mark-ring-outer {
-  animation: mark-pulse-outer 3.2s ease-in-out 0.5s infinite;
+  animation: mark-phase-outer 2.4s ease-in-out infinite alternate;
 }
 @media (prefers-reduced-motion: reduce) {
   .mark-ring-inner, .mark-ring-outer { animation: none !important; }
