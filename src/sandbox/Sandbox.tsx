@@ -93,29 +93,39 @@ export function Sandbox() {
     return out;
   }, [saved, categories, resultsState, picks, visibleSpots]);
 
-  // Same pin logic as App.tsx: the spot that counts per category, or a focused category's spots.
+  // Same pin logic as App.tsx: the spot that counts per category, or a focused category's spots,
+  // plus faint pins for hidden spots.
   const pins = categories.flatMap((category) => {
     const list = spots[category.id] ?? [];
+    const hiddenList = mapped ? fakeSpots(mapped.id, category, ringMinutes).filter((s) => hiddenSpotIds.has(s.id)) : [];
     const r = results[category.id];
-    if (resultsState === 'loading' || list.length === 0 || r?.status !== 'done' || !r.nearest) return [];
+    if (resultsState === 'loading' || r?.status !== 'done' || (list.length === 0 && hiddenList.length === 0)) return [];
     const current = r.nearest;
-    const pin = (spot: FakeSpot) => ({
+    const pin = (spot: FakeSpot, hidden = false) => ({
       category,
       spot,
       pick: {
-        role: spot.id === current.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
-        others: r.within.filter((p) => p.id !== current.id).length,
-        emphasize: focused === category.id && spot.id === current.id,
+        role: hidden ? 'hidden' : spot.id === current?.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
+        others: r.within.filter((p) => p.id !== current?.id).length,
+        emphasize: focused === category.id && spot.id === current?.id,
         onChoose: () => setPick(category.id, spot.id),
         onUseNearest: () => setPick(category.id, null),
         onHide: () => setHiddenSpots((prev) => new Set([...prev, spot.id])),
+        onUnhide: () =>
+          setHiddenSpots((prev) => {
+            const next = new Set(prev);
+            next.delete(spot.id);
+            return next;
+          }),
       } satisfies PinPick,
     });
-    const currentSpot = list.find((s) => s.id === current.id)!;
-    if (focused === null) return [pin(currentSpot)];
+    const hiddenPins = hiddenList.map((s) => pin(s, true));
+    const currentSpot = current ? list.find((s) => s.id === current.id) : undefined;
+    if (focused === null) return [...(currentSpot ? [pin(currentSpot)] : []), ...hiddenPins];
     if (focused !== category.id) return [];
     const within = list.filter((s) => s.ring !== null);
-    return (within.some((s) => s.id === current.id) ? within : [currentSpot, ...within]).map(pin);
+    const shown = !currentSpot || within.some((s) => s.id === currentSpot.id) ? within : [currentSpot, ...within];
+    return [...shown.map((s) => pin(s)), ...hiddenPins];
   });
 
   const status: Status = mapped ? { kind: 'done', address: mapped.address } : { kind: 'idle' };

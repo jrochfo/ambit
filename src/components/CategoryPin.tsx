@@ -10,8 +10,11 @@ const HIDE_DELAY_MS = 150;
 
 /** A spot's standing in its category, and the actions for changing which spot counts. */
 export interface PinPick {
-  /** 'nearest': counts by default. 'chosen': the user's pick. 'other': another spot in the category. */
-  role: 'nearest' | 'chosen' | 'other';
+  /**
+   * 'nearest': counts by default. 'chosen': the user's pick. 'other': another spot in the
+   * category. 'hidden': hidden by the user; shown faintly, not counted.
+   */
+  role: 'nearest' | 'chosen' | 'other' | 'hidden';
   /** Other spots inside the rings for this category. */
   others: number;
   /** Mark this pin as the one that counts (in a focused category, among its alternatives). */
@@ -20,6 +23,7 @@ export interface PinPick {
   onUseNearest: () => void;
   /** Leave this spot out everywhere (junk listings, places that don't matter to you). */
   onHide: () => void;
+  onUnhide: () => void;
 }
 
 interface SpotPinProps {
@@ -94,7 +98,7 @@ export function SpotPin({
       onBlur={blur}
     >
       <a
-        className={pick?.emphasize ? 'pin pin-pick' : 'pin'}
+        className={pick?.role === 'hidden' ? 'pin pin-hidden' : pick?.emphasize ? 'pin pin-pick' : 'pin'}
         style={{ borderColor: category.color }}
         href={mapsUrl}
         target="_blank"
@@ -126,7 +130,7 @@ export function SpotPin({
               <Icon name="openInNew" size={14} />
               Click the pin to open in Google Maps
             </span>
-            {pick && (
+            {pick && pick.role !== 'hidden' && (
               <button type="button" className="spot-card-hide" onClick={pick.onHide}>
                 <Icon name="visibilityOff" size={14} />
                 Hide
@@ -141,6 +145,19 @@ export function SpotPin({
 
 /** Which spot counts for this category, and how to change it. */
 function PickLine({ pick, noun }: { pick: PinPick; noun: string }) {
+  if (pick.role === 'hidden')
+    return (
+      <div className="spot-card-pick">
+        <div className="spot-card-line">
+          <Icon name="visibilityOff" size={16} />
+          Hidden, so it doesn’t count
+        </div>
+        <button type="button" className="spot-card-action" onClick={pick.onUnhide}>
+          <Icon name="visibility" size={16} />
+          Unhide
+        </button>
+      </div>
+    );
   if (pick.role === 'other')
     return (
       <button type="button" className="spot-card-action" onClick={pick.onChoose}>

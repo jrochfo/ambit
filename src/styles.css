@@ -863,3 +863,7 @@ a.pin { text-decoration: none; }
   font-size: 13px;
   color: var(--ink-3);
 }
+
+/* Hidden spots: faint until hovered or focused, so they can be unhidden. */
+.pin-hidden { opacity: 0.28; filter: grayscale(1); box-shadow: none; }
+.spot:hover .pin-hidden, .pin-hidden:focus-visible { opacity: 0.75; }

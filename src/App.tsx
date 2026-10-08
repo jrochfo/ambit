@@ -253,24 +253,34 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   // able to become the pick.
   const pins: Pin[] = categories.flatMap((category) => {
     const r = analysis.results[category.id];
-    if (r?.status !== 'done' || !r.nearest) return [];
-    const current = r.nearest;
-    const pin = (place: NearbyPlace): Pin => ({
+    if (r?.status !== 'done') return [];
+    if (!r.nearest && !r.hidden?.length) return [];
+    const current = r.nearest ?? { id: '', name: '', position: { lat: 0, lng: 0 }, ring: null };
+    const unhide = (id: string) =>
+      setHiddenSpotsState((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    const pin = (place: NearbyPlace, hidden = false): Pin => ({
       category,
       place,
       pick: {
-        role: place.id === current.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
+        role: hidden ? 'hidden' : place.id === current.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
         others: r.within.filter((p) => p.id !== current.id).length,
         emphasize: focused === category.id && place.id === current.id,
         onChoose: () => setPick(category.id, place),
         onUseNearest: () => setPick(category.id, null),
         onHide: () => setHiddenSpotsState((prev) => new Set([...prev, place.id])),
+        onUnhide: () => unhide(place.id),
       },
     });
-    if (focused === null) return [pin(current)];
+    // Hidden spots stay on the map, faint, so a hide can be undone where it happened.
+    const hiddenPins = (r.hidden ?? []).map((p) => pin(p, true));
+    if (focused === null) return [...(r.nearest ? [pin(current)] : []), ...hiddenPins];
     if (focused !== category.id) return [];
-    const list = r.within.some((p) => p.id === current.id) ? r.within : [current, ...r.within];
-    return list.map(pin);
+    const list = !r.nearest || r.within.some((p) => p.id === current.id) ? r.within : [current, ...r.within];
+    return [...list.map((p) => pin(p)), ...hiddenPins];
   });
 
   const spotlightResult = spotlight ? analysis.results[spotlight] : undefined;

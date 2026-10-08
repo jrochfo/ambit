@@ -41,6 +41,8 @@ export interface CategoryMatches {
   capped: boolean;
   /** `nearest` is a spot the user picked for this category, not the nearest one. */
   picked?: boolean;
+  /** Spots the user hid: shown faintly so they can be unhidden, never counted. */
+  hidden?: NearbyPlace[];
 }
 
 /** A spot the user chose to represent a category at an address (ID and coordinates only). */

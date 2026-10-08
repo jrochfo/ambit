@@ -5,6 +5,7 @@ import {
   MAX_RESULTS,
   applyPick,
   metersBetween,
+  ringOf,
   classify,
   needsWiderSearch,
   searchCategory,
@@ -112,8 +113,11 @@ export function searchState(addr: string, categoryId: string): { pending: boolea
 
 export function classifyFor(search: CategorySearch, shapes: RingShapes, category: Category, pick?: SpotPick): CategoryMatches {
   const tolerance = category.edgeTolerance ?? DEFAULT_EDGE_TOLERANCE;
-  const visible = hiddenSpots.size ? { ...search, places: search.places.filter((p) => !hiddenSpots.has(p.id)) } : search;
-  return applyPick(classify(visible, shapes, tolerance), pick && !hiddenSpots.has(pick.id) ? pick : undefined, shapes, tolerance, getName);
+  if (!hiddenSpots.size) return applyPick(classify(search, shapes, tolerance), pick, shapes, tolerance, getName);
+  const visible = { ...search, places: search.places.filter((p) => !hiddenSpots.has(p.id)) };
+  const hidden = search.places.filter((p) => hiddenSpots.has(p.id)).map((p) => ({ ...p, ring: ringOf(p.position, shapes, tolerance) }));
+  const matches = applyPick(classify(visible, shapes, tolerance), pick && !hiddenSpots.has(pick.id) ? pick : undefined, shapes, tolerance, getName);
+  return { ...matches, hidden };
 }
 
 export const isHidden = (placeId: string) => hiddenSpots.has(placeId);
