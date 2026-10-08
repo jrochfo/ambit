@@ -26,7 +26,7 @@ const RECIPES: Record<RingShape, { mid: boolean; tolerance: number; rounds: numb
 };
 
 /** The treatment the app draws with. */
-export const DEFAULT_RING_SHAPE: RingShape = 'raw';
+export const DEFAULT_RING_SHAPE: RingShape = 'smooth';
 
 /** Applies a treatment to polygons (each an outer ring followed by holes). */
 export function shapePolygons(polygons: LatLng[][][], shape: RingShape): LatLng[][][] {
