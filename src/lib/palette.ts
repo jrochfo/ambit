@@ -98,20 +98,7 @@ export function toOklch(hex: string): [number, number, number] {
   return [L, Math.hypot(A, B), ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360];
 }
 
-/** Largest lightness gap allowed between the logo's rings and its center point. */
-const MARK_GAP = 0.22;
 
-/**
- * The logo's ring color: the action color, unless it's much darker (light mode) or lighter
- * (dark mode) than the center point, in which case its lightness moves to within MARK_GAP of the
- * point, keeping its hue, so a bright point doesn't jump out of heavy rings.
- */
-function markRing(ring: string, dot: string): string {
-  const [rl, rc, rh] = toOklch(ring);
-  const [dl] = toOklch(dot);
-  if (Math.abs(dl - rl) <= MARK_GAP) return ring;
-  return oklch(dl > rl ? dl - MARK_GAP : dl + MARK_GAP, rc, rh);
-}
 
 function luminance(hex: string): number {
   const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -191,7 +178,7 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
     });
-    t['--mark-ring'] = markRing(t['--accent-text'], t['--ring-1']!);
+    t['--mark-ring'] = t['--ring-1']!; // the logo is all one hue: rings in the dot's color
     t['--shadow'] = rgbOf(n(0.2));
     t['--tint'] = '13%';
   } else {
@@ -232,7 +219,7 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
     });
-    t['--mark-ring'] = markRing(t['--accent-text'], t['--ring-1']!);
+    t['--mark-ring'] = t['--ring-1']!; // the logo is all one hue: rings in the dot's color
     t['--shadow'] = '0, 0, 0';
     t['--tint'] = '24%';
   }

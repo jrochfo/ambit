@@ -1,7 +1,7 @@
 /**
- * Ambit's mark: two rings around a point. The rings use --mark-ring (the action color, kept close
- * in lightness to the point) and the point --mark-dot (the walk color), so two-tone palettes show both.
- * --mark-ring-inner / --mark-ring-outer can color each ring separately.
+ * Ambit's mark: two rings around a point, all in the walk color: rings use --mark-ring and the
+ * point --mark-dot (both --ring-1). --mark-ring-inner / --mark-ring-outer can color each ring
+ * separately (the style guide's Logo color options).
  */
 export function Logomark({ size = 28 }: { size?: number }) {
   return (

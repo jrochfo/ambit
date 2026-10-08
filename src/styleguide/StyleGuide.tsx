@@ -845,9 +845,9 @@ function softTailKeyframes(rise: number): string {
 }
 
 const LOGO_COLORS: { name: string; note: string; vars: Record<string, string> }[] = [
-  { name: 'Current: warm gray', note: '--mark-ring, the ink action color lightened to sit near the dot.', vars: {} },
+  { name: 'Warm gray (before)', note: 'The ink action color lightened to sit near the dot.', vars: { '--mark-ring': '#818178' } },
   { name: 'Olive', note: 'Rings in --data, the map outline color. One family with the dot, deeper.', vars: { '--mark-ring': 'var(--data)' } },
-  { name: 'Lime', note: 'Rings in the dot’s own color (--ring-1). All one hue, softest.', vars: { '--mark-ring': 'var(--ring-1)' } },
+  { name: 'Lime (current)', note: 'Rings in the dot’s own color (--ring-1). All one hue, softest.', vars: {} },
   { name: 'Lime ramp', note: 'Inner ring --ring-2, outer --ring-3: the 10 and 15 min band colors, like the map legend.', vars: { '--mark-ring-inner': 'var(--ring-2)', '--mark-ring-outer': 'var(--ring-3)' } },
   { name: 'Ink', note: 'Rings in --accent, the near-black action color, unlightened.', vars: { '--mark-ring': 'var(--accent)' } },
 ];
