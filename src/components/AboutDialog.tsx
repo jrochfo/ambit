@@ -49,8 +49,8 @@ export function AboutDialog({ ref }: { ref: Ref<HTMLDialogElement> }) {
 
         <h3>Your data</h3>
         <p>
-          There are no accounts. Your saved addresses, rings, and categories stay in this browser. Searches go to Google Maps Platform, with
-          walking rings passing through Ambit’s small server, which holds the API key.
+          There are no accounts. Your saved addresses, rings, and categories stay in this browser. Searches go to Google, with walking
+          rings passing through Ambit’s small server, which holds the API key.
         </p>
 
         <p className="about-credit">
