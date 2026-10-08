@@ -877,19 +877,22 @@ a.pin { text-decoration: none; }
 /* ── Texture (optional) ────────────────────────────────────────────────────────────────────────
    Film grain in the spirit of Arc Browser, generated from SVG turbulence (no image files). Each
    tile scatters dark and light specks with normal blending, so the grain reads on the near-white
-   light page as well as the dark one. Turned on by attributes on <html>: data-texture-page
-   (none | grain | grain-coarse | grain-glow) and data-texture-buttons (none | grain);
-   --texture-strength scales it. Cards stay smooth so text always sits on a clean surface. The
+   light page as well as the dark one. Turned on by attributes on <html> (set in index.html):
+   data-texture-page (none | grain | grain-coarse), data-texture-buttons (none | grain) and
+   data-texture-glow (on | off); --texture-strength scales the grain, --glow-strength the glow. Cards stay smooth so text always sits on a clean surface. The
    style guide previews options live in the sandbox. */
 :root {
-  --texture-strength: 1;
+  --texture-strength: 0.4;
+  --glow-strength: 1;
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='d' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.5 0 0 0 0.72'/></filter><filter id='l' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' seed='8' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.5 0 0 0 -0.72'/></filter><rect width='100%' height='100%' filter='url(%23d)'/><rect width='100%' height='100%' filter='url(%23l)'/></svg>");
   --grain-coarse: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='d' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.5 0 0 0 0.72'/></filter><filter id='l' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='3' seed='16' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.5 0 0 0 -0.72'/></filter><rect width='100%' height='100%' filter='url(%23d)'/><rect width='100%' height='100%' filter='url(%23l)'/></svg>");
 }
 
-/* Page: texture sits between the page color and the content. */
-html[data-texture-page]:not([data-texture-page='none']) { background: var(--page); }
-html[data-texture-page]:not([data-texture-page='none']) body { background: transparent; }
+/* Page: grain and glow sit between the page color and the content. */
+html[data-texture-page]:not([data-texture-page='none']),
+html[data-texture-glow='on'] { background: var(--page-glow, none), var(--page); background-attachment: fixed; }
+html[data-texture-page]:not([data-texture-page='none']) body,
+html[data-texture-glow='on'] body { background: transparent; }
 html[data-texture-page]:not([data-texture-page='none']) body::before,
 html[data-texture-page]:not([data-texture-page='none']) .page-texture::before {
   content: '';
@@ -901,18 +904,18 @@ html[data-texture-page]:not([data-texture-page='none']) .page-texture::before {
   background-size: 200px;
   opacity: calc(0.5 * var(--texture-strength));
 }
-html[data-texture-page]:not([data-texture-page='none']) .page-texture { position: relative; isolation: isolate; }
+html:is([data-texture-page]:not([data-texture-page='none']), [data-texture-glow='on']) .page-texture { position: relative; isolation: isolate; }
 html[data-texture-page]:not([data-texture-page='none']) .page-texture::before { position: absolute; border-radius: inherit; }
 html[data-texture-page='grain-coarse']:not([data-texture-page='none']) :is(body, .page-texture)::before { background-image: var(--grain-coarse); background-size: 320px; opacity: calc(0.35 * var(--texture-strength)); }
-/* Grain + glow: a soft wash of the walk color from one corner and the action color from the other. */
-html[data-texture-page='grain-glow'],
-html[data-texture-page='grain-glow'] .page-texture {
-  background:
-    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--ring-1) 45%, transparent), transparent 75%),
-    radial-gradient(ellipse 70% 70% at 100% 100%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 75%),
-    var(--page);
+/* Glow: a soft wash of the walk color from the top left and the action color from the bottom
+   right, scaled by --glow-strength. Declared on each theme scope so it picks up that theme's colors. */
+html[data-texture-glow='on'],
+html[data-texture-glow='on'] [data-theme] {
+  --page-glow:
+    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--ring-1) calc(45% * var(--glow-strength, 1)), transparent), transparent 75%),
+    radial-gradient(ellipse 70% 70% at 100% 100%, color-mix(in srgb, var(--accent) calc(14% * var(--glow-strength, 1)), transparent), transparent 75%);
 }
-html[data-texture-page='grain-glow'] { background-attachment: fixed; }
+html[data-texture-glow='on'] .page-texture { background: var(--page-glow), var(--page); }
 
 /* Buttons: the same grain over filled controls. isolation lets the grain layer (z-index -1) sit
    above the fill but under the label. */

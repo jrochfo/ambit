@@ -5,7 +5,6 @@ export const PAGE_TEXTURES = [
   ['none', 'None'],
   ['grain', 'Grain'],
   ['grain-coarse', 'Coarse grain'],
-  ['grain-glow', 'Grain + glow'],
 ] as const;
 
 export const BUTTON_TEXTURES = [
@@ -17,20 +16,23 @@ export interface TexturePreview {
   page: string;
   buttons: string;
   strength: number;
+  /** 0 turns the glow off. */
+  glow: number;
 }
 
 const KEY = 'ambit.texturePreview';
-export const NO_TEXTURE: TexturePreview = { page: 'none', buttons: 'none', strength: 1 };
+/** What ships (index.html and the :root tokens in styles.css). */
+export const DEFAULT_TEXTURE: TexturePreview = { page: 'grain', buttons: 'grain', strength: 0.4, glow: 0 };
 
 export function readTexturePreview(): TexturePreview {
   try {
-    const t = { ...NO_TEXTURE, ...(JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<TexturePreview>) };
+    const t = { ...DEFAULT_TEXTURE, ...(JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<TexturePreview>) };
     // Drop options that have since been removed.
     if (!PAGE_TEXTURES.some(([id]) => id === t.page)) t.page = 'none';
     if (!BUTTON_TEXTURES.some(([id]) => id === t.buttons)) t.buttons = 'none';
     return t;
   } catch {
-    return NO_TEXTURE;
+    return DEFAULT_TEXTURE;
   }
 }
 
@@ -46,5 +48,7 @@ export function applyTexturePreview(t: TexturePreview = readTexturePreview()): v
   const root = document.documentElement;
   root.dataset.texturePage = t.page;
   root.dataset.textureButtons = t.buttons;
+  root.dataset.textureGlow = t.glow > 0 ? 'on' : 'off';
   root.style.setProperty('--texture-strength', String(t.strength));
+  root.style.setProperty('--glow-strength', String(t.glow));
 }
