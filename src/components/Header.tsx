@@ -20,7 +20,7 @@ export function Header({ theme, onTheme }: { theme: Theme; onTheme: (theme: Them
         </button>
         <button type="button" role="switch" aria-checked={dark} aria-label="Dark mode" className="theme-switch" onClick={() => onTheme(dark ? 'light' : 'dark')}>
           <span className="theme-switch-knob">
-            <Icon name={dark ? 'darkMode' : 'lightMode'} size={16} />
+            <Icon name={dark ? 'darkMode' : 'lightMode'} size={18} />
           </span>
         </button>
       </div>

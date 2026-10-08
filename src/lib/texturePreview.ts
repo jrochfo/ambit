@@ -22,7 +22,7 @@ export interface TexturePreview {
 
 const KEY = 'ambit.texturePreview';
 /** What ships (index.html and the :root tokens in styles.css). */
-export const DEFAULT_TEXTURE: TexturePreview = { page: 'grain', buttons: 'grain', strength: 0.4, glow: 0 };
+export const DEFAULT_TEXTURE: TexturePreview = { page: 'grain', buttons: 'grain', strength: 0.4, glow: 0.15 };
 
 export function readTexturePreview(): TexturePreview {
   try {
