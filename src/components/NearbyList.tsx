@@ -67,6 +67,7 @@ export function NearbyList({
             onClear={onClearCategories}
             onReset={onResetCategories}
             onRemove={onRemoveCustom}
+            add={<AddCategory categories={[...catalog, ...customs]} enabled={enabled} onAdd={onAddCategory} />}
             isDefault={enabled.size === DEFAULT_CATEGORY_IDS.length && DEFAULT_CATEGORY_IDS.every((id) => enabled.has(id))}
           />
         )}
@@ -138,7 +139,6 @@ export function NearbyList({
           })}
         </div>
       </div>
-      <AddCategory categories={[...catalog, ...customs]} enabled={enabled} onAdd={onAddCategory} />
     </>
   );
 }

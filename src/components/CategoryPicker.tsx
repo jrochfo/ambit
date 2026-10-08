@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import type { Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { Icon } from './Icon';
 
-/** Checklist of every category; each checked one costs one search per address. */
+/** The category menu: add your own, then a checklist of every category (each checked one costs one search per address). */
 export function CategoryPicker({
   categories,
   customs,
@@ -12,6 +13,7 @@ export function CategoryPicker({
   onReset,
   onRemove,
   isDefault,
+  add,
 }: {
   categories: Category[];
   customs: Category[];
@@ -22,10 +24,13 @@ export function CategoryPicker({
   onRemove: (id: string) => void;
   /** Selection already matches the defaults. */
   isDefault: boolean;
+  /** The "Add your own category" field, shown at the top of the menu. */
+  add: ReactNode;
 }) {
   return (
     <fieldset className="category-picker" id="category-picker">
       <legend className="sr-only">Categories to look for</legend>
+      <div className="category-picker-add">{add}</div>
       <div className="category-picker-head">
         <span>{enabled.size} selected</span>
         <span className="category-picker-actions">

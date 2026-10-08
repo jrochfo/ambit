@@ -131,15 +131,6 @@ export function Sandbox() {
                 showAddress({ id: `typed-${text}`, label: text.split(',')[0]!, address: text });
               }}
             />
-          </div>
-          <div className="sidebar-scroll">
-            <RingPicker
-              rings={ringMinutes}
-              hidden={hidden}
-              onToggle={(m) => setHidden((prev) => toggle(prev, m))}
-              onAdd={(m) => setRingMinutes((prev) => [...new Set([...prev, m])].sort((a, b) => a - b).slice(0, MAX_RINGS))}
-              onRemove={(m) => setRingMinutes((prev) => (prev.length > 1 ? prev.filter((x) => x !== m) : prev))}
-            />
             <StatusLine status={status} />
             {mapped && (
               <SaveControl
@@ -151,6 +142,15 @@ export function Sandbox() {
                 onRemove={(id) => setSaved((prev) => prev.filter((a) => a.id !== id))}
               />
             )}
+          </div>
+          <div className="sidebar-scroll">
+            <RingPicker
+              rings={ringMinutes}
+              hidden={hidden}
+              onToggle={(m) => setHidden((prev) => toggle(prev, m))}
+              onAdd={(m) => setRingMinutes((prev) => [...new Set([...prev, m])].sort((a, b) => a - b).slice(0, MAX_RINGS))}
+              onRemove={(m) => setRingMinutes((prev) => (prev.length > 1 ? prev.filter((x) => x !== m) : prev))}
+            />
             <NearbyList
               catalog={CATEGORIES}
               customs={customs}

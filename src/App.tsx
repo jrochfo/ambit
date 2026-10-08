@@ -250,10 +250,7 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
         <aside className="card sidebar">
           <div className="sidebar-head">
             <AddressSearch busy={status.kind === 'busy' || !geocoding || !places} onSearch={mapAddress} />
-          </div>
-          {/* Scrolls inside the card when side by side with the map, so the sidebar never outgrows it. */}
-          <div className="sidebar-scroll">
-            <RingPicker rings={ringMinutes} hidden={hiddenRings} onToggle={toggleRing} onAdd={addRing} onRemove={removeRing} />
+            {/* The mapped address comes first: everything below adjusts what's shown for it. */}
             <StatusLine status={shownStatus} />
             {origin && status.kind === 'done' && (
               <SaveControl
@@ -265,6 +262,10 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
                 onRemove={removeSaved}
               />
             )}
+          </div>
+          {/* Scrolls inside the card when side by side with the map, so the sidebar never outgrows it. */}
+          <div className="sidebar-scroll">
+            <RingPicker rings={ringMinutes} hidden={hiddenRings} onToggle={toggleRing} onAdd={addRing} onRemove={removeRing} />
             <NearbyList
               catalog={CATEGORIES}
               customs={customs}
