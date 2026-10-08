@@ -301,6 +301,10 @@ export const PALETTES: PaletteSpec[] = [
   citrus('vivid', 'More vivid', 'Chroma 0.19: punchier, more electric.', { dataChroma: 0.19 }),
   citrus('pale', 'Paler', 'Fill lightness 0.87: lighter, airier tags and logo point.', { dataFillL: 0.87 }),
   // Round 3: energetic color on the walk, deep teal or ink for actions.
+  // Final round: the walk color only; ink actions and warm paper as in Citrus & ink and Gold & ink.
+  { id: 'coral-ink-2', name: 'Terracotta & ink', note: 'Warm brick-coral for the walk: sidewalks, sun on stucco. Furthest from the map’s greens and blues.', kind: 'round3', accentHue: 70, accentChroma: 0.012, accentFillL: 0.27, dataHue: 38, dataChroma: 0.13, dataFillL: 0.78, neutralHue: 75, neutralChroma: 0.009, dangerHue: 5, pageL: 0.966 },
+  { id: 'iris-ink', name: 'Iris & ink', note: 'Soft violet for the walk. No map feature is purple, so the reach reads as its own layer.', kind: 'round3', accentHue: 70, accentChroma: 0.012, accentFillL: 0.27, dataHue: 290, dataChroma: 0.12, dataFillL: 0.8, neutralHue: 80, neutralChroma: 0.008, pageL: 0.966 },
+  { id: 'sea-ink', name: 'Sea glass & ink', note: 'Teal-green for the walk: calm and outdoorsy, the app’s original direction.', kind: 'round3', accentHue: 70, accentChroma: 0.012, accentFillL: 0.27, dataHue: 185, dataChroma: 0.09, dataFillL: 0.8, neutralHue: 80, neutralChroma: 0.008, pageL: 0.966 },
   {
     id: 'gold-ink',
     name: 'Gold & ink',
