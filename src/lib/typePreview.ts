@@ -12,6 +12,8 @@ export interface DisplayFont {
   variation?: string;
   /** Size multiplier so faces that read small (scripts) sit at a similar visual size. */
   scale?: number;
+  /** Shown in its own lab section. */
+  group?: 'slab';
   note: string;
 }
 
@@ -31,6 +33,15 @@ export const DISPLAY_FONTS: DisplayFont[] = [
   { name: 'Damion', family: 'Damion', query: 'Damion', weight: 400, scale: 1.22, note: 'Fast, slanted brush script. 1950s sign-painter energy, lighter weight.' },
   { name: 'Cookie', family: 'Cookie', query: 'Cookie', weight: 400, scale: 1.4, note: 'Soft, rounded retro script. Sweet and nostalgic; needs size to read.' },
   { name: 'Sacramento', family: 'Sacramento', query: 'Sacramento', weight: 400, scale: 1.45, note: 'Thin monoline script, like a neon sign. Elegant, but delicate small.' },
+  // Bookish, humanist slab serifs in the direction of Archer (which isn't on Google Fonts).
+  { name: 'Josefin Slab', family: 'Josefin Slab', query: 'Josefin+Slab:wght@500;600;700', weight: 600, scale: 1.12, group: 'slab', note: 'Geometric, light-boned, 1920s–30s flavor. Closest to Archer’s delicate, domestic charm.' },
+  { name: 'Zilla Slab', family: 'Zilla Slab', query: 'Zilla+Slab:wght@500;600;700', weight: 600, scale: 1.04, group: 'slab', note: 'Humanist slab with a bookish, slightly quirky voice. Warm and literate.' },
+  { name: 'Aleo', family: 'Aleo', query: 'Aleo:wght@500;600;700', weight: 600, scale: 1.0, group: 'slab', note: 'Soft, semi-rounded slab. Gentle and friendly; the most “kitchen table.”' },
+  { name: 'Bitter', family: 'Bitter', query: 'Bitter:wght@500;600;700', weight: 600, scale: 1.0, group: 'slab', note: 'Sturdy humanist slab made for reading on screens. Calm, dependable.' },
+  { name: 'Rokkitt', family: 'Rokkitt', query: 'Rokkitt:wght@500;600;700', weight: 600, scale: 1.18, group: 'slab', note: 'Narrow geometric slab with a vintage, typewriter-poster feel.' },
+  { name: 'Sanchez', family: 'Sanchez', query: 'Sanchez', weight: 400, scale: 1.04, group: 'slab', note: 'Slab with gently curved serifs and some character. Modern-classic.' },
+  { name: 'Crete Round', family: 'Crete Round', query: 'Crete+Round', weight: 400, scale: 1.04, group: 'slab', note: 'Rounded, slightly calligraphic slab. Cozy and approachable.' },
+  { name: 'Arvo', family: 'Arvo', query: 'Arvo:wght@400;700', weight: 400, scale: 1.0, group: 'slab', note: 'Clean geometric slab. More neutral; a dependable baseline for comparison.' },
 ];
 
 export const SANS_FONTS: SansFont[] = [

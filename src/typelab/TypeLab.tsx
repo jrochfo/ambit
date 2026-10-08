@@ -58,27 +58,21 @@ export function TypeLab() {
           A display face only for the name: the nav and the intro card. Scripts are scaled so they sit at a similar visual size.
         </p>
         <div className="tl-grid">
-          {DISPLAY_FONTS.map((f) => (
-            <article key={f.name} className="tl-card" aria-current={(preview.display ?? 'Figtree (current)') === f.name ? 'true' : undefined}>
-              <div className="tl-card-head">
-                <h3>{f.name}</h3>
-                <PreviewButton active={(preview.display ?? 'Figtree (current)') === f.name} onClick={() => choose({ ...preview, display: f.name === 'Figtree (current)' ? undefined : f.name })} />
-              </div>
-              <div className="tl-nav">
-                <span className="tl-mark">
-                  <Logomark size={26} />
-                </span>
-                <span style={{ ...displayStyle(f), fontSize: 18 * (f.scale ?? 1) }}>Ambit</span>
-              </div>
-              <div className="tl-intro">
-                <span className="tl-mark">
-                  <Logomark size={36} />
-                </span>
-                <span style={{ ...displayStyle(f), fontSize: 40 * (f.scale ?? 1) }}>Ambit</span>
-              </div>
-              <p className="tl-tagline">What’s within a walk of here?</p>
-              <p className="tl-note">{f.note}</p>
-            </article>
+          {DISPLAY_FONTS.filter((f) => !f.group).map((f) => (
+            <WordmarkCard key={f.name} font={f} preview={preview} choose={choose} />
+          ))}
+        </div>
+      </section>
+
+      <section className="tl-section">
+        <h2>Slab serifs (Archer direction)</h2>
+        <p className="tl-note">
+          Bookish, humanist slabs. Archer itself (Hoefler &amp; Co., 2001) isn’t on Google Fonts; these are the closest in spirit. The tagline is
+          set in Hanken Grotesk, the likely UI font.
+        </p>
+        <div className="tl-grid">
+          {DISPLAY_FONTS.filter((f) => f.group === 'slab').map((f) => (
+            <WordmarkCard key={f.name} font={f} preview={preview} choose={choose} taglineFamily="Hanken Grotesk" />
           ))}
         </div>
       </section>
@@ -112,6 +106,43 @@ export function TypeLab() {
         </div>
       </section>
     </div>
+  );
+}
+
+function WordmarkCard({
+  font: f,
+  preview,
+  choose,
+  taglineFamily,
+}: {
+  font: DisplayFont;
+  preview: TypePreview;
+  choose: (p: TypePreview) => void;
+  taglineFamily?: string;
+}) {
+  return (
+    <article className="tl-card" aria-current={(preview.display ?? 'Figtree (current)') === f.name ? 'true' : undefined}>
+      <div className="tl-card-head">
+        <h3>{f.name}</h3>
+        <PreviewButton active={(preview.display ?? 'Figtree (current)') === f.name} onClick={() => choose({ ...preview, display: f.name === 'Figtree (current)' ? undefined : f.name })} />
+      </div>
+      <div className="tl-nav">
+        <span className="tl-mark">
+          <Logomark size={26} />
+        </span>
+        <span style={{ ...displayStyle(f), fontSize: 18 * (f.scale ?? 1) }}>Ambit</span>
+      </div>
+      <div className="tl-intro">
+        <span className="tl-mark">
+          <Logomark size={36} />
+        </span>
+        <span style={{ ...displayStyle(f), fontSize: 40 * (f.scale ?? 1) }}>Ambit</span>
+      </div>
+      <p className="tl-tagline" style={taglineFamily ? { fontFamily: `'${taglineFamily}', var(--font)` } : undefined}>
+        What’s within a walk of here?
+      </p>
+      <p className="tl-note">{f.note}</p>
+    </article>
   );
 }
 
