@@ -913,7 +913,9 @@ a.pin { text-decoration: none; }
 @starting-style {
   .about[open], .about[open]::backdrop { opacity: 0; }
 }
-html.theme-switching *, html.theme-switching *::before, html.theme-switching *::after { transition: none !important; }
+/* The dark mode knob still slides; only its colors swap instantly with everything else. */
+html.theme-switching :not(.theme-switch-knob), html.theme-switching *::before, html.theme-switching *::after { transition: none !important; }
+html.theme-switching .theme-switch-knob { transition-property: transform !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after, ::backdrop { transition-duration: 0s !important; animation-duration: 0s !important; }
 }

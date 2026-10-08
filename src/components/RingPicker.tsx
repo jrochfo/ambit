@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { MAX_RING, MAX_RINGS, MIN_RING } from '../../shared/isochrones';
 import { formatMinutes, pillColors } from '../lib/rings';
 import { Icon } from './Icon';
@@ -7,7 +7,8 @@ const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
 /**
  * Active walking rings as pills, three to a row: tap to show or hide, close icon to remove, "Add time" for a preset or
- * custom time. Adding a ring costs one Isochrones call per address; hiding is free.
+ * custom time. The add menu stays open for several changes until Done. Adding a ring costs one Isochrones call per
+ * address; hiding is free.
  */
 export function RingPicker({
   rings,
@@ -29,10 +30,22 @@ export function RingPicker({
   const customValue = Number(custom);
   const customValid = Number.isInteger(customValue) && customValue >= MIN_RING && customValue <= MAX_RING && !rings.includes(customValue);
 
-  function add(m: number) {
+  // An added preset leaves the menu, so keyboard focus moves to the preset now in its place
+  // (or the custom field) instead of getting lost.
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [refocus, setRefocus] = useState<number | null>(null);
+  useEffect(() => {
+    if (refocus === null) return;
+    const chips = menuRef.current?.querySelectorAll<HTMLElement>('.ring-add-presets .chip');
+    const next = chips?.[Math.min(refocus, chips.length - 1)] ?? menuRef.current?.querySelector<HTMLElement>('input');
+    (next ?? document.getElementById('ring-add-toggle'))?.focus();
+    setRefocus(null);
+  }, [refocus]);
+
+  function add(m: number, fromPreset?: number) {
     onAdd(m);
-    setAdding(false);
     setCustom('');
+    if (fromPreset !== undefined) setRefocus(fromPreset);
   }
 
   function submitCustom(e: FormEvent) {
@@ -46,18 +59,16 @@ export function RingPicker({
         <h2 className="field-label" id="walking-time-label">
           Walking time
         </h2>
-        {canAdd && (
-          <button type="button" className="link-btn" aria-expanded={adding} aria-controls="ring-add" onClick={() => setAdding((a) => !a)}>
-            {adding ? (
-              'Done'
-            ) : (
-              <>
-                <Icon name="add" size={20} />
-                Add time
-              </>
-            )}
-          </button>
-        )}
+        <button type="button" id="ring-add-toggle" className="link-btn" aria-expanded={adding} aria-controls="ring-add" onClick={() => setAdding((a) => !a)}>
+          {adding ? (
+            'Done'
+          ) : (
+            <>
+              <Icon name="add" size={20} />
+              Add time
+            </>
+          )}
+        </button>
       </div>
       <div className="field-hint">Tap to show or hide</div>
       <div className="pills">
@@ -78,12 +89,17 @@ export function RingPicker({
           );
         })}
       </div>
+      {adding && !canAdd && (
+        <div className="ring-add" id="ring-add" ref={menuRef}>
+          <div className="field-hint">That’s the most walking times at once ({MAX_RINGS}). Remove one to add another.</div>
+        </div>
+      )}
       {adding && canAdd && (
-        <div className="ring-add" id="ring-add">
+        <div className="ring-add" id="ring-add" ref={menuRef}>
           {presets.length > 0 && (
             <div className="ring-add-presets">
-              {presets.map((m) => (
-                <button key={m} type="button" className="chip" onClick={() => add(m)}>
+              {presets.map((m, i) => (
+                <button key={m} type="button" className="chip" onClick={() => add(m, i)}>
                   {formatMinutes(m)}
                 </button>
               ))}
