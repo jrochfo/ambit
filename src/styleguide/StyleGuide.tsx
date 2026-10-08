@@ -652,6 +652,7 @@ const MOTIONS: { id: string; name: string; note: string }[] = [
   { id: 'a', name: 'A. Unison breathing', note: 'Dot and rings swell and settle together, slow and even. Calm, like a breath.' },
   { id: 'b', name: 'B. Three-step wave', note: 'Dot, inner ring, outer ring, a third of a cycle apart and overlapping: brightness keeps moving outward with no start or end.' },
   { id: 'c', name: 'C. Glow, then long fade', note: 'Each wave rises quickly and fades slowly, leaving the dot and passing outward. Feels emitted, like a signal.' },
+  { id: 'c2', name: 'C2. C, softer rings', note: 'C’s timing and shape, with both rings peaking lower (inner 0.80, outer 0.48).' },
   { id: 'd', name: 'D. Two-ring phasing, slower', note: 'The current motion at a slower pace and a little stronger. Rings trade brightness back and forth.' },
   { id: 'e', name: 'E. Uneven shimmer', note: 'Each part on its own slow cycle (3.7s, 5.3s, 7.1s), so the pattern never quite repeats. Alive, ambient, directionless.' },
   { id: 'f', name: 'F. Traveling wave, slow fade', note: 'Like C but slower and wider: a long, soft pulse that drifts out from the dot.' },
