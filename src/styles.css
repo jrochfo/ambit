@@ -874,31 +874,45 @@ a.pin { text-decoration: none; }
 .about-credit { margin-top: var(--space-5) !important; padding-top: 14px; border-top: 1px solid var(--line-subtle); font-size: var(--text-md); color: var(--ink-3); }
 .about a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
 
-/* Logo pulse: a slow, continuous phasing. Each ring breathes a little around its resting opacity
-   (ease-in-out, alternating, so it's a smooth wave with no start, end or pause), and the outer ring
-   trails the inner by a quarter cycle so the light seems to radiate outward. Opacity only. Always
-   on in the intro card and About dialog; in the nav, only on hover. */
-@keyframes mark-phase-inner {
-  from { stroke-opacity: 0.5; }
-  to { stroke-opacity: 0.8; }
+/* Logo glow ("C2" in the style guide): every 3.6s the center point glows and the light passes
+   outward, inner ring 0.5s later and outer ring 0.5s after that. Each part swells gently into its
+   peak (eased, at 22% of the cycle) and fades slowly; the rings dim well below rest between glows
+   so each cycle clearly starts from the point. Opacity only. Always on in the intro card and About
+   dialog; in the nav, only while hovered. The delays also start the cycle at its closest point to
+   the resting mark (2.08s in), so hovering the nav logo changes it by at most 0.12 opacity. */
+@keyframes mark-glow-ring {
+  0% { stroke-opacity: var(--lo); animation-timing-function: ease-in-out; }
+  22% { stroke-opacity: var(--hi); animation-timing-function: ease-in-out; }
+  100% { stroke-opacity: var(--lo); }
 }
-@keyframes mark-phase-outer {
-  from { stroke-opacity: 0.22; }
-  to { stroke-opacity: 0.48; }
+@keyframes mark-glow-dot {
+  0% { fill-opacity: var(--lo); animation-timing-function: ease-in-out; }
+  22% { fill-opacity: var(--hi); animation-timing-function: ease-in-out; }
+  100% { fill-opacity: var(--lo); }
+}
+.map-intro .mark-dot,
+.about .mark-dot,
+.brand:hover .mark-dot {
+  --lo: 0.72;
+  --hi: 1;
+  animation: mark-glow-dot 3.6s -2.08s infinite;
 }
 .map-intro .mark-ring-inner,
 .about .mark-ring-inner,
 .brand:hover .mark-ring-inner {
-  /* Starts mid-wave, at its resting opacity, so a hover doesn't jump. */
-  animation: mark-phase-inner 2.4s ease-in-out -1.2s infinite alternate;
+  --lo: 0.3;
+  --hi: 0.8;
+  animation: mark-glow-ring 3.6s -1.58s infinite;
 }
 .map-intro .mark-ring-outer,
 .about .mark-ring-outer,
 .brand:hover .mark-ring-outer {
-  animation: mark-phase-outer 2.4s ease-in-out infinite alternate;
+  --lo: 0.08;
+  --hi: 0.48;
+  animation: mark-glow-ring 3.6s -1.08s infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .mark-ring-inner, .mark-ring-outer { animation: none !important; }
+  .mark-ring-inner, .mark-ring-outer, .mark-dot { animation: none !important; }
 }
 
 /* The wordmark */
