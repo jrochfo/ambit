@@ -1,15 +1,17 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
 import type { Ring } from '../../shared/isochrones';
 import { toPolygonPaths, topPoint } from '../lib/geojson';
 import { ringStyle } from '../lib/rings';
+import { RING_SHAPE_KEY, readRingShape, shapePolygons } from '../lib/ringShape';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
 import { RingLabel } from './MapParts';
 
 /** One walking ring; `rank` is its position among active rings (0 = smallest). */
 export function RingLayer({ ring, rank, count }: { ring: Ring; rank: number; count: number }) {
   const map = useMap();
-  const paths = useMemo(() => toPolygonPaths(ring.geoJson), [ring.geoJson]);
+  const shape = useRingShape();
+  const paths = useMemo(() => shapePolygons(toPolygonPaths(ring.geoJson), shape), [ring.geoJson, shape]);
   const labelAt = useMemo(() => topPoint(paths), [paths]);
 
   useEffect(() => {
@@ -52,4 +54,18 @@ export function FitToRing({ ring }: { ring: Ring | undefined }) {
     if (!bounds.isEmpty()) map.fitBounds(bounds, 48);
   }, [map, ring]);
   return null;
+}
+
+/** The ring display treatment; on localhost it follows the style guide's live preview. */
+function useRingShape() {
+  const [shape, setShape] = useState(readRingShape);
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === RING_SHAPE_KEY) setShape(readRingShape());
+    };
+    addEventListener('storage', onStorage);
+    return () => removeEventListener('storage', onStorage);
+  }, []);
+  return shape;
 }

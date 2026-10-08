@@ -208,3 +208,11 @@ body { background: var(--page); color: var(--ink); font-family: var(--font); }
 .sg-chip-on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .sg-texture-panel { display: flex; flex-direction: column; gap: var(--space-4); min-height: 260px; }
 .sg-texture-card { padding: var(--space-4); font-size: var(--text-md); color: var(--ink-2); }
+
+/* Ring shape lab */
+.sg-ring-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.sg-ring-fig { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.sg-ring-svg { width: 100%; height: auto; border-radius: var(--radius-control); border: 2px solid transparent; }
+.sg-ring-on .sg-ring-svg { border-color: var(--accent); }
+.sg-ring-fig figcaption { font-size: var(--text-sm); color: var(--ink-3); line-height: 1.4; }
+.sg-ring-fig figcaption strong { color: var(--ink); font-weight: 600; }

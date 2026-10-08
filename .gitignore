@@ -11,3 +11,6 @@ dist
 *.log
 
 !.env.example
+
+# real Google isochrone sample for the style guide (kept local, not committed)
+src/styleguide/fixtures/

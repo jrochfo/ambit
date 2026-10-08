@@ -10,6 +10,11 @@ import type { NearbyPlace } from '../lib/nearby';
 import { pillColors, ringStyle } from '../lib/rings';
 import { BUTTON_TEXTURES, PAGE_TEXTURES, applyTexturePreview, readTexturePreview, writeTexturePreview, type TexturePreview } from '../lib/texturePreview';
 import { RingTag } from '../components/RingTag';
+import { toPolygonPaths } from '../lib/geojson';
+import { DEFAULT_RING_SHAPE, RING_SHAPES, readRingShape, shapePolygons, writeRingShape, type RingShape } from '../lib/ringShape';
+
+// A real isochrone response, kept locally (gitignored) so the ring shape lab needs no API calls.
+const ISO_SAMPLE = Object.values(import.meta.glob<{ rings: { minutes: number; geoJson: unknown }[] }>('./fixtures/iso-sample.json', { eager: true, import: 'default' }))[0];
 
 /**
  * Ambit's brand stylesheet: every token and component style, read live from src/styles.css
@@ -152,6 +157,10 @@ export function StyleGuide() {
 
       <Section title="Map overlays" file="src/styles.css (.pin, .spot-card, .origin, .map-label)">
         <Themed>{() => <MapOverlays />}</Themed>
+      </Section>
+
+      <Section title="Ring shape" file="src/lib/ringShape.ts (display only; spots are sorted by the precise shape)">
+        <RingShapeLab />
       </Section>
 
       <Section title="Texture" file="src/styles.css (Texture); previews live in an open sandbox tab">
@@ -649,6 +658,70 @@ function MapOverlays() {
         ))}
       </div>
       <p className="sg-note">Map labels sit on --map-land halos; the intro card and wash appear before an address is mapped.</p>
+    </div>
+  );
+}
+
+function RingShapeLab() {
+  const [shape, setShape] = useState<RingShape>(() => (import.meta.env.DEV ? readRingShape() : DEFAULT_RING_SHAPE));
+  useEffect(() => writeRingShape(shape), [shape]);
+  if (!ISO_SAMPLE) return <p className="sg-note">Missing src/styleguide/fixtures/iso-sample.json (a saved isochrone response).</p>;
+  const raw = ISO_SAMPLE.rings.map((r) => toPolygonPaths(r.geoJson));
+  // Fit the largest ring into the tile.
+  const pts = raw.flat(3);
+  const minLat = Math.min(...pts.map((p) => p.lat)), maxLat = Math.max(...pts.map((p) => p.lat));
+  const minLng = Math.min(...pts.map((p) => p.lng)), maxLng = Math.max(...pts.map((p) => p.lng));
+  const kx = Math.cos((((minLat + maxLat) / 2) * Math.PI) / 180);
+  const W = 300, H = 300, pad = 14;
+  const scale = Math.min((W - 2 * pad) / ((maxLng - minLng) * kx), (H - 2 * pad) / (maxLat - minLat));
+  const ox = (W - (maxLng - minLng) * kx * scale) / 2, oy = (H - (maxLat - minLat) * scale) / 2;
+  const toD = (polys: google.maps.LatLngLiteral[][][]) =>
+    polys.map((rings) => rings.map((ring) => `M${ring.map((p) => `${(ox + (p.lng - minLng) * kx * scale).toFixed(1)} ${(oy + (maxLat - p.lat) * scale).toFixed(1)}`).join(' L')}Z`).join(' ')).join(' ');
+  const count = raw.length;
+  return (
+    <div className="sg-stack">
+      <p className="sg-note">
+        A real 5/10/15 min response (near the Embarcadero, SF). Display only: spots are still sorted into rings by the precise shape. Picking one
+        also applies it to the real map on localhost (reload or switch addresses to redraw).
+      </p>
+      <div className="sg-row">
+        <span className="sg-use">App draws</span>
+        {RING_SHAPES.map(([id, label]) => (
+          <button key={id} type="button" className={shape === id ? 'chip sg-chip-on' : 'chip'} aria-pressed={shape === id} onClick={() => setShape(id)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {(['light', 'dark'] as const).map((theme) => (
+        <div key={theme} className="sg-panel sg-ring-shapes" data-theme={theme}>
+          <div className="sg-panel-label">{theme}</div>
+          <div className="sg-ring-grid">
+            {RING_SHAPES.map(([id, label, note]) => (
+              <figure key={id} className={shape === id ? 'sg-ring-fig sg-ring-on' : 'sg-ring-fig'}>
+                <svg viewBox={`0 0 ${W} ${H}`} className="sg-ring-svg" role="img" aria-label={`${label} ring shape`}>
+                  <rect width={W} height={H} fill="var(--map-land)" />
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <g key={i} stroke="var(--map-road)" strokeWidth={3}>
+                      <line x1={0} y1={i * 26 + 8} x2={W} y2={i * 26 + 2} />
+                      <line x1={i * 26 + 6} y1={0} x2={i * 26 + 12} y2={H} />
+                    </g>
+                  ))}
+                  {raw
+                    .map((polys, rank) => ({ polys, rank }))
+                    .reverse()
+                    .map(({ polys, rank }) => {
+                      const st = ringStyle(rank, count);
+                      return <path key={rank} d={toD(shapePolygons(polys, id))} fill="var(--data)" fillOpacity={st.fill} stroke="var(--data)" strokeOpacity={st.stroke} strokeWidth={2} strokeLinejoin="round" fillRule="evenodd" />;
+                    })}
+                </svg>
+                <figcaption>
+                  <strong>{label}</strong> {note}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
