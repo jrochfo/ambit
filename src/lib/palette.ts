@@ -82,6 +82,37 @@ export function oklch(L: number, C: number, H: number): string {
   return `#${[r, g, b].map((v) => v!.toString(16).padStart(2, '0')).join('')}`;
 }
 
+/** Hex to OKLCH [L, C, H]. */
+export function toOklch(hex: string): [number, number, number] {
+  const lin = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }) as RGB;
+  const [r, g, b] = lin;
+  const l = Math.cbrt(0.4122214708 * r + 0.5363329412 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return [L, Math.hypot(A, B), ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360];
+}
+
+/** Largest lightness gap allowed between the logo's rings and its center point. */
+const MARK_GAP = 0.22;
+
+/**
+ * The logo's ring color: the action color, unless it's much darker (light mode) or lighter
+ * (dark mode) than the center point, in which case its lightness moves to within MARK_GAP of the
+ * point, keeping its hue, so a bright point doesn't jump out of heavy rings.
+ */
+function markRing(ring: string, dot: string): string {
+  const [rl, rc, rh] = toOklch(ring);
+  const [dl] = toOklch(dot);
+  if (Math.abs(dl - rl) <= MARK_GAP) return ring;
+  return oklch(dl > rl ? dl - MARK_GAP : dl + MARK_GAP, rc, rh);
+}
+
 function luminance(hex: string): number {
   const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
   const [r, g, b] = v.map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
@@ -160,6 +191,7 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
     });
+    t['--mark-ring'] = markRing(t['--accent-text'], t['--ring-1']!);
     t['--shadow'] = rgbOf(n(0.2));
     t['--tint'] = '13%';
   } else {
@@ -200,6 +232,7 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
     });
+    t['--mark-ring'] = markRing(t['--accent-text'], t['--ring-1']!);
     t['--shadow'] = '0, 0, 0';
     t['--tint'] = '24%';
   }
