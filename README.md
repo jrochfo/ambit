@@ -34,6 +34,8 @@ npm run dev            # http://localhost:5173 — serves the app and the /api/i
 
 **Brand stylesheet:** http://localhost:5173/styleguide.html shows every token and component style, light and dark side by side, read live from `src/styles.css` (with contrast checks where WCAG sets a minimum), plus the values that live in code: ring pill colors and opacities (`src/lib/rings.ts`), category colors (`src/lib/categories.ts`), icons (`src/components/Icon.tsx`) and the Google basemap colors (`src/lib/mapStyle.ts`). Also dev-only. Open it beside the sandbox while editing.
 
+**Type lab:** http://localhost:5173/typelab.html compares wordmark (display) candidates and UI sans candidates, each in a real slice of the interface, with a check that numbers line up (tabular figures). "Preview in sandbox" applies a choice to an open sandbox tab live; the deployed app is unaffected until a font is chosen in `src/styles.css` (`--font`, `--font-display` and the `--display-*` tokens).
+
 ## Terms
 
 Use these consistently in UI copy and when discussing the app.

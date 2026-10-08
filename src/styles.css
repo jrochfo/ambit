@@ -64,6 +64,14 @@
 
   /* Type: one family, three weights (400, 600, 700). Numbers use tabular figures where they line up. */
   --font: Figtree, system-ui, sans-serif;
+  /* The wordmark ("Ambit" in the nav and intro card) can use its own display face. Until one is
+     chosen it's the UI font; the type lab previews candidates by overriding these in the sandbox. */
+  --font-display: var(--font);
+  --display-weight: 700;
+  --display-style: normal;
+  --display-variation: normal;
+  /* Scripts and condensed faces read smaller at the same size. */
+  --display-scale: 1;
   --text-xs: 12px;
   --text-sm: 13px;
   --text-md: 14px;
@@ -189,7 +197,7 @@ button, input { font: inherit; }
 /* Header */
 .header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: var(--control-sm); }
 .brand { display: flex; align-items: center; gap: var(--space-2); color: var(--teal-text); }
-.brand-name { margin: 0; font-size: var(--text-lg); font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+.brand-name { margin: 0; font-size: calc(var(--text-lg) * var(--display-scale)); color: var(--ink); }
 .header-actions { display: flex; align-items: center; gap: var(--space-3); }
 .header-btn {
   display: inline-flex;
@@ -338,7 +346,7 @@ button, input { font: inherit; }
 }
 .map-intro p { margin: 0; }
 .map-intro-brand { display: flex; align-items: center; gap: var(--space-3); color: var(--teal-text); }
-.map-intro-name { font-size: var(--text-xl); font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+.map-intro-name { font-size: calc(var(--text-xl) * var(--display-scale)); color: var(--ink); }
 .map-intro-tagline { font-size: var(--text-lg); font-weight: 600; color: var(--ink); }
 .map-intro-text { font-size: var(--text-base); line-height: 1.5; }
 .map-intro-start { margin-top: var(--space-1) !important; font-size: var(--text-md); font-weight: 600; color: var(--teal-text); }
@@ -847,6 +855,16 @@ a.pin { text-decoration: none; }
 .about-lede { font-size: var(--text-base); color: var(--ink); }
 .about-credit { margin-top: var(--space-5) !important; padding-top: 14px; border-top: 1px solid var(--line-subtle); font-size: var(--text-md); color: var(--ink-3); }
 .about a { color: var(--teal-text); font-weight: 600; text-decoration: none; }
+
+/* The wordmark */
+.brand-name, .map-intro-name {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-style: var(--display-style);
+  font-variation-settings: var(--display-variation);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
 
 /* Emoji are pictures, not text: don't let them be selected. */
 .emoji, .nearby-avatar, .category-avatar, .pin, .emoji-choice { -webkit-user-select: none; user-select: none; }

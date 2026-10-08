@@ -1,0 +1,38 @@
+/* Type lab layout only; colors and components come from src/styles.css. */
+body { background: var(--page); color: var(--ink); font-family: var(--font); }
+.tl { max-width: 1440px; margin: 0 auto; padding: var(--space-5) var(--space-5) 64px; display: flex; flex-direction: column; gap: var(--space-6); }
+.tl h1 { margin: 0; font-size: var(--text-xl); }
+.tl h2 { margin: 0; font-size: var(--text-lg); }
+.tl h3 { margin: 0; font-size: var(--text-base); color: var(--ink); }
+.tl-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.tl-lede { margin: var(--space-1) 0 0; max-width: 680px; color: var(--ink-2); line-height: 1.5; }
+.tl-lede a { color: var(--teal-text); font-weight: 600; }
+.tl-head-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.tl-current { font-size: var(--text-sm); color: var(--ink-3); }
+.tl-current strong { color: var(--ink); }
+.tl-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.tl-note { margin: 0; font-size: var(--text-sm); line-height: 1.5; color: var(--ink-3); }
+.tl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); }
+.tl-grid-sans { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+.tl-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+.tl-card[aria-current='true'] { border-color: var(--teal-text); box-shadow: inset 0 0 0 1px var(--teal-text); }
+.tl-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.tl-chip-active { background: var(--teal); border-color: var(--teal); color: var(--on-teal); }
+.tl-mark { display: inline-flex; color: var(--teal-text); }
+.tl-nav { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); background: var(--page); }
+.tl-intro { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; }
+.tl-tagline { margin: 0; font-size: var(--text-lg); font-weight: 600; color: var(--ink); }
+.tl-specimen { display: flex; flex-direction: column; gap: var(--space-3); color: var(--ink-2); }
+.tl-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.tl-total { font-size: var(--text-md); font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tl-glyphs { font-size: 22px; color: var(--ink); letter-spacing: 0.02em; }
+.tl-check { font-size: var(--text-xs); color: var(--teal-text); font-weight: 600; }
+.tl-check-fail { color: var(--danger); }
