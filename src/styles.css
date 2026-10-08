@@ -745,7 +745,13 @@ button, input { font: inherit; }
   color: var(--ink);
   text-align: left;
   cursor: auto;
+  /* A barely-there fade so the card doesn't snap in and out; opacity only. */
+  animation: spot-card-in 90ms ease-out;
+  transition: opacity 120ms ease-in;
 }
+.spot-card-out { opacity: 0; pointer-events: none; }
+@keyframes spot-card-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .spot-card { animation: none; transition: none; } }
 /* Tail pointing at the pin: a rotated square sharing the card's fill and border. */
 .spot-card::after {
   content: '';

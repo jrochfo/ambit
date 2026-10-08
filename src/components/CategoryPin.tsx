@@ -7,6 +7,8 @@ import { Icon } from './Icon';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
 
 const HIDE_DELAY_MS = 150;
+/** Matches the .spot-card fade-out in styles.css. */
+const FADE_OUT_MS = 120;
 
 /** A spot's standing in its category, and the actions for changing which spot counts. */
 export interface PinPick {
@@ -71,8 +73,16 @@ export function SpotPin({
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pinRef = useRef<HTMLAnchorElement>(null);
   const open = !dismissed && (spotlight || hovered || focused);
+  // The card stays mounted briefly after closing so it can fade out.
+  const [mounted, setMounted] = useState(open);
+  useEffect(() => {
+    if (open) return setMounted(true);
+    const t = setTimeout(() => setMounted(false), FADE_OUT_MS);
+    return () => clearTimeout(t);
+  }, [open]);
+  const shown = open || mounted;
   useEffect(() => () => clearTimeout(hideTimer.current), []);
-  useEffect(() => onOpenChange?.(open), [open, onOpenChange]);
+  useEffect(() => onOpenChange?.(shown), [shown, onOpenChange]);
 
   const where = place.ring ? `Within a ${formatMinutes(place.ring)} walk` : outerRing ? `Beyond a ${formatMinutes(outerRing)} walk` : '';
   const access = (['entrance', 'restroom', 'parking'] as const).filter((k) => place.accessible?.[k]);
@@ -125,10 +135,10 @@ export function SpotPin({
       >
         <span aria-hidden="true">{pickEmoji(category.emoji)}</span>
       </a>
-      {open && (
+      {shown && (
         // An interactive popover (it holds actions), so a labelled group rather than a tooltip;
         // the pin is described by the card's facts only.
-        <div className="spot-card" role="group" aria-label={place.name}>
+        <div className={open ? 'spot-card' : 'spot-card spot-card-out'} role="group" aria-label={place.name}>
           <div className="spot-card-facts" id={cardId}>
             <div className="spot-card-name">{place.name}</div>
             <div className="spot-card-meta">{[place.typeLabel ?? category.label, place.address].filter(Boolean).join(' · ')}</div>
