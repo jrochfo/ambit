@@ -24,42 +24,18 @@ export interface SansFont {
 
 export const DISPLAY_FONTS: DisplayFont[] = [
   { name: 'Figtree (current)', family: 'Figtree', query: 'Figtree:wght@700', weight: 700, note: 'Same as the interface. Quiet and consistent.' },
-  {
-    name: 'Fraunces, soft italic',
-    family: 'Fraunces',
-    query: 'Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1',
-    weight: 600,
-    style: 'italic',
-    variation: "'SOFT' 100, 'WONK' 1, 'opsz' 72",
-    scale: 1.08,
-    note: 'Variable “wonky” serif with soft, rounded terminals. Bouncy and warm in italic; can dial back to a calmer serif.',
-  },
-  { name: 'Caprasimo', family: 'Caprasimo', query: 'Caprasimo', weight: 400, scale: 1.02, note: 'Chunky 1970s-flavored serif. Friendly and confident; reads well small.' },
   { name: 'Young Serif', family: 'Young Serif', query: 'Young+Serif', weight: 400, scale: 1.04, note: 'Warm, slightly odd old-style serif. Playful without shouting.' },
-  { name: 'Gloock', family: 'Gloock', query: 'Gloock', weight: 400, scale: 1.08, note: 'High-contrast serif with quirky curves. More editorial, a bit of drama.' },
-  { name: 'Borel', family: 'Borel', query: 'Borel', weight: 400, scale: 0.78, note: 'Rounded, modern cursive (2023). Bubbly and very current. Tall line height.' },
-  { name: 'Yellowtail', family: 'Yellowtail', query: 'Yellowtail', weight: 400, scale: 1.25, note: 'Retro brush script, like a diner sign. Lots of personality.' },
-  { name: 'Grand Hotel', family: 'Grand Hotel', query: 'Grand+Hotel', weight: 400, scale: 1.25, note: 'Vintage connected script. Travel-poster nostalgia.' },
-  { name: 'Shrikhand', family: 'Shrikhand', query: 'Shrikhand', weight: 400, scale: 0.98, note: 'Heavy, curvy italic display. Loud and joyful.' },
-  {
-    name: 'Bricolage Grotesque',
-    family: 'Bricolage Grotesque',
-    query: 'Bricolage+Grotesque:opsz,wght@12..96,400..800',
-    weight: 800,
-    variation: "'opsz' 96",
-    scale: 1.04,
-    note: 'Expressive sans with ink traps. Playful but not a script; pairs naturally with a sans UI.',
-  },
+  { name: 'Oleo Script', family: 'Oleo Script', query: 'Oleo+Script:wght@400;700', weight: 700, scale: 1.08, note: 'Bold, rounded, upright-ish script. Friendly and very legible small.' },
+  { name: 'Lily Script One', family: 'Lily Script One', query: 'Lily+Script+One', weight: 400, scale: 1.04, note: 'Chunky retro script with a lot of bounce. Mid-century packaging.' },
+  { name: 'Leckerli One', family: 'Leckerli One', query: 'Leckerli+One', weight: 400, scale: 1.02, note: 'Heavy, marker-made script. Casual and cheerful, the most “hand” of the set.' },
+  { name: 'Damion', family: 'Damion', query: 'Damion', weight: 400, scale: 1.22, note: 'Fast, slanted brush script. 1950s sign-painter energy, lighter weight.' },
+  { name: 'Cookie', family: 'Cookie', query: 'Cookie', weight: 400, scale: 1.4, note: 'Soft, rounded retro script. Sweet and nostalgic; needs size to read.' },
+  { name: 'Sacramento', family: 'Sacramento', query: 'Sacramento', weight: 400, scale: 1.45, note: 'Thin monoline script, like a neon sign. Elegant, but delicate small.' },
 ];
 
 export const SANS_FONTS: SansFont[] = [
   { name: 'Figtree (current)', family: 'Figtree', query: 'Figtree:wght@400;600;700', note: 'Geometric and friendly, open shapes, clean numbers. A solid fit already.' },
-  { name: 'Inter', family: 'Inter', query: 'Inter:wght@400;600;700', note: 'The web’s default UI face. Superbly legible, but generic: it reads as “any app.”' },
-  { name: 'DM Sans', family: 'DM Sans', query: 'DM+Sans:wght@400;600;700', note: 'Close cousin to Figtree: geometric, low contrast, a touch more rounded and compact.' },
-  { name: 'Plus Jakarta Sans', family: 'Plus Jakarta Sans', query: 'Plus+Jakarta+Sans:wght@400;600;700', note: 'Modern with a little flair (sharp terminals, distinctive g). Slightly premium.' },
-  { name: 'Onest', family: 'Onest', query: 'Onest:wght@400;600;700', note: 'Calm, warm grotesk. Very even texture in dense lists.' },
   { name: 'Hanken Grotesk', family: 'Hanken Grotesk', query: 'Hanken+Grotesk:wght@400;600;700', note: 'Crisp, slightly narrow grotesk. Fits more on a line; a bit more serious.' },
-  { name: 'Schibsted Grotesk', family: 'Schibsted Grotesk', query: 'Schibsted+Grotesk:wght@400;600;700', note: 'Editorial grotesk with quirky details. More character, less neutral.' },
   { name: 'Rethink Sans', family: 'Rethink Sans', query: 'Rethink+Sans:wght@400;600;700', note: 'Friendly, contemporary, slightly rounded. Similar mood to Figtree, softer.' },
   {
     name: 'Atkinson Hyperlegible Next',

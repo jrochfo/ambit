@@ -36,3 +36,5 @@ body { background: var(--page); color: var(--ink); font-family: var(--font); }
 .tl-glyphs { font-size: 22px; color: var(--ink); letter-spacing: 0.02em; }
 .tl-check { font-size: var(--text-xs); color: var(--teal-text); font-weight: 600; }
 .tl-check-fail { color: var(--danger); }
+.tl-pair-intro { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-control); background: var(--page); color: var(--ink-2); }
+.tl-pair-intro .tl-intro { min-height: 0; }

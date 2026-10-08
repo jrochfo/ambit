@@ -55,8 +55,7 @@ export function TypeLab() {
       <section className="tl-section">
         <h2>Wordmark</h2>
         <p className="tl-note">
-          A display face only for the name: the nav and the intro card. Script and condensed faces are scaled so they sit at a similar visual
-          size.
+          A display face only for the name: the nav and the intro card. Scripts are scaled so they sit at a similar visual size.
         </p>
         <div className="tl-grid">
           {DISPLAY_FONTS.map((f) => (
@@ -85,6 +84,16 @@ export function TypeLab() {
       </section>
 
       <section className="tl-section">
+        <h2>Pairings</h2>
+        <p className="tl-note">Young Serif for the name with each sans: the intro card, then a slice of the sidebar.</p>
+        <div className="tl-grid tl-grid-sans">
+          {SANS_FONTS.map((sans) => (
+            <Pairing key={sans.name} display={DISPLAY_FONTS.find((d) => d.name === 'Young Serif')!} sansFamily={sans.family} sansName={sans.name} onPreview={() => choose({ display: 'Young Serif', sans: sans.name === 'Figtree (current)' ? undefined : sans.name })} active={preview.display === 'Young Serif' && (preview.sans ?? 'Figtree (current)') === sans.name} />
+          ))}
+        </div>
+      </section>
+
+      <section className="tl-section">
         <h2>Workhorse sans</h2>
         <p className="tl-note">
           The interface font, shown in a real slice of the UI. Numbers line up only if the font has tabular figures, checked below.
@@ -103,6 +112,51 @@ export function TypeLab() {
         </div>
       </section>
     </div>
+  );
+}
+
+function Pairing({ display, sansFamily, sansName, onPreview, active }: { display: DisplayFont; sansFamily: string; sansName: string; onPreview: () => void; active: boolean }) {
+  const rings = [5, 10, 15];
+  const coffee = CATEGORIES.find((c) => c.id === 'coffee')!;
+  return (
+    <article className="tl-card" aria-current={active ? 'true' : undefined}>
+      <div className="tl-card-head">
+        <h3>
+          {display.name} + {sansName.replace(' (current)', '')}
+        </h3>
+        <PreviewButton active={active} onClick={onPreview} />
+      </div>
+      <div className="tl-pair-intro" style={{ fontFamily: `'${sansFamily}', system-ui, sans-serif` }}>
+        <div className="tl-intro">
+          <span className="tl-mark">
+            <Logomark size={36} />
+          </span>
+          <span style={{ ...displayStyle(display), fontSize: 30 * (display.scale ?? 1) }}>Ambit</span>
+        </div>
+        <p className="tl-tagline">What’s within a walk of here?</p>
+        <p className="map-intro-text" style={{ margin: 0 }}>
+          See how far you can walk from any address, and which groceries, coffee shops, transit stops, and other spots fall within 5, 10, or
+          15 minutes. Save a few addresses to compare them side by side.
+        </p>
+        <p className="map-intro-start" style={{ margin: 0 }}>
+          Enter an address to get started.
+        </p>
+      </div>
+      <div className="tl-specimen" style={{ fontFamily: `'${sansFamily}', system-ui, sans-serif` }}>
+        <div className="nearby-item">
+          <button type="button" className="nearby-row" tabIndex={-1}>
+            <span className="nearby-text">
+              <span className="nearby-label">{coffee.label}</span>
+              <span className="nearby-place">Ritual Coffee Roasters</span>
+            </span>
+            <RingTag value={{ kind: 'ring', minutes: 5 }} rings={rings} />
+          </button>
+          <span className="nearby-avatar" style={{ background: categoryTint(coffee.color), borderColor: coffee.color }}>
+            {pickEmoji(coffee.emoji)}
+          </span>
+        </div>
+      </div>
+    </article>
   );
 }
 
