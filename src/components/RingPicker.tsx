@@ -57,7 +57,7 @@ export function RingPicker({
     <div className="field" role="group" aria-labelledby="walking-time-label">
       <div className="field-head">
         <h2 className="field-label" id="walking-time-label">
-          Walking time
+          Walking times
         </h2>
         <button type="button" id="ring-add-toggle" className="link-btn" aria-expanded={adding} aria-controls="ring-add" onClick={() => setAdding((a) => !a)}>
           {adding ? (

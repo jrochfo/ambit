@@ -95,7 +95,7 @@ const TYPE_SCALE: { sample: string; className: string; spec: string }[] = [
   { sample: 'Coffee shop', className: 'nearby-label', spec: '16 / 500 · category rows' },
   { sample: 'See how far you can walk from any address…', className: 'map-intro-text', spec: '15 / 400 · body' },
   { sample: 'San Francisco, CA 94110', className: 'address-locality', spec: '14 / 600 · locality' },
-  { sample: 'Walking time', className: 'field-label', spec: '14 / 600 · section labels' },
+  { sample: 'Walking times', className: 'field-label', spec: '14 / 600 · section labels' },
   { sample: 'Tap a category to see every spot', className: 'field-hint', spec: '13 / 400 · hints' },
   { sample: 'Walking from', className: 'eyebrow', spec: '13 / 400 · eyebrow' },
   { sample: 'Shotwell Coffee', className: 'nearby-place', spec: '13 / 400 · spot names' },
