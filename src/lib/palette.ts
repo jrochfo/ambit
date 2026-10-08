@@ -29,6 +29,13 @@ export interface PaletteSpec {
   /** Ring ramp hue override (defaults to the data hue). Rings stay one hue, stepped in lightness. */
   ringHue?: number;
   ringChroma?: number;
+  /**
+   * Light mode: share of the ring chroma kept by rings 2–6 (default 0.65 → 0.25). Warm hues
+   * like gold turn tan when they lose color, so they keep more.
+   */
+  ringKeepLight?: number[];
+  /** Light mode: lightness of rings 2–6 (default 0.77, 0.84, 0.9, 0.94, 0.965). */
+  ringLightL?: number[];
   /** Error color hue; moved away from red-orange accents so errors don't read as brand. */
   dangerHue?: number;
   /** Page lightness in light mode (lower = more paper-like). */
@@ -171,9 +178,9 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     // Map rings and legend: the data color, at least 3:1 against the map (graphics, WCAG 1.4.11).
     t['--data'] = solve(Math.min(dataFillL, 0.6), dc, dh, [t['--map-land']], OUTLINE, -1);
     t['--data-ink'] = solve(0.45, dc, dh, [t['--map-land']], TEXT, -1);
-    const ringL = [dataFillL, 0.77, 0.84, 0.9, 0.94, 0.965];
+    const ringL = [dataFillL, ...(spec.ringLightL ?? [0.77, 0.84, 0.9, 0.94, 0.965])];
     ringL.forEach((L, i) => {
-      const chroma = i === 0 ? rc : rc * (0.75 - i * 0.1);
+      const chroma = i === 0 ? rc : rc * (spec.ringKeepLight?.[i - 1] ?? 0.75 - i * 0.1);
       const ring = solveFill(L, Math.max(chroma, 0), rh);
       t[`--ring-${i + 1}`] = ring.color;
       t[`--ring-${i + 1}-ink`] = ring.text;
@@ -307,7 +314,7 @@ export const PALETTES: PaletteSpec[] = [
   { id: 'sea-ink', name: 'Sea glass & ink', note: 'Teal-green for the walk: calm and outdoorsy, the app’s original direction.', kind: 'round3', accentHue: 70, accentChroma: 0.012, accentFillL: 0.27, dataHue: 185, dataChroma: 0.09, dataFillL: 0.8, neutralHue: 80, neutralChroma: 0.008, pageL: 0.966 },
   {
     id: 'gold-ink',
-    name: 'Gold & ink',
+    name: 'Gold & ink (current)',
     note: 'Kept from round 2: gold for the walk, near-black ink for actions, on cream paper. Vintage printed map.',
     kind: 'round3',
     accentHue: 70,
@@ -319,6 +326,8 @@ export const PALETTES: PaletteSpec[] = [
     neutralHue: 80,
     neutralChroma: 0.012,
     pageL: 0.966,
+    ringKeepLight: [0.88, 0.78, 0.66, 0.54, 0.42],
+    ringLightL: [0.84, 0.89, 0.93, 0.955, 0.975],
   },
   {
     id: 'coral-teal',
@@ -366,7 +375,7 @@ export const PALETTES: PaletteSpec[] = [
   },
   {
     id: 'citrus-ink',
-    name: 'Citrus & ink (current)',
+    name: 'Citrus & ink',
     note: 'Lime for the walk, ink for actions. The loudest color confined to the data; everything else editorial.',
     kind: 'round3',
     accentHue: 110,

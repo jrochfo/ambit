@@ -255,8 +255,8 @@ export function Sandbox() {
  * Sandbox-only controls for jumping between states: a panel floating at the bottom of the
  * window (out of the page's layout), collapsible to a small pill. Remembers which per browser.
  */
-/** Walk colors to A/B (all with ink actions); lime is the stylesheet's own. */
-const PALETTE_CHOICES: Record<string, string | null> = { lime: null, gold: 'gold-ink', terracotta: 'coral-ink-2', iris: 'iris-ink', 'sea glass': 'sea-ink' };
+/** Walk colors to A/B (all with ink actions); gold is the stylesheet's own. */
+const PALETTE_CHOICES: Record<string, string | null> = { gold: null, lime: 'citrus-ink', terracotta: 'coral-ink-2', iris: 'iris-ink', 'sea glass': 'sea-ink' };
 
 function SandboxBar(props: {
   mapped: boolean;
@@ -269,7 +269,7 @@ function SandboxBar(props: {
   const [open, setOpen] = useState(() => loadPref('sandboxBarOpen', true, (v): v is boolean => typeof v === 'boolean'));
   useEffect(() => savePref('sandboxBarOpen', open), [open]);
   // Quick A/B between the shipped palette and Gold & ink (the color lab can preview any other).
-  const [palette, setPalette] = useState(() => Object.entries(PALETTE_CHOICES).find(([, id]) => id === readColorPreview())?.[0] ?? 'lime');
+  const [palette, setPalette] = useState(() => Object.entries(PALETTE_CHOICES).find(([, id]) => id === readColorPreview())?.[0] ?? 'gold');
   const choosePalette = (v: string) => {
     setPalette(v);
     writeColorPreview(PALETTE_CHOICES[v] ?? null);

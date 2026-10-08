@@ -37,9 +37,9 @@ export function RingLayer({
     const css = getComputedStyle(document.documentElement);
     return {
       ...st,
-      fill: css.getPropertyValue(st.fillVar).trim() || '#b3d452',
+      fill: css.getPropertyValue(st.fillVar).trim() || '#deaf56',
       fillOpacity: Number(css.getPropertyValue('--map-ring-fill')) || 0.5,
-      line: css.getPropertyValue('--data').trim() || '#728d00',
+      line: css.getPropertyValue('--data').trim() || '#a4780e',
     };
   }, [rank, count, theme]);
 

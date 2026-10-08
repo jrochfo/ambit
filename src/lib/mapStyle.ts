@@ -1,36 +1,36 @@
-// Muted basemap in the Citrus & ink palette's map colors (--map-* in styles.css), so the citrus
+// Muted basemap in the Gold & ink palette's map colors (--map-* in styles.css), so the gold
 // rings carry the color. Only applies to maps without a mapId.
 export const MAP_STYLE: google.maps.MapTypeStyle[] = [
-  { elementType: 'geometry', stylers: [{ color: '#f0eeea' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#696763' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#f0eeea' }] },
+  { elementType: 'geometry', stylers: [{ color: '#f3eee6' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#6c675e' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#f3eee6' }] },
   { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi', elementType: 'labels.text', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#d7ebd7' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#fefdfc' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#dedcd8' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#cccac6' }] },
-  { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#f9f8f6' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#fffdfb' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#e2ddd5' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#cfcac2' }] },
+  { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#fbf8f3' }] },
   { featureType: 'transit', elementType: 'labels.icon', stylers: [{ saturation: -100 }, { lightness: 20 }] },
   { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cbe2ee' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#696763' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#6c675e' }] },
 ];
 
 // Dark counterpart, from the dark theme's --map-* tokens.
 export const MAP_STYLE_DARK: google.maps.MapTypeStyle[] = [
-  { elementType: 'geometry', stylers: [{ color: '#201f1c' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#9a9894' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#201f1c' }] },
+  { elementType: 'geometry', stylers: [{ color: '#221f19' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#9c9890' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#221f19' }] },
   { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi', elementType: 'labels.text', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#192919' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2f2e2a' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1b1a18' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3e3d3a' }] },
-  { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#2a2925' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#312d27' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1b1812' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#403d36' }] },
+  { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#2a2620' }] },
   { featureType: 'transit', elementType: 'labels.icon', stylers: [{ saturation: -100 }, { lightness: -30 }] },
   { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1d26' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#9a9894' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#9c9890' }] },
 ];
 
 const NO_LABELS: google.maps.MapTypeStyle = { elementType: 'labels', stylers: [{ visibility: 'off' }] };
