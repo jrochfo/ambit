@@ -188,8 +188,19 @@ body { background: var(--page); color: var(--ink); font-family: var(--font); }
 .m-g .mark-ring-inner { --lo: 0.42; --hi: 0.92; animation-delay: calc(-3.333s * var(--sg-speed)); }
 .m-g .mark-ring-outer { --lo: 0.15; --hi: 0.58; animation-delay: calc(-1.667s * var(--sg-speed)); }
 
-/* C2. C with softer rings: same glow-then-fade timing, lower ring peaks. */
-.m-c2 .mark-ring-inner, .m-c2 .mark-ring-outer { animation-name: sg-ring-glow; animation-duration: calc(3.6s * var(--sg-speed)); }
-.m-c2 .mark-dot { animation-name: sg-dot-glow; animation-duration: calc(3.6s * var(--sg-speed)); --lo: 0.72; --hi: 1; animation-delay: calc(-3.6s * var(--sg-speed)); }
+/* C2. C with softer rings: lower ring peaks, and a gentler swell into each peak (eased in and
+   out, reaching it at 22% of the cycle instead of 14%) so the glow builds rather than switches on. */
+@keyframes sg-ring-glow-soft {
+  0% { stroke-opacity: var(--lo); animation-timing-function: ease-in-out; }
+  22% { stroke-opacity: var(--hi); animation-timing-function: ease-in-out; }
+  100% { stroke-opacity: var(--lo); }
+}
+@keyframes sg-dot-glow-soft {
+  0% { fill-opacity: var(--lo); animation-timing-function: ease-in-out; }
+  22% { fill-opacity: var(--hi); animation-timing-function: ease-in-out; }
+  100% { fill-opacity: var(--lo); }
+}
+.m-c2 .mark-ring-inner, .m-c2 .mark-ring-outer { animation-name: sg-ring-glow-soft; animation-duration: calc(3.6s * var(--sg-speed)); }
+.m-c2 .mark-dot { animation-name: sg-dot-glow-soft; animation-duration: calc(3.6s * var(--sg-speed)); --lo: 0.72; --hi: 1; animation-delay: calc(-3.6s * var(--sg-speed)); }
 .m-c2 .mark-ring-inner { --lo: 0.4; --hi: 0.8; animation-delay: calc(-3.1s * var(--sg-speed)); }
 .m-c2 .mark-ring-outer { --lo: 0.14; --hi: 0.48; animation-delay: calc(-2.6s * var(--sg-speed)); }
