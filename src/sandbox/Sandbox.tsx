@@ -185,6 +185,7 @@ export function Sandbox() {
                 full={saved.length >= MAX_SAVED}
                 onSave={(label) => setSaved((prev) => [...prev, { ...toSaved(mapped), label }])}
                 onRemove={(id) => setSaved((prev) => prev.filter((a) => a.id !== id))}
+                onRename={(id, label) => setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, label } : a)))}
               />
             )}
           </div>

@@ -6,6 +6,7 @@ import { RingTag } from './RingTag';
 import type { SavedAddress } from '../lib/saved';
 import type { Cell } from '../lib/useComparison';
 import { Icon } from './Icon';
+import { RenameField } from './RenameField';
 
 /** Categories × saved addresses, each cell the walking ring of the nearest spot. */
 export function CompareGrid({
@@ -74,6 +75,7 @@ export function CompareGrid({
                     </button>
                     {renaming === a.id ? (
                       <RenameField
+                        className="compare-rename"
                         initial={a.label}
                         onDone={(label) => {
                           if (label) onRename(a.id, label);
@@ -168,21 +170,3 @@ function CellName({ cell }: { cell: Cell | undefined }) {
   );
 }
 
-function RenameField({ initial, onDone }: { initial: string; onDone: (label: string | null) => void }) {
-  const [value, setValue] = useState(initial);
-  return (
-    <input
-      className="input input-sm compare-rename"
-      aria-label="Address name"
-      value={value}
-      maxLength={40}
-      autoFocus
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={() => onDone(value.trim() || null)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') onDone(value.trim() || null);
-        if (e.key === 'Escape') onDone(null);
-      }}
-    />
-  );
-}

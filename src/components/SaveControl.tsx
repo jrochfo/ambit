@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { MAX_SAVED, type SavedAddress } from '../lib/saved';
 import { Icon } from './Icon';
+import { RenameField } from './RenameField';
 
 /** Save the mapped address (with a nickname) to the comparison grid, or show that it's saved. */
 export function SaveControl({
@@ -9,6 +10,7 @@ export function SaveControl({
   full,
   onSave,
   onRemove,
+  onRename,
 }: {
   defaultLabel: string;
   saved: SavedAddress | undefined;
@@ -16,16 +18,35 @@ export function SaveControl({
   full: boolean;
   onSave: (label: string) => void;
   onRemove: (id: string) => void;
+  onRename: (id: string, label: string) => void;
 }) {
   const [naming, setNaming] = useState(false);
   const [label, setLabel] = useState(defaultLabel);
+  const [renaming, setRenaming] = useState(false);
+  const nameRef = useRef<HTMLButtonElement>(null);
 
   if (saved)
     return (
       <div className="save-row">
         <span className="save-state">
           <Icon name="bookmarkAdded" size={20} />
-          Saved as <strong>{saved.label}</strong>
+          Saved as{' '}
+          {renaming ? (
+            <RenameField
+              initial={saved.label}
+              className="save-rename"
+              onDone={(name) => {
+                if (name) onRename(saved.id, name);
+                setRenaming(false);
+                requestAnimationFrame(() => nameRef.current?.focus());
+              }}
+            />
+          ) : (
+            <button type="button" ref={nameRef} className="save-name" aria-label={`${saved.label}. Rename`} onClick={() => setRenaming(true)}>
+              <strong>{saved.label}</strong>
+              <Icon name="edit" size={16} />
+            </button>
+          )}
         </span>
         <button type="button" className="link-btn" onClick={() => onRemove(saved.id)}>
           Remove

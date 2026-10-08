@@ -783,10 +783,27 @@ button, input { font: inherit; }
 .spot-card-line .icon { color: var(--accent-text); }
 
 /* Save control */
-.save-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.save-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: var(--control-xs); /* room for the rename field, so the row doesn't jump */ }
 .save-state { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-md); color: var(--ink-2); min-width: 0; }
 .save-state .icon { color: var(--accent-text); }
 .save-state strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The saved name: click to rename, with a pencil that shows on hover (like the grid's). */
+.save-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.save-name .icon { opacity: 0; color: var(--ink-3); }
+.save-name:hover .icon, .save-name:focus-visible .icon { opacity: 1; }
+.save-name:hover strong { text-decoration: underline; text-decoration-color: var(--line-muted); text-underline-offset: 3px; }
+.save-rename { width: 180px; height: var(--control-xs); }
 .btn-icon { display: inline-flex; align-items: center; gap: var(--space-2); }
 
 /* Comparison grid */

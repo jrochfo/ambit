@@ -312,6 +312,7 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
                 full={saved.length >= MAX_SAVED}
                 onSave={saveCurrent}
                 onRemove={removeSaved}
+                onRename={renameSaved}
               />
             )}
           </div>
