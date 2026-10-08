@@ -56,6 +56,11 @@ export const CATEGORIES: Category[] = [
   { id: 'bank', label: 'Bank or ATM', emoji: ['🏦'], color: '#3A5A7A', types: ['bank', 'atm'] },
 ];
 
+/** Background for a category's emoji circle: its color at the theme's --tint strength. */
+export function categoryTint(color: string): string {
+  return `color-mix(in srgb, ${color} var(--tint), transparent)`;
+}
+
 export const DEFAULT_CATEGORY_IDS = ['grocery', 'transit', 'drugstore', 'park', 'coffee'];
 
 // Custom categories rotate through these so each gets its own pin border.

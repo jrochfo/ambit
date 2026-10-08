@@ -267,7 +267,7 @@ function SandboxBar(props: {
   if (!open)
     return (
       <button type="button" className="sandbox-pill" aria-expanded={false} aria-controls="sandbox-bar" onClick={() => setOpen(true)}>
-        <Icon name="tune" size={18} />
+        <Icon name="tune" size={20} />
         Sandbox
       </button>
     );

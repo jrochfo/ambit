@@ -24,7 +24,7 @@ export function SaveControl({
     return (
       <div className="save-row">
         <span className="save-state">
-          <Icon name="bookmarkAdded" size={18} />
+          <Icon name="bookmarkAdded" size={20} />
           Saved as <strong>{saved.label}</strong>
         </span>
         <button type="button" className="link-btn" onClick={() => onRemove(saved.id)}>
@@ -40,7 +40,7 @@ export function SaveControl({
     return (
       <div className="save-row">
         <button type="button" className="btn btn-sm btn-outline btn-icon" onClick={() => setNaming(true)}>
-          <Icon name="bookmarkAdd" size={18} />
+          <Icon name="bookmarkAdd" size={20} />
           Save to compare
         </button>
       </div>

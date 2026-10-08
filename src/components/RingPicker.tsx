@@ -52,7 +52,7 @@ export function RingPicker({
               'Done'
             ) : (
               <>
-                <Icon name="add" size={18} />
+                <Icon name="add" size={20} />
                 Add time
               </>
             )}

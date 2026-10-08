@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import type { Category } from '../lib/categories';
+import { categoryTint, type Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
-import { formatMinutes, pillColors } from '../lib/rings';
+import { formatMinutes } from '../lib/rings';
+import { RingTag } from './RingTag';
 import type { SavedAddress } from '../lib/saved';
 import type { Cell } from '../lib/useComparison';
 import { Icon } from './Icon';
@@ -43,7 +44,7 @@ export function CompareGrid({
         </h2>
         {saved.length > 0 && (
           <p className="compare-note">
-            Walking minutes to the nearest spot in each category. A dash means nothing within {within}.
+            Walking time to the spot that counts in each category. A dash means nothing within {within}.
           </p>
         )}
       </div>
@@ -98,7 +99,7 @@ export function CompareGrid({
                 <tr key={c.id}>
                   <th scope="row" className="compare-category">
                     <div className="compare-category-inner">
-                      <span className="category-avatar" style={{ background: `${c.color}22`, borderColor: c.color }} aria-hidden="true">
+                      <span className="category-avatar" style={{ background: categoryTint(c.color), borderColor: c.color }} aria-hidden="true">
                         {pickEmoji(c.emoji)}
                       </span>
                       <span className="compare-category-label">{c.label}</span>
@@ -149,30 +150,10 @@ function describeCell(cell: Cell | undefined, within: string): string {
 }
 
 function CellPill({ cell, rings }: { cell: Cell | undefined; rings: number[] }) {
-  if (!cell || cell.status === 'loading')
-    return (
-      <span className="grid-pill grid-pill-none">
-        …
-      </span>
-    );
-  if (cell.status === 'error')
-    return (
-      <span className="grid-pill grid-pill-none" title={cell.message}>
-        !
-      </span>
-    );
-  if (cell.ring === null)
-    return (
-      <span className="grid-pill grid-pill-none">
-        —
-      </span>
-    );
-  const { bg, fg } = pillColors(rings.indexOf(cell.ring));
-  return (
-    <span className="grid-pill" style={{ background: bg, color: fg, borderColor: bg }}>
-      {cell.ring < 60 ? cell.ring : formatMinutes(cell.ring)}
-    </span>
-  );
+  if (!cell || cell.status === 'loading') return <RingTag value={{ kind: 'loading' }} rings={rings} />;
+  if (cell.status === 'error') return <RingTag value={{ kind: 'error', label: '!', message: cell.message }} rings={rings} />;
+  if (cell.ring === null) return <RingTag value={{ kind: 'none', label: '—' }} rings={rings} />;
+  return <RingTag value={{ kind: 'ring', minutes: cell.ring }} rings={rings} />;
 }
 
 function CellName({ cell }: { cell: Cell | undefined }) {
@@ -180,7 +161,7 @@ function CellName({ cell }: { cell: Cell | undefined }) {
   if (cell?.status !== 'done' || !cell.spotId || (cell.nameFailed && !cell.spotName)) return null;
   return (
     <span className={cell.spotName ? 'compare-spot' : 'compare-spot compare-spot-loading'}>
-      {cell.picked && <Icon name="starFill" size={13} className="pick-star" />}
+      {cell.picked && <Icon name="starFill" size={16} className="pick-star" />}
       {cell.spotName ?? 'Loading name…'}
       {cell.picked && <span className="sr-only"> (your pick)</span>}
     </span>

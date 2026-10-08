@@ -54,7 +54,7 @@ export function CategoryPicker({
             <div key={c.id} className="category-option-row">
               <Option category={c} checked={enabled.has(c.id)} onToggle={onToggle} />
               <button type="button" className="category-remove" aria-label={`Remove ${c.label}`} onClick={() => onRemove(c.id)}>
-                <Icon name="close" size={18} />
+                <Icon name="close" size={20} />
               </button>
             </div>
           ))}

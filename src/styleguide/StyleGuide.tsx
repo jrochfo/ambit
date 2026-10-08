@@ -3,11 +3,12 @@ import { SpotPin, type PinPick } from '../components/CategoryPin';
 import { Icon, ICON_NAMES } from '../components/Icon';
 import { Logomark } from '../components/Logomark';
 import { OriginMarker, RingLabel } from '../components/MapParts';
-import { CATEGORIES } from '../lib/categories';
+import { CATEGORIES, categoryTint } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { MAP_STYLE, MAP_STYLE_DARK } from '../lib/mapStyle';
 import type { NearbyPlace } from '../lib/nearby';
 import { pillColors, ringStyle } from '../lib/rings';
+import { RingTag } from '../components/RingTag';
 
 /**
  * Ambit's brand stylesheet: every token and component style, read live from src/styles.css
@@ -43,21 +44,18 @@ const TOKEN_GROUPS: { title: string; note?: string; tokens: { name: string; use:
       { name: '--teal', use: 'Buttons, swatches, switch on' },
       { name: '--teal-text', use: 'Links, focus outlines, accents' },
       { name: '--teal-ink', use: 'Ring labels on the map' },
-      { name: '--teal-mid', use: 'Mid teal' },
       { name: '--teal-pale', use: 'Hover halos' },
       { name: '--on-teal', use: 'Text on teal' },
-      { name: '--on-teal-light', use: 'Text on light teal pills' },
     ],
   },
   {
     title: 'Lines',
-    note: 'Only control outlines (--field-border) need 3:1 against --card; dividers are decorative.',
+    note: 'Only control outlines (--line-control) need 3:1 against --card; dividers are decorative.',
     tokens: [
-      { name: '--border', use: 'Card and divider strokes' },
-      { name: '--border-soft', use: 'Row strokes, legend divider' },
-      { name: '--border-faint', use: 'Grid row lines' },
-      { name: '--field-border', use: 'Inputs, pills, switch' },
-      { name: '--muted-border', use: '"None" pill outline, disabled' },
+      { name: '--line', use: 'Cards, dividers' },
+      { name: '--line-subtle', use: 'Rows, grid lines, legend' },
+      { name: '--line-control', use: 'Inputs, pills, switch' },
+      { name: '--line-muted', use: 'Outlined tags, disabled' },
       { name: '--scroll-thumb', use: 'Scrollbars' },
     ],
   },
@@ -120,7 +118,7 @@ export function StyleGuide() {
         <Themed>{() => <TokenGroups />}</Themed>
       </Section>
 
-      <Section title="Walking rings" file="src/lib/rings.ts (pillColors, ringStyle)">
+      <Section title="Walking rings" file="src/styles.css (--ring-1 … --ring-6); map opacity in src/lib/rings.ts">
         <Themed>{() => <Rings />}</Themed>
       </Section>
 
@@ -128,11 +126,15 @@ export function StyleGuide() {
         <Themed>{() => <Categories />}</Themed>
       </Section>
 
-      <Section title="Type" file="src/styles.css (--font, --mono; sizes per class)">
+      <Section title="Type" file="src/styles.css (--font, --text-*)">
         <Themed>{() => <Type />}</Themed>
       </Section>
 
-      <Section title="Shape, depth and opacity" file="src/styles.css">
+      <Section title="Scales" file="src/styles.css (--space-*, --control-*, --radius-*, --elevation-*)">
+        <Themed>{() => <Scales />}</Themed>
+      </Section>
+
+      <Section title="Strokes and opacity" file="src/styles.css">
         <Themed>{() => <Shape />}</Themed>
       </Section>
 
@@ -220,7 +222,7 @@ const MIN_CONTRAST: Record<string, number> = {
   '--danger': 4.5,
   '--teal-text': 4.5,
   '--teal-ink': 4.5,
-  '--field-border': 3,
+  '--line-control': 3,
 };
 
 function Swatch({ name, use, minContrast }: { name: string; use: string; minContrast?: number }) {
@@ -263,51 +265,61 @@ function Rings() {
   const minutes = [5, 10, 15, 20, 30, 60];
   return (
     <div className="sg-stack">
-      <p className="sg-note">Pill colors by ring rank (smallest ring first), and the map fill/stroke opacity for 3 rings.</p>
+      <p className="sg-note">Tag colors by ring rank (smallest ring first), with text contrast; each theme has its own ramp.</p>
       <div className="sg-row">
-        {minutes.map((m, rank) => {
-          const { bg, fg } = pillColors(rank);
-          return (
-            <span key={m} className="ring-pill" style={{ background: bg, color: fg }} title={`${bg} on ${fg} · ${contrast(bg, fg).toFixed(1)}:1`}>
-              {m} min
-            </span>
-          );
-        })}
+        {minutes.map((m) => (
+          <TagWithContrast key={m} minutes={m} rings={minutes} />
+        ))}
       </div>
       <div className="sg-row">
-        {minutes.map((m, rank) => {
-          const { bg, fg } = pillColors(rank);
-          return (
-            <span key={m} className="grid-pill" style={{ background: bg, color: fg, borderColor: bg }}>
-              {m}
-            </span>
-          );
-        })}
-        <span className="grid-pill grid-pill-none">—</span>
-        <span className="ring-pill ring-none">Beyond 15 min</span>
-        <span className="ring-pill ring-none">…</span>
+        <RingTag value={{ kind: 'none', label: '—' }} rings={minutes} />
+        <RingTag value={{ kind: 'none', label: 'Beyond 15 min' }} rings={minutes} />
+        <RingTag value={{ kind: 'loading' }} rings={minutes} />
+        <RingTag value={{ kind: 'error', label: 'Limit', message: 'Daily search limit reached.' }} rings={minutes} />
       </div>
       <div className="sg-rings-demo">
         <svg viewBox="0 0 220 140" aria-hidden="true">
           <rect width="220" height="140" style={{ fill: 'var(--map-land)' }} />
           {[2, 1, 0].map((rank) => {
-            const s = ringStyle(rank, 3);
-            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} fill="#0E7C74" fillOpacity={s.fill} stroke="#0E7C74" strokeOpacity={s.stroke} strokeWidth="2" />;
+            const st = ringStyle(rank, 3);
+            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} style={{ fill: 'var(--teal)', stroke: 'var(--teal)' }} fillOpacity={st.fill} strokeOpacity={st.stroke} strokeWidth="2" />;
           })}
         </svg>
         <div className="sg-note">
           {[0, 1, 2].map((rank) => {
-            const s = ringStyle(rank, 3);
+            const st = ringStyle(rank, 3);
             return (
               <div key={rank}>
-                Ring {rank + 1}: fill {s.fill.toFixed(2)}, stroke {s.stroke.toFixed(2)}
+                Ring {rank + 1}: fill {st.fill.toFixed(2)}, stroke {st.stroke.toFixed(2)}
               </div>
             );
           })}
-          <div>Polygon color: #0E7C74 (RingLayer.tsx)</div>
+          <div>Polygons use --teal.</div>
         </div>
       </div>
     </div>
+  );
+}
+
+function TagWithContrast({ minutes, rings }: { minutes: number; rings: number[] }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [ratio, setRatio] = useState<number | null>(null);
+  useEffect(() => {
+    const read = () => {
+      const tag = ref.current?.querySelector('.tag');
+      if (!tag) return;
+      const cs = getComputedStyle(tag);
+      setRatio(contrast(cs.backgroundColor, cs.color));
+    };
+    read();
+    const timer = setInterval(read, 600);
+    return () => clearInterval(timer);
+  }, []);
+  return (
+    <span ref={ref} className="sg-tag-cell">
+      <RingTag value={{ kind: 'ring', minutes }} rings={rings} />
+      {ratio !== null && <span className={ratio >= 4.5 ? 'sg-pass sg-value' : 'sg-fail sg-value'}>{ratio.toFixed(1)}:1</span>}
+    </span>
   );
 }
 
@@ -316,7 +328,7 @@ function Categories() {
     <div className="sg-cats">
       {CATEGORIES.map((c) => (
         <div key={c.id} className="sg-cat">
-          <span className="category-avatar" style={{ background: `${c.color}22`, borderColor: c.color }}>
+          <span className="category-avatar" style={{ background: categoryTint(c.color), borderColor: c.color }}>
             {pickEmoji(c.emoji)}
           </span>
           <span>
@@ -330,22 +342,34 @@ function Categories() {
 }
 
 function Type() {
+  const sizes: [string, string][] = [
+    ['--text-xl', '24'],
+    ['--text-lg', '18'],
+    ['--text-base', '16'],
+    ['--text-md', '14'],
+    ['--text-sm', '13'],
+    ['--text-xs', '12'],
+  ];
   return (
     <div className="sg-stack">
       <div className="sg-fonts">
         <div>
           <span className="sg-font-sample" style={{ fontFamily: 'var(--font)' }}>
-            Figtree Aa
+            Figtree Aa 0123
           </span>
-          <code>--font</code> <span className="sg-use">Everything (400, 500, 600, 700)</span>
-        </div>
-        <div>
-          <span className="sg-font-sample" style={{ fontFamily: 'var(--mono)' }}>
-            JetBrains 0123
-          </span>
-          <code>--mono</code> <span className="sg-use">Grid minutes and totals (600)</span>
+          <code>--font</code> <span className="sg-use">Everything. Weights 400, 600, 700. Numbers that line up use tabular figures.</span>
         </div>
       </div>
+      <h3>Scale</h3>
+      {sizes.map(([token, px]) => (
+        <div key={token} className="sg-type-row">
+          <span style={{ fontSize: `var(${token})`, fontWeight: 600 }}>Walk to coffee in 5 min</span>
+          <span className="sg-use">
+            <code>{token}</code> · {px}px
+          </span>
+        </div>
+      ))}
+      <h3>In use</h3>
       {TYPE_SCALE.map((t) => (
         <div key={t.className + t.sample} className="sg-type-row">
           <span className={t.className} style={{ display: 'block' }}>
@@ -360,65 +384,87 @@ function Type() {
   );
 }
 
-function Shape() {
+function Scales() {
   return (
     <div className="sg-stack">
-      <h3>Corner radius</h3>
-      <div className="sg-row sg-radii">
-        <div style={{ borderRadius: 'var(--radius-card)' }}>
-          card<code>--radius-card</code>
-        </div>
-        <div style={{ borderRadius: 'var(--radius-control)' }}>
-          control<code>--radius-control</code>
-        </div>
-        <div style={{ borderRadius: 8 }}>
-          option<code>8px</code>
-        </div>
-        <div style={{ borderRadius: 999 }}>
-          pill<code>999px</code>
-        </div>
-      </div>
-      <h3>Shadows</h3>
-      <div className="sg-row sg-shadows">
-        {[
-          ['0 1px 4px', 0.25, 'pins, origin'],
-          ['0 4px 16px', 0.08, 'small floating'],
-          ['0 8px 24px', 0.12, 'dropdowns'],
-          ['0 8px 24px', 0.16, 'spot cards'],
-          ['0 8px 28px', 0.12, 'intro card'],
-          ['0 16px 48px', 0.24, 'About dialog'],
-        ].map(([offset, alpha, use]) => (
-          <div key={`${offset}${alpha}`} style={{ boxShadow: `${offset} rgba(var(--shadow), ${alpha})` }}>
-            <span>{use}</span>
-            <code>
-              {offset} · {alpha}
-            </code>
+      <h3>Space</h3>
+      <div className="sg-row sg-space">
+        {[1, 2, 3, 4, 5, 6].map((n) => (
+          <div key={n}>
+            <span className="sg-space-bar" style={{ width: `var(--space-${n})` }} />
+            <code>--space-{n}</code>
           </div>
         ))}
       </div>
+      <h3>Control heights</h3>
+      <div className="sg-row sg-heights">
+        {[
+          ['lg', 'address field, Map it, time pills'],
+          ['sm', 'small buttons and inputs, About'],
+          ['xs', 'tags, chips, icon buttons'],
+        ].map(([size, use]) => (
+          <div key={size} style={{ height: `var(--control-${size})` }}>
+            <code>--control-{size}</code>
+            <span className="sg-use">{use}</span>
+          </div>
+        ))}
+      </div>
+      <h3>Radius</h3>
+      <div className="sg-row sg-radii">
+        {[
+          ['card', 'cards, dialog'],
+          ['control', 'inputs, buttons, rows'],
+          ['sm', 'menu options'],
+          ['xs', 'small focus outlines'],
+          ['pill', 'tags, chips, pins'],
+        ].map(([r, use]) => (
+          <div key={r} style={{ borderRadius: `var(--radius-${r})` }}>
+            <code>--radius-{r}</code>
+            <span className="sg-use">{use}</span>
+          </div>
+        ))}
+      </div>
+      <h3>Elevation</h3>
+      <div className="sg-row sg-shadows">
+        {[
+          ['1', 'pins, address dot'],
+          ['2', 'dropdowns, spot cards, intro card'],
+          ['3', 'About dialog'],
+        ].map(([n, use]) => (
+          <div key={n} style={{ boxShadow: `var(--elevation-${n})` }}>
+            <code>--elevation-{n}</code>
+            <span className="sg-use">{use}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Shape() {
+  return (
+    <div className="sg-stack">
       <h3>Strokes</h3>
       <div className="sg-row sg-strokes">
-        <div style={{ border: '1px solid var(--border)' }}>1px · cards, dividers</div>
-        <div style={{ border: '1px solid var(--field-border)' }}>1px · controls</div>
-        <div style={{ outline: '2px solid var(--teal-text)', outlineOffset: 2 }}>2px · focus outline</div>
-        <div style={{ border: '2px solid var(--teal-text)' }}>2px · avatars, rings</div>
-        <div style={{ border: '1px dashed var(--teal-text)' }}>1px dashed · (unused)</div>
+        <div style={{ border: '1px solid var(--line)' }}>1px · cards, dividers</div>
+        <div style={{ border: '1px solid var(--line-control)' }}>1px · controls</div>
+        <div style={{ outline: 'var(--focus)', outlineOffset: 2 }}>2px · focus ring (--focus)</div>
+        <div style={{ border: '2px solid var(--teal-text)' }}>2px · emoji circles, pins, map rings</div>
       </div>
       <h3>Opacity</h3>
       <div className="sg-row sg-opacity">
-        {[
-          [0.28, 'hidden spot pin'],
-          [0.45, 'disabled outline button'],
-          [0.55, 'dimmed rows (focus mode)'],
-          [0.6, 'busy button'],
-          [0.7, 'remove × on pills'],
-          [1, 'default'],
-        ].map(([o, use]) => (
-          <div key={use as string}>
-            <span className="sg-opacity-chip" style={{ opacity: o as number }} />
-            <span>
-              {o} · {use}
-            </span>
+        {(
+          [
+            ['0.28', 'hidden spot pin'],
+            ['var(--disabled)', 'disabled controls (0.45)'],
+            ['0.55', 'dimmed rows (focus mode)'],
+            ['0.7', 'remove × on pills'],
+            ['1', 'default'],
+          ] as const
+        ).map(([o, use]) => (
+          <div key={use}>
+            <span className="sg-opacity-chip" style={{ opacity: o }} />
+            <span>{use}</span>
           </div>
         ))}
       </div>
@@ -509,7 +555,6 @@ function Controls() {
           ] as const
         ).map(([id, spot, rank, picked]) => {
           const c = CATEGORIES.find((x) => x.id === id)!;
-          const pill = rank === null ? null : pillColors(rank);
           return (
             <div key={id} className="nearby-item">
               <button type="button" className="nearby-row" aria-pressed={id === 'park'}>
@@ -520,15 +565,13 @@ function Controls() {
                     {picked && <span className="pick-note"> · your pick</span>}
                   </span>
                 </span>
-                {pill ? (
-                  <span className="ring-pill" style={{ background: pill.bg, color: pill.fg }}>
-                    {rank === 0 ? '5 min' : '10 min'}
-                  </span>
+                {rank !== null ? (
+                  <RingTag value={{ kind: 'ring', minutes: rank === 0 ? 5 : 10 }} rings={[5, 10, 15]} />
                 ) : (
-                  <span className="ring-pill ring-none">Beyond 15 min</span>
+                  <RingTag value={{ kind: 'none', label: 'Beyond 15 min' }} rings={[5, 10, 15]} />
                 )}
               </button>
-              <span className="nearby-avatar" style={{ background: `${c.color}22`, borderColor: c.color }}>
+              <span className="nearby-avatar" style={{ background: categoryTint(c.color), borderColor: c.color }}>
                 {pickEmoji(c.emoji)}
               </span>
             </div>

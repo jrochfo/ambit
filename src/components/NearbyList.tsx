@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { DEFAULT_CATEGORY_IDS, type Category } from '../lib/categories';
+import { DEFAULT_CATEGORY_IDS, categoryTint, type Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import { allEmoji, suggestEmoji } from '../lib/emojiTags';
-import { formatMinutes, pillColors } from '../lib/rings';
+import { formatMinutes } from '../lib/rings';
+import { RingTag } from './RingTag';
 import type { CategoryResult } from '../lib/useAnalysis';
 import { AddCategory, type AddOption } from './AddCategory';
 import { CategoryPicker } from './CategoryPicker';
@@ -89,7 +90,7 @@ export function NearbyList({
             const place = result?.status === 'done' ? result.nearest : null;
             const isFocused = focused === c.id;
             const emoji = pickEmoji(c.emoji);
-            const avatarStyle = { background: `${c.color}22`, borderColor: c.color };
+            const avatarStyle = { background: categoryTint(c.color), borderColor: c.color };
             return (
               <div key={c.id} className="nearby-item">
                 <button
@@ -182,20 +183,13 @@ function MoreCount({ count, capped }: { count: number; capped: boolean }) {
 }
 
 function RingPill({ result, rings }: { result: CategoryResult | undefined; rings: number[] }) {
-  if (!result) return <span className="ring-pill ring-none">—</span>;
-  if (result.status === 'loading') return <span className="ring-pill ring-none">…</span>;
+  const largest = rings[rings.length - 1];
+  if (!result) return <RingTag value={{ kind: 'none', label: '—' }} rings={rings} />;
+  if (result.status === 'loading') return <RingTag value={{ kind: 'loading' }} rings={rings} />;
   if (result.status === 'error')
     return (
-      <span className="ring-pill ring-none" title={result.message}>
-        {result.message.startsWith('Daily search limit') ? 'Limit' : 'Error'}
-      </span>
+      <RingTag value={{ kind: 'error', label: result.message.startsWith('Daily search limit') ? 'Limit' : 'Error', message: result.message }} rings={rings} />
     );
-  const largest = rings[rings.length - 1];
-  if (result.ring === null) return <span className="ring-pill ring-none">Beyond {largest ? formatMinutes(largest) : ''}</span>;
-  const { bg, fg } = pillColors(rings.indexOf(result.ring));
-  return (
-    <span className="ring-pill" style={{ background: bg, color: fg }}>
-      {formatMinutes(result.ring)}
-    </span>
-  );
+  if (result.ring === null) return <RingTag value={{ kind: 'none', label: `Beyond ${largest ? formatMinutes(largest) : ''}` }} rings={rings} />;
+  return <RingTag value={{ kind: 'ring', minutes: result.ring }} rings={rings} />;
 }

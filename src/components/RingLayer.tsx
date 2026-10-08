@@ -15,15 +15,17 @@ export function RingLayer({ ring, rank, count }: { ring: Ring; rank: number; cou
   useEffect(() => {
     if (!map) return;
     const style = ringStyle(rank, count);
+    // Google polygons need a literal color; take the theme's teal.
+    const teal = getComputedStyle(document.documentElement).getPropertyValue('--teal').trim() || '#0e7c74';
     const polygons = paths.map(
       (p) =>
         new google.maps.Polygon({
           map,
           paths: p,
           clickable: false,
-          fillColor: '#0E7C74',
+          fillColor: teal,
           fillOpacity: style.fill,
-          strokeColor: '#0E7C74',
+          strokeColor: teal,
           strokeOpacity: style.stroke,
           strokeWeight: 2,
           zIndex: style.z,

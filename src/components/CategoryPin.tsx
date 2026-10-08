@@ -127,12 +127,12 @@ export function SpotPin({
           {pick && <PickLine pick={pick} noun={inSentence(category.label)} />}
           <div className="spot-card-foot">
             <span className="spot-card-hint">
-              <Icon name="openInNew" size={14} />
+              <Icon name="openInNew" size={16} />
               Click the pin to open in Google Maps
             </span>
             {pick && pick.role !== 'hidden' && (
               <button type="button" className="spot-card-hide" onClick={pick.onHide}>
-                <Icon name="visibilityOff" size={14} />
+                <Icon name="visibilityOff" size={16} />
                 Hide
               </button>
             )}
@@ -172,7 +172,7 @@ function PickLine({ pick, noun }: { pick: PinPick; noun: string }) {
         {pick.role === 'chosen' ? `Your ${noun} pick` : `Nearest ${noun} · counts in your comparison`}
       </div>
       {pick.role === 'chosen' && (
-        <button type="button" className="spot-card-link-btn" onClick={pick.onUseNearest}>
+        <button type="button" className="link-btn spot-card-link-btn" onClick={pick.onUseNearest}>
           Use the nearest instead
         </button>
       )}
