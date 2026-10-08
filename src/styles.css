@@ -15,6 +15,8 @@
      Separate from the action accent so a palette can give actions and data different hues. */
   --data: #0e7c74;
   --data-ink: #0b5e58;
+  /* The logo's center point: the walk color at its brightest (the smallest ring's fill). */
+  --mark-dot: var(--ring-1);
   --accent-pale: #cfe8e5;
 
   /* Text */
@@ -120,6 +122,9 @@
   --accent-text: #5cc4b8;
   --data: #0e7c74;
   --data-ink: #7fd1c7;
+  /* Re-declared so they resolve against this theme's colors in dark-scoped sections too. */
+  --mark-dot: var(--ring-1);
+  --focus: 2px solid var(--accent-text);
   --accent-pale: #1f4a45;
   --ink: #e7efed;
   --ink-2: #c4d1ce;
