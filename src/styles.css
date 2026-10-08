@@ -869,6 +869,30 @@ a.pin { text-decoration: none; }
 .about-credit { margin-top: var(--space-5) !important; padding-top: 14px; border-top: 1px solid var(--line-subtle); font-size: var(--text-md); color: var(--ink-3); }
 .about a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
 
+/* Logo pulse: the rings brighten in turn, inner then outer, like a slow ripple from the point.
+   Opacity only. Always on in the intro card and About dialog; in the nav, only on hover. */
+@keyframes mark-pulse-inner {
+  0%, 100% { stroke-opacity: 0.65; }
+  30% { stroke-opacity: 1; }
+}
+@keyframes mark-pulse-outer {
+  0%, 100% { stroke-opacity: 0.35; }
+  30% { stroke-opacity: 0.85; }
+}
+.map-intro .mark-ring-inner,
+.about .mark-ring-inner,
+.brand:hover .mark-ring-inner {
+  animation: mark-pulse-inner 3.2s ease-in-out infinite;
+}
+.map-intro .mark-ring-outer,
+.about .mark-ring-outer,
+.brand:hover .mark-ring-outer {
+  animation: mark-pulse-outer 3.2s ease-in-out 0.45s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mark-ring-inner, .mark-ring-outer { animation: none !important; }
+}
+
 /* The wordmark */
 .brand-name, .map-intro-name {
   font-family: var(--font-display);
