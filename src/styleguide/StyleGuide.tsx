@@ -43,9 +43,16 @@ const TOKEN_GROUPS: { title: string; note?: string; tokens: { name: string; use:
     tokens: [
       { name: '--accent', use: 'Buttons, swatches, switch on' },
       { name: '--accent-text', use: 'Links, focus outlines, accents' },
-      { name: '--accent-ink', use: 'Ring labels on the map' },
       { name: '--accent-pale', use: 'Hover halos' },
       { name: '--on-accent', use: 'Text on teal' },
+    ],
+  },
+  {
+    title: 'Data',
+    note: 'The walk itself: map rings, legend and ring labels (tags use the ring ramp below). Can differ in hue from the action accent.',
+    tokens: [
+      { name: '--data', use: 'Map rings, legend swatches' },
+      { name: '--data-ink', use: 'Ring labels on the map' },
     ],
   },
   {
@@ -221,7 +228,7 @@ const MIN_CONTRAST: Record<string, number> = {
   '--ink-3': 4.5,
   '--danger': 4.5,
   '--accent-text': 4.5,
-  '--accent-ink': 4.5,
+  '--data-ink': 4.5,
   '--line-control': 3,
 };
 
@@ -282,7 +289,7 @@ function Rings() {
           <rect width="220" height="140" style={{ fill: 'var(--map-land)' }} />
           {[2, 1, 0].map((rank) => {
             const st = ringStyle(rank, 3);
-            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} style={{ fill: 'var(--accent)', stroke: 'var(--accent)' }} fillOpacity={st.fill} strokeOpacity={st.stroke} strokeWidth="2" />;
+            return <circle key={rank} cx="110" cy="70" r={28 + rank * 22} style={{ fill: 'var(--data)', stroke: 'var(--data)' }} fillOpacity={st.fill} strokeOpacity={st.stroke} strokeWidth="2" />;
           })}
         </svg>
         <div className="sg-note">
@@ -294,7 +301,7 @@ function Rings() {
               </div>
             );
           })}
-          <div>Polygons use --accent.</div>
+          <div>Polygons use --data.</div>
         </div>
       </div>
     </div>

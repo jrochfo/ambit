@@ -1,3 +1,5 @@
+import { Icon } from './Icon';
+
 export type Status =
   | { kind: 'idle' }
   | { kind: 'busy'; message: string }
@@ -19,7 +21,13 @@ export function StatusLine({ status }: { status: Status }) {
   return (
     <div className={`status${status.kind === 'error' ? ' status-error' : ''}`} role="status" aria-live="polite">
       {status.kind === 'busy' && status.message}
-      {status.kind === 'error' && status.message}
+      {status.kind === 'error' && (
+        // An icon as well as color, so errors never rely on hue (red-orange palettes).
+        <span className="status-error-line">
+          <Icon name="error" size={16} />
+          {status.message}
+        </span>
+      )}
       {status.kind === 'done' && (
         <div className="current-address">
           <span className="eyebrow">Walking from</span>

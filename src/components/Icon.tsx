@@ -9,6 +9,7 @@ import close from '@material-symbols/svg-400/rounded/close.svg?raw';
 import darkMode from '@material-symbols/svg-400/rounded/dark_mode.svg?raw';
 import directionsWalk from '@material-symbols/svg-400/rounded/directions_walk.svg?raw';
 import edit from '@material-symbols/svg-400/rounded/edit.svg?raw';
+import error from '@material-symbols/svg-400/rounded/error.svg?raw';
 import info from '@material-symbols/svg-400/rounded/info.svg?raw';
 import keyboardArrowDown from '@material-symbols/svg-400/rounded/keyboard_arrow_down.svg?raw';
 import lightMode from '@material-symbols/svg-400/rounded/light_mode.svg?raw';
@@ -19,7 +20,7 @@ import tune from '@material-symbols/svg-400/rounded/tune.svg?raw';
 import visibility from '@material-symbols/svg-400/rounded/visibility.svg?raw';
 import visibilityOff from '@material-symbols/svg-400/rounded/visibility_off.svg?raw';
 
-const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, darkMode, directionsWalk, edit, info, keyboardArrowDown, lightMode, openInNew, star, starFill, tune, visibility, visibilityOff };
+const ICONS = { accessible, add, bookmarkAdd, bookmarkAdded, close, darkMode, directionsWalk, edit, error, info, keyboardArrowDown, lightMode, openInNew, star, starFill, tune, visibility, visibilityOff };
 
 export type IconName = keyof typeof ICONS;
 export const ICON_NAMES = Object.keys(ICONS) as IconName[];

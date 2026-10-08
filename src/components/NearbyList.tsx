@@ -81,7 +81,10 @@ export function NearbyList({
         <div className="field-hint">{categories.length > 0 ? 'Tap a category to see every spot' : 'Choose categories to find spots within a walk.'}</div>
         {limited && (
           <p className="status status-error" role="status">
-            Today’s search limit is used up, so some categories couldn’t load. It resets at midnight Pacific time.
+            <span className="status-error-line">
+              <Icon name="error" size={16} />
+              Today’s search limit is used up, so some categories couldn’t load. It resets at midnight Pacific time.
+            </span>
           </p>
         )}
         <div className="nearby-list" role="group" aria-labelledby="nearby-label">

@@ -47,7 +47,7 @@ export function FakeMap({
           {[...shown].reverse().map((m) => {
             const style = ringStyle(rings.indexOf(m), rings.length);
             const d = `M${ringPoints(m, largest).map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')} Z`;
-            return <path key={m} d={d} style={{ fill: 'var(--accent)', stroke: 'var(--accent)' }} fillOpacity={style.fill} strokeOpacity={style.stroke} strokeWidth="2" />;
+            return <path key={m} d={d} style={{ fill: 'var(--data)', stroke: 'var(--data)' }} fillOpacity={style.fill} strokeOpacity={style.stroke} strokeWidth="2" />;
           })}
         </svg>
         <div className="fake-overlays">

@@ -54,14 +54,15 @@ export function ColorLab() {
         </div>
       </header>
 
-      <Group title="Hue swaps" note="The current structure in other hues." palettes={PALETTES.filter((p) => p.kind === 'hue')} preview={preview} choose={choose} />
       <Group
-        title="Further out"
-        note="Different structures: no color, two hues, tinted paper, rings that change hue with distance, louder accents."
-        palettes={PALETTES.filter((p) => p.kind === 'bold')}
+        title="Two-tone"
+        note="A deep, legible color for actions (buttons, links, selection) and a vivid one for the walk (rings, walking-time tags, map)."
+        palettes={PALETTES.filter((p) => p.kind === 'two')}
         preview={preview}
         choose={choose}
       />
+      <Group title="Warm, toned down" note="Single-hue warm palettes about 20% less saturated than round one, on warm near-neutral surfaces." palettes={PALETTES.filter((p) => p.kind === 'warm')} preview={preview} choose={choose} />
+      <Group title="Round one" note="For reference (Sunset rings and Electric retired)." palettes={PALETTES.filter((p) => p.kind === 'hue')} preview={preview} choose={choose} />
     </div>
   );
 }
@@ -96,7 +97,7 @@ function PaletteCard({ spec, active, onPreview }: { spec: PaletteSpec; active: b
       </div>
       <p className="cl-note">{spec.note}</p>
       <div className="cl-swatches" aria-hidden="true">
-        {['--page', '--card', '--ink', '--ink-3', '--accent', '--accent-text', '--ring-1', '--ring-2', '--ring-3', '--ring-4', '--ring-5', '--ring-6'].map((k) => (
+        {['--page', '--card', '--ink', '--ink-3', '--accent', '--accent-text', '--data', '--ring-1', '--ring-2', '--ring-3', '--ring-4', '--ring-5', '--ring-6'].map((k) => (
           <span key={k} title={`${k} ${light[k]}`} style={{ background: light[k] }} />
         ))}
       </div>
@@ -175,9 +176,9 @@ function Mini({ theme, tokens }: { theme: 'light' | 'dark'; tokens: Tokens }) {
             <rect x="170" y="8" width="44" height="26" rx="5" style={{ fill: 'var(--map-park)' }} />
             {[2, 1, 0].map((rank) => {
               const s = ringStyle(rank, 3);
-              return <circle key={rank} cx="90" cy="46" r={14 + rank * 13} style={{ fill: 'var(--accent)', stroke: 'var(--accent)' }} fillOpacity={s.fill} strokeOpacity={s.stroke} strokeWidth="1.5" />;
+              return <circle key={rank} cx="90" cy="46" r={14 + rank * 13} style={{ fill: 'var(--data)', stroke: 'var(--data)' }} fillOpacity={s.fill} strokeOpacity={s.stroke} strokeWidth="1.5" />;
             })}
-            <text x="90" y="9" textAnchor="middle" fontSize="9" fontWeight="700" style={{ fill: 'var(--accent-ink)' }}>
+            <text x="90" y="9" textAnchor="middle" fontSize="9" fontWeight="700" style={{ fill: 'var(--data-ink)' }}>
               15 min
             </text>
           </svg>

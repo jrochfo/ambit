@@ -8,7 +8,8 @@ export interface PaletteSpec {
   id: string;
   name: string;
   note: string;
-  kind: 'hue' | 'bold';
+  /** Lab section: 'two' two-tone, 'warm' toned-down warm, 'hue' round one. */
+  kind: 'two' | 'warm' | 'hue';
   /** Accent hue (OKLCH degrees, 0–360) and chroma (0 gray … ~0.2 vivid). */
   accentHue: number;
   accentChroma: number;
@@ -17,10 +18,19 @@ export interface PaletteSpec {
   /** Tint of the grays (page, cards, lines, text). */
   neutralHue: number;
   neutralChroma: number;
-  /** Ring ramp hue: from the smallest ring to the largest (defaults to the accent). */
+  /**
+   * Data color (map rings, legend, ring tags), when it differs from the action accent. Two-tone
+   * palettes use a vivid data color and a deep, legible action color.
+   */
+  dataHue?: number;
+  dataChroma?: number;
+  /** Lightness of the data color as a fill in light mode (the smallest ring's tag). */
+  dataFillL?: number;
+  /** Ring ramp hue override (defaults to the data hue). Rings stay one hue, stepped in lightness. */
   ringHue?: number;
-  ringHueEnd?: number;
   ringChroma?: number;
+  /** Error color hue; moved away from red-orange accents so errors don't read as brand. */
+  dangerHue?: number;
   /** Page lightness in light mode (lower = more paper-like). */
   pageL?: number;
 }
@@ -110,12 +120,12 @@ const OUTLINE = 3.1;
 export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
   const { accentHue: ah, accentChroma: ac, neutralHue: nh, neutralChroma: nc } = spec;
   const n = (L: number, cMul = 1) => oklch(L, nc * cMul, nh);
-  const ringHue = (i: number) => {
-    const a = spec.ringHue ?? ah;
-    const b = spec.ringHueEnd ?? a;
-    return a + ((b - a) * i) / 5;
-  };
-  const rc = spec.ringChroma ?? ac;
+  const dh = spec.dataHue ?? ah;
+  const dc = spec.dataChroma ?? ac;
+  const dataFillL = spec.dataFillL ?? spec.accentFillL ?? 0.52;
+  const rh = spec.ringHue ?? dh;
+  const rc = spec.ringChroma ?? dc;
+  const danger = spec.dangerHue ?? 27;
   const t: Tokens = {};
 
   if (theme === 'light') {
@@ -128,7 +138,7 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     t['--ink'] = n(0.22, 1.2);
     t['--ink-2'] = solve(0.4, nc * 1.2, nh, surfaces, 7, -1);
     t['--ink-3'] = solve(0.52, nc * 1.2, nh, surfaces, TEXT, -1);
-    t['--danger'] = solve(0.55, 0.17, 27, surfaces, TEXT, -1);
+    t['--danger'] = solve(0.55, 0.17, danger, surfaces, TEXT, -1);
     t['--line'] = n(0.9);
     t['--line-subtle'] = n(0.935);
     t['--line-control'] = solve(0.62, nc, nh, [t['--card']], OUTLINE, -1);
@@ -145,11 +155,13 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     t['--map-water'] = oklch(0.9, 0.03, 230);
     t['--map-park'] = oklch(0.92, 0.035, 145);
     t['--map-wash'] = `rgba(${rgbOf(t['--page'])}, 0.55)`;
-    t['--accent-ink'] = solve(0.45, ac, ah, [t['--map-land']], TEXT, -1);
-    const ringL = [spec.accentFillL ?? 0.52, 0.72, 0.82, 0.89, 0.935, 0.962];
+    // Map rings and legend: the data color, at least 3:1 against the map (graphics, WCAG 1.4.11).
+    t['--data'] = solve(Math.min(dataFillL, 0.6), dc, dh, [t['--map-land']], OUTLINE, -1);
+    t['--data-ink'] = solve(0.45, dc, dh, [t['--map-land']], TEXT, -1);
+    const ringL = [dataFillL, 0.72, 0.82, 0.89, 0.935, 0.962];
     ringL.forEach((L, i) => {
       const chroma = i === 0 ? rc : rc * (0.75 - i * 0.1);
-      const ring = i === 0 && !spec.ringHue ? fill.color : solveFill(L, Math.max(chroma, 0), ringHue(i)).color;
+      const ring = solveFill(L, Math.max(chroma, 0), rh).color;
       t[`--ring-${i + 1}`] = ring;
       t[`--ring-${i + 1}-ink`] = textOn(ring, '#ffffff', t['--ink']);
     });
@@ -165,13 +177,15 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     t['--ink'] = n(0.95, 0.6);
     t['--ink-2'] = solve(0.84, nc, nh, surfaces, 7, 1);
     t['--ink-3'] = solve(0.68, nc, nh, surfaces, TEXT, 1);
-    t['--danger'] = solve(0.7, 0.14, 27, surfaces, TEXT, 1);
+    t['--danger'] = solve(0.7, 0.14, danger, surfaces, TEXT, 1);
     t['--line'] = n(0.31);
     t['--line-subtle'] = n(0.27);
     t['--line-control'] = solve(0.5, nc, nh, [t['--card']], OUTLINE, 1);
     t['--line-muted'] = n(0.45);
     t['--scroll-thumb'] = n(0.36);
-    const fill = solveFill(spec.accentFillL ?? 0.52, ac, ah);
+    // A near-black action color would vanish on dark cards: flip it to a light fill.
+    const fillL = (spec.accentFillL ?? 0.52) < 0.4 ? 0.9 : (spec.accentFillL ?? 0.52);
+    const fill = solveFill(fillL, ac, ah);
     t['--accent'] = fill.color;
     t['--on-accent'] = fill.text;
     t['--accent-text'] = solve(0.7, ac, ah, surfaces, TEXT, 1);
@@ -182,11 +196,12 @@ export function generate(spec: PaletteSpec, theme: 'light' | 'dark'): Tokens {
     t['--map-water'] = oklch(0.22, 0.03, 230);
     t['--map-park'] = oklch(0.26, 0.035, 145);
     t['--map-wash'] = `rgba(${rgbOf(t['--page'])}, 0.6)`;
-    t['--accent-ink'] = solve(0.72, ac, ah, [t['--map-land']], TEXT, 1);
+    t['--data'] = solve(0.6, dc, dh, [t['--map-land']], OUTLINE, 1);
+    t['--data-ink'] = solve(0.72, dc, dh, [t['--map-land']], TEXT, 1);
     const ringL = [0.78, 0.66, 0.52, 0.45, 0.39, 0.34];
     ringL.forEach((L, i) => {
       const chroma = rc * (i === 0 ? 0.9 : 0.75 - i * 0.08);
-      const ring = solveFill(L, Math.max(chroma, 0), ringHue(i)).color;
+      const ring = solveFill(L, Math.max(chroma, 0), rh).color;
       t[`--ring-${i + 1}`] = ring;
       t[`--ring-${i + 1}-ink`] = textOn(ring, t['--ink'], oklch(0.2, nc, nh));
     });
@@ -221,7 +236,8 @@ export function checks(t: Tokens): [string, string, string, number][] {
   }
   out.push(['--on-accent on --accent', t['--on-accent']!, t['--accent']!, 4.5]);
   out.push(['--line-control on --card', t['--line-control']!, t['--card']!, 3]);
-  out.push(['--accent-ink on --map-land', t['--accent-ink']!, t['--map-land']!, 4.5]);
+  out.push(['--data on --map-land (map rings)', t['--data']!, t['--map-land']!, 3]);
+  out.push(['--data-ink on --map-land', t['--data-ink']!, t['--map-land']!, 4.5]);
   for (let i = 1; i <= 6; i++) out.push([`ring ${i} text`, t[`--ring-${i}-ink`]!, t[`--ring-${i}`]!, 4.5]);
   return out;
 }
@@ -229,8 +245,75 @@ export function checks(t: Tokens): [string, string, string, number][] {
 // ── Palettes ────────────────────────────────────────────────────────────────
 
 export const PALETTES: PaletteSpec[] = [
-  // Same structure as the current teal, other hues.
-  { id: 'teal', name: 'Teal (generated)', note: 'The current direction, rebuilt by the generator, for comparison.', kind: 'hue', accentHue: 185, accentChroma: 0.1, neutralHue: 175, neutralChroma: 0.008 },
+  // Round 2, two-tone: a deep, legible color for actions (buttons, links, selection) and a vivid one
+  // for the walk (rings, tags, map). Warm, toned down, on near-neutral warm surfaces.
+  {
+    id: 'gold-ink',
+    name: 'Gold & ink',
+    note: 'Gold for the walk (rings, tags, map), near-black ink for actions, on cream paper. Vintage printed map.',
+    kind: 'two',
+    accentHue: 70,
+    accentChroma: 0.012,
+    accentFillL: 0.27,
+    dataHue: 82,
+    dataChroma: 0.12,
+    dataFillL: 0.78,
+    neutralHue: 80,
+    neutralChroma: 0.012,
+    pageL: 0.966,
+  },
+  {
+    id: 'coral-ink',
+    name: 'Coral & ink',
+    note: 'Coral for the walk, deep ink for actions. Friendly energy in the data, calm controls. Errors move to crimson.',
+    kind: 'two',
+    accentHue: 40,
+    accentChroma: 0.014,
+    accentFillL: 0.28,
+    dataHue: 30,
+    dataChroma: 0.13,
+    dataFillL: 0.6,
+    neutralHue: 60,
+    neutralChroma: 0.008,
+    dangerHue: 5,
+  },
+  {
+    id: 'terracotta-sage-2',
+    name: 'Terracotta & sage, refined',
+    note: 'Livelier terracotta (toward coral) for actions, sage for the walk, on a near-neutral warm page.',
+    kind: 'two',
+    accentHue: 36,
+    accentChroma: 0.13,
+    accentFillL: 0.55,
+    dataHue: 150,
+    dataChroma: 0.07,
+    dataFillL: 0.55,
+    neutralHue: 85,
+    neutralChroma: 0.007,
+    dangerHue: 10,
+  },
+  {
+    id: 'coral-teal',
+    name: 'Coral & deep teal',
+    note: 'Coral actions with deep-teal data: warm energy plus the cool, map-like calm of the original.',
+    kind: 'two',
+    accentHue: 30,
+    accentChroma: 0.13,
+    accentFillL: 0.58,
+    dataHue: 190,
+    dataChroma: 0.08,
+    dataFillL: 0.5,
+    neutralHue: 70,
+    neutralChroma: 0.007,
+    dangerHue: 5,
+  },
+  // Round 2, single hue: warm, about 20% less saturated than round one.
+  { id: 'coral-soft', name: 'Coral, softer', note: 'Round-one coral at lower strength on warm neutrals. Errors move to crimson.', kind: 'warm', accentHue: 28, accentChroma: 0.12, accentFillL: 0.58, neutralHue: 60, neutralChroma: 0.008, dangerHue: 5 },
+  { id: 'persimmon', name: 'Persimmon', note: 'Between coral and gold: a lively orange, warmer and more awake than rust.', kind: 'warm', accentHue: 50, accentChroma: 0.13, accentFillL: 0.62, neutralHue: 65, neutralChroma: 0.008, dangerHue: 10 },
+  { id: 'gold-soft', name: 'Gold, softer', note: 'Round-one gold, less bright, on cream. Gold fills keep dark text; links are deep ochre.', kind: 'warm', accentHue: 82, accentChroma: 0.115, accentFillL: 0.77, neutralHue: 80, neutralChroma: 0.012, pageL: 0.966 },
+  { id: 'citrus-soft', name: 'Citrus, softer', note: 'Round-one citrus, less loud, on warm gray instead of cool.', kind: 'warm', accentHue: 122, accentChroma: 0.15, accentFillL: 0.8, neutralHue: 90, neutralChroma: 0.006 },
+  // Round one, for reference.
+  { id: 'teal', name: 'Teal (generated)', note: 'The current direction, rebuilt by the generator.', kind: 'hue', accentHue: 185, accentChroma: 0.1, neutralHue: 175, neutralChroma: 0.008 },
   { id: 'blue', name: 'Blue', note: 'Calm, trustworthy, civic. Reads as maps and transit.', kind: 'hue', accentHue: 255, accentChroma: 0.15, neutralHue: 250, neutralChroma: 0.01 },
   { id: 'gold', name: 'Gold', note: 'Warm and sunny. Gold fills take dark text; links deepen to ochre.', kind: 'hue', accentHue: 85, accentChroma: 0.15, accentFillL: 0.8, neutralHue: 85, neutralChroma: 0.012 },
   { id: 'sand', name: 'Sand', note: 'Beige and taupe, low saturation. Quiet, natural, a little luxe.', kind: 'hue', accentHue: 65, accentChroma: 0.045, accentFillL: 0.48, neutralHue: 75, neutralChroma: 0.014, pageL: 0.965 },
@@ -238,14 +321,12 @@ export const PALETTES: PaletteSpec[] = [
   { id: 'forest', name: 'Forest', note: 'Deep green. Parks, trees, walking outdoors.', kind: 'hue', accentHue: 150, accentChroma: 0.11, neutralHue: 140, neutralChroma: 0.008 },
   { id: 'plum', name: 'Plum', note: 'Muted violet. Unexpected for a map tool; sophisticated.', kind: 'hue', accentHue: 320, accentChroma: 0.11, neutralHue: 310, neutralChroma: 0.008 },
   { id: 'coral', name: 'Coral', note: 'Pinkish orange. Friendly and energetic.', kind: 'hue', accentHue: 25, accentChroma: 0.15, neutralHue: 30, neutralChroma: 0.008 },
-  // Further-out directions.
-  { id: 'ink', name: 'Ink & paper', note: 'No color at all: near-black accents on warm cream. Editorial, like a printed city guide.', kind: 'bold', accentHue: 80, accentChroma: 0.0, accentFillL: 0.25, neutralHue: 80, neutralChroma: 0.016, pageL: 0.955 },
-  { id: 'terracotta-sage', name: 'Terracotta & sage', note: 'Two hues: terracotta actions over sage-tinted surfaces and sage rings.', kind: 'bold', accentHue: 40, accentChroma: 0.12, neutralHue: 140, neutralChroma: 0.018, ringHue: 145, ringChroma: 0.07 },
-  { id: 'blueprint', name: 'Blueprint', note: 'Cool, technical: cobalt on blue-tinted paper. Very “map.”', kind: 'bold', accentHue: 262, accentChroma: 0.17, neutralHue: 245, neutralChroma: 0.025, pageL: 0.96 },
-  { id: 'sunset', name: 'Sunset rings', note: 'Rings shift hue from close (warm orange) to far (violet), so distance reads as color.', kind: 'bold', accentHue: 35, accentChroma: 0.15, neutralHue: 40, neutralChroma: 0.008, ringHue: 35, ringHueEnd: 300, ringChroma: 0.14 },
-  { id: 'citrus', name: 'Citrus', note: 'Vivid lime on cool gray. Loud, sporty, optimistic.', kind: 'bold', accentHue: 125, accentChroma: 0.2, accentFillL: 0.82, neutralHue: 250, neutralChroma: 0.006 },
-  { id: 'night', name: 'Electric', note: 'Saturated magenta accent; deep-navy dark mode. Nightlife energy.', kind: 'bold', accentHue: 350, accentChroma: 0.2, neutralHue: 265, neutralChroma: 0.02 },
+  { id: 'ink', name: 'Ink & paper', note: 'No color: near-black on warm cream. Editorial. Dark mode now flips to light fills and light rings.', kind: 'hue', accentHue: 80, accentChroma: 0.0, accentFillL: 0.25, neutralHue: 80, neutralChroma: 0.016, pageL: 0.955 },
+  { id: 'terracotta-sage', name: 'Terracotta & sage', note: 'Round-one two-tone: terracotta actions, sage-tinted surfaces and rings.', kind: 'hue', accentHue: 40, accentChroma: 0.12, neutralHue: 140, neutralChroma: 0.018, dataHue: 145, dataChroma: 0.07 },
+  { id: 'blueprint', name: 'Blueprint', note: 'Cobalt on blue-tinted paper. Very “map.”', kind: 'hue', accentHue: 262, accentChroma: 0.17, neutralHue: 245, neutralChroma: 0.025, pageL: 0.96 },
+  { id: 'citrus', name: 'Citrus', note: 'Vivid lime on cool gray. Loud, sporty, optimistic.', kind: 'hue', accentHue: 125, accentChroma: 0.2, accentFillL: 0.82, neutralHue: 250, neutralChroma: 0.006 },
 ];
+
 
 // ── Sandbox preview ─────────────────────────────────────────────────────────
 

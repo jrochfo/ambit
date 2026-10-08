@@ -11,7 +11,10 @@
   --accent: #0e7c74;
   --accent-text: #0e7c74;
   --on-accent: #ffffff;
-  --accent-ink: #0b5e58;
+  /* Data: the walk itself (map rings, legend, ring labels; the ring tags are --ring-*).
+     Separate from the action accent so a palette can give actions and data different hues. */
+  --data: #0e7c74;
+  --data-ink: #0b5e58;
   --accent-pale: #cfe8e5;
 
   /* Text */
@@ -115,7 +118,8 @@
 [data-theme='dark'] {
   color-scheme: dark;
   --accent-text: #5cc4b8;
-  --accent-ink: #7fd1c7;
+  --data: #0e7c74;
+  --data-ink: #7fd1c7;
   --accent-pale: #1f4a45;
   --ink: #e7efed;
   --ink-2: #c4d1ce;
@@ -307,6 +311,8 @@ button, input { font: inherit; }
 .status { font-size: var(--text-md); line-height: 1.45; color: var(--ink-3); margin: 0; }
 .status strong { color: var(--ink); font-weight: 600; }
 .status-error { color: var(--danger); }
+.status-error-line { display: inline-flex; align-items: flex-start; gap: var(--space-2); }
+.status-error-line .icon { margin-top: 2px; }
 /* Stays in the DOM (live region) but takes no space while empty. */
 .sidebar-head .status:empty { margin-top: calc(-1 * var(--space-3)); }
 
@@ -360,7 +366,7 @@ button, input { font: inherit; }
   color: var(--ink-2);
 }
 .legend-item { display: inline-flex; align-items: center; gap: var(--space-2); }
-.legend-swatch { width: 14px; height: 14px; border-radius: var(--radius-xs); background: var(--accent); }
+.legend-swatch { width: 14px; height: 14px; border-radius: var(--radius-xs); background: var(--data); }
 .legend-note { margin-left: auto; color: var(--ink-3); }
 
 /* On-map HTML labels (drawn through an OverlayView) */
@@ -371,7 +377,7 @@ button, input { font: inherit; }
   font-family: var(--font);
   font-size: var(--text-md);
   font-weight: 700;
-  color: var(--accent-ink);
+  color: var(--data-ink);
   text-shadow: 0 0 3px var(--map-land), 0 0 3px var(--map-land), 0 0 3px var(--map-land), 0 0 3px var(--map-land);
   pointer-events: none;
 }
@@ -641,7 +647,7 @@ button, input { font: inherit; }
 .nearby-item > .nearby-avatar { position: absolute; left: 13px; top: 11px; }
 .nearby-avatar-btn { padding: 0; cursor: pointer; font: inherit; font-size: var(--text-lg); }
 /* Editable emoji: swaps to a pencil on hover or keyboard focus. */
-.avatar-edit { display: none; color: var(--accent-ink); }
+.avatar-edit { display: none; color: var(--accent-text); }
 .nearby-avatar-btn .avatar-edit { display: none; }
 .nearby-avatar-btn:hover, .nearby-avatar-btn:focus-visible, .nearby-avatar-btn[aria-expanded='true'] { background: var(--card) !important; }
 .nearby-avatar-btn:hover .avatar-emoji, .nearby-avatar-btn:focus-visible .avatar-emoji { display: none; }
