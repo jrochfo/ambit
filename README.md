@@ -132,22 +132,13 @@ Verify early whether the Isochrones API can be called safely from the browser. I
 
 Running list for phase 5 (polish). Add to it as things come up.
 
-**Next session (Jake's notes, 2026-10-08):**
+**Done 2026-10-08:** palette switched to Gold & ink (lime read sickly on the map; Iris was runner-up), grain texture, header control sizes, line-length tokens, smoothed ring outlines and pill-colored ring bands (display only), spot card redesign, subtle motion pass, multi-add time menu, rename from the sidebar, "Walking times".
 
-- Cycle through subtle variations of the citrus color (color lab).
-- Texture, in the spirit of Arc Browser's: page background, buttons, or both.
-- About button size relative to the dark mode switch and other controls.
-- Line length limits on paragraphs (empty-state intro card, About dialog).
-- Map ring edges: smooth instead of boxy on the real map (display only; keep precise shapes for spot sorting).
-- Spot card a little wider: Hide, "Click the pin to open in Google Maps" and "counts in your comparison" currently wrap.
-- Styling inside the spot card: whether its actions should use the standard button styles.
-- Rename a saved address by clicking its name in the sidebar's "Saved as …" line.
-- "Walking time" or "Walking times" as the section label?
+**Check on the real map** (needs live calls, untested so far): gold bands on the basemap, smoothed outlines, ring toggle crossfade, spot card flipping near the map's edges.
 
 - **Accessibility pass**: automated audit (axe-core, WCAG 2.2 AA) passes except overlapping pins near the origin (touch-target size). Still to do by hand: a VoiceOver run-through, keyboard flow when a focused category shows many pins, ring coverage for non-visual users, 200% zoom.
 - **Spot details on hover (paid, opt-in)**: hours / open now, rating, price level, website via Place Details only when a spot's tooltip opens (cached per spot, about 1,000 free per month). Never add these fields to searches: that moves every search to the Enterprise tier.
 - **Exact walking minutes**: Routes API for the nearest 2–3 spots per category (about 10–15 calls per address), instead of ring buckets.
-- **Ring outlines**: optional smoothing for display only.
 - **Overlapping pins** near the origin.
 - **Picking on touch devices**: spot cards are hover-only, so phones can't choose a pick yet (needs a tap-friendly path, e.g. from the focused category's row).
 
