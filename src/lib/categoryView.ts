@@ -42,10 +42,22 @@ export function scrollToMap(): void {
   document.querySelector('.map-panel')?.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
 }
 
-/** Scrolls a sidebar section back to its top (its pinned title was clicked). */
+/**
+ * Scrolls a sidebar section back to its top when it's scrolled past (its title is pinned). Only
+ * the sidebar's own scroll area moves; on phones, where the page scrolls instead, the page moves
+ * only when the title is pinned to the top of the window.
+ */
 export function scrollSectionToTop(el: Element | null): void {
   const section = el?.closest('.field');
-  if (!section) return;
-  const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-  section.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+  const scroller = section?.closest('.sidebar-scroll');
+  if (!section || !scroller) return;
+  const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  const margin = parseFloat(getComputedStyle(section).scrollMarginTop) || 0;
+  const top = section.getBoundingClientRect().top;
+  if (scroller.scrollHeight > scroller.clientHeight && getComputedStyle(scroller).overflowY !== 'visible') {
+    const offset = top - scroller.getBoundingClientRect().top - margin;
+    if (offset < 0) scroller.scrollBy({ top: offset, behavior });
+  } else if (top < 0) {
+    scrollBy({ top: top - margin, behavior });
+  }
 }
