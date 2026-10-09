@@ -134,7 +134,21 @@ Running list for phase 5 (polish). Add to it as things come up.
 
 **Done 2026-10-08:** palette: Iris & ink, final (2026-10-09; yellows and greens don't sit well as see-through fills on organic ring shapes; a theme-switch bug that drew rings in the previous theme's colors is fixed), phones: spot cards open on tap with an Open in Google Maps link, cards stay inside the map, no sideways scroll, sticky category column in the comparison, grain texture, header control sizes, line-length tokens, smoothed ring outlines and pill-colored ring bands (display only), spot card redesign, subtle motion pass, multi-add time menu, rename from the sidebar, "Walking times".
 
-**Check on the real map** (needs live calls, untested so far): ring toggle crossfade, spot cards keeping inside the map. Bands, smoothed outlines and theme switching were checked on the real map 2026-10-09.
+**Checked on the real map (2026-10-09):** bands, smoothed outlines, theme switching, ring toggle crossfade, spot cards keeping inside the map.
+
+**Status (2026-10-09):** finished. Still behind Cloudflare Access. Before sharing publicly: open the Access app, restrict both API keys, rate-limit `/api/isochrones`, and set the daily quotas below.
+
+| Quota (requests per day) | Value |
+|---|---|
+| Places API (New): Nearby Search | 260 |
+| Places API (New): Text Search | 150 |
+| Places API (New): Place Details | 300 |
+| Places API (New): Autocomplete | 320 |
+| Geocoding API | 300 |
+| Isochrones API | 300 |
+| Maps JavaScript API | 320 |
+
+About 45 addresses a day, worst case about $100 a month (Nearby Search is the only SKU past its free cap). Budget alert at $100 with emails at 50/90/100%.
 
 **Decided against (2026-10-08):** paid extras (hours, ratings and other Place Details on spot cards; exact walking minutes via the Routes API). Not essential.
 

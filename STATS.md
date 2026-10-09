@@ -1,6 +1,6 @@
 # Ambit: project stats
 
-Snapshot taken 2026-10-08, when the project was wrapped up.
+Snapshot taken 2026-10-09, when the project was finished.
 
 ## Time
 - Elapsed: ~31 hours (2026-10-07 12:46 → 2026-10-08 20:03, US Central)
@@ -18,11 +18,11 @@ Snapshot taken 2026-10-08, when the project was wrapped up.
 - One session, carried across several context compactions
 
 ## Code
-- 86 commits at the time of the snapshot
-- ~15,400 lines added, ~2,600 removed
+- 91 commits at the time of the snapshot
+- ~15,700 lines added, ~2,800 removed
 - ~8,800 lines of TypeScript and CSS across `src/`, `worker/` and `shared/`; `styles.css` alone is 1,121 lines
 - 19 components, 78 color/size/motion tokens per theme
-- 78 tracked files
+- 79 tracked files
 
 ## Content
 - 30 built-in categories, plus custom ones (any Google place type, or free text)
