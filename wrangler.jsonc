@@ -12,7 +12,10 @@
   // workers.dev and preview URLs would bypass Access, so they're off.
   "routes": [{ "pattern": "ambit.zone", "custom_domain": true }],
   "workers_dev": false,
-  "preview_urls": false
+  "preview_urls": false,
+  // Per-visitor cap on /api/isochrones (worker/index.ts), so one visitor can't use up the daily
+  // Isochrones quota. One address is one request (its rings are batched); adding a time is one more.
+  "ratelimits": [{ "name": "ISOCHRONE_LIMIT", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }]
   // GOOGLE_ISOCHRONES_SERVER_KEY is a secret: read from .env in dev,
   // set with `npx wrangler secret put GOOGLE_ISOCHRONES_SERVER_KEY` for prod.
 }

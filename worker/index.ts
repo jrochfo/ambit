@@ -3,6 +3,8 @@ import { fetchWalkingRing } from './isochrones';
 
 interface Env {
   GOOGLE_ISOCHRONES_SERVER_KEY: string;
+  /** Per-visitor rate limit (wrangler.jsonc): 20 requests a minute. */
+  ISOCHRONE_LIMIT?: RateLimit;
 }
 
 export default {
@@ -21,6 +23,10 @@ export default {
 async function handleIsochrones(request: Request, env: Env): Promise<Response> {
   if (!env.GOOGLE_ISOCHRONES_SERVER_KEY) {
     return json({ error: 'Server key is not configured' }, 500);
+  }
+  const visitor = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  if (env.ISOCHRONE_LIMIT && !(await env.ISOCHRONE_LIMIT.limit({ key: visitor })).success) {
+    return json({ error: 'Too many walking ring requests. Wait a minute and try again.' }, 429);
   }
 
   let body: Partial<IsochroneRequest>;
