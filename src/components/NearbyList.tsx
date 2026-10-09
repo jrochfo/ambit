@@ -9,6 +9,7 @@ import type { CategoryResult } from '../lib/useAnalysis';
 import { AddCategory, type AddOption } from './AddCategory';
 import { CategoryPicker } from './CategoryPicker';
 import { Icon } from './Icon';
+import { scrollSectionToTop } from '../lib/categoryView';
 
 export function NearbyList({
   catalog,
@@ -55,8 +56,8 @@ export function NearbyList({
 
   return (
     <>
-      <div className="field">
-        <div className="field-head">
+      <div className="field" data-tour="categories">
+        <div className="field-head" onClick={(e) => scrollSectionToTop(e.currentTarget)}>
           <h2 className="field-label" id="nearby-label">
             What's nearby
           </h2>

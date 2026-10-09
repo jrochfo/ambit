@@ -38,7 +38,7 @@ export function CompareGrid({
   const within = largest ? formatMinutes(largest) : '';
 
   return (
-    <section className="card compare" aria-labelledby="compare-title">
+    <section className="card compare" aria-labelledby="compare-title" data-tour="compare">
       <div className="compare-head">
         <h2 className="compare-title" id="compare-title">
           Compare addresses
@@ -99,7 +99,7 @@ export function CompareGrid({
                       />
                     ) : (
                       <div className="compare-col-head">
-                        <button type="button" className="compare-col-name" data-tip={`${a.address} · Show on the map`} onClick={() => onSelect(a)}>
+                        <button type="button" className="compare-col-name" data-tip={`${a.address.replace(/, (USA|United States)$/, '')} · Show on the map`} onClick={() => onSelect(a)}>
                           {a.label}
                         </button>
                         <button type="button" className="icon-btn compare-rename-btn" aria-label={`Rename ${a.label}`} data-tip="Rename" onClick={() => setRenaming(a.id)}>

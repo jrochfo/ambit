@@ -503,6 +503,9 @@ button, input { font: inherit; }
   padding-block: var(--space-3);
   background: var(--card);
 }
+/* A pinned title (or Choose / Add time) brings its section back to the top. */
+.sidebar-scroll > .field { scroll-margin-top: var(--space-5); }
+.sidebar-scroll > .field > .field-head .field-label { cursor: pointer; }
 /* Phones: the page scrolls instead, so pin to the top of the window. */
 @media (max-width: 959px) {
   .sidebar-scroll > .field > .field-head { top: 0; }
@@ -1195,15 +1198,17 @@ html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style]
 }
 .category-banner-exit:hover { background: var(--page); }
 
-/* Hover tooltips (HoverTips.tsx): after a short delay, mouse only. */
+/* Hover tooltips (HoverTips.tsx): after a short delay, mouse only. Styled like a small card, so
+   they follow the theme, with a tail at the element's center (--tail-x). */
 .hover-tip {
   position: fixed;
   z-index: 10000;
   max-width: 260px;
   padding: 6px 10px;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--ink);
-  color: var(--card);
+  background: var(--card);
+  color: var(--ink);
   font-family: var(--font);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -1212,3 +1217,66 @@ html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style]
   pointer-events: none;
   animation: fade-in var(--motion-fade) ease-out;
 }
+.hover-tip::after {
+  content: '';
+  position: absolute;
+  left: var(--tail-x, 50%);
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: var(--card);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.hover-tip[data-side='above']::after { bottom: -5px; transform: rotate(45deg); }
+.hover-tip[data-side='below']::after { top: -5px; transform: rotate(225deg); }
+
+/* Help tour (HelpTour.tsx): a full-window modal; the hole shows one part of the page, the rest is dimmed. */
+.tour {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.tour::backdrop { background: transparent; }
+.tour-hole {
+  position: absolute;
+  border-radius: var(--radius-card);
+  box-shadow: 0 0 0 200vmax rgba(var(--shadow), 0.6);
+  outline: 3px solid var(--accent-text);
+  outline-offset: 0;
+  pointer-events: none;
+  transition: top 220ms ease, left 220ms ease, width 220ms ease, height 220ms ease;
+}
+.tour-card {
+  position: absolute;
+  width: min(340px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4) var(--space-5);
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-3);
+  font-family: var(--font);
+  transition: top 220ms ease, left 220ms ease;
+}
+.tour-card h2 { margin: 0; font-size: var(--text-lg); }
+.tour-card p { margin: 0 var(--space-1) 0 0; font-size: var(--text-base); line-height: 1.5; color: var(--ink-2); }
+.tour-card-head { display: flex; align-items: center; justify-content: space-between; }
+.tour-step { font-size: var(--text-sm); font-weight: 600; color: var(--accent-text); }
+.tour-dots { display: flex; gap: 6px; margin-top: var(--space-1); }
+.tour-dot { width: 6px; height: 6px; border-radius: var(--radius-pill); background: var(--line-muted); transition: width 160ms ease; }
+.tour-dot-on { width: 18px; background: var(--accent-text); }
+.tour-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-2); }
+.tour-nav { display: flex; gap: var(--space-2); }
+@media (prefers-reduced-motion: reduce) { .tour-hole, .tour-card, .tour-dot { transition: none; } }

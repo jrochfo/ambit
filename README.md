@@ -136,6 +136,8 @@ Running list for phase 5 (polish). Add to it as things come up.
 
 **From Rylie's review (2026-10-09):** clicking a pin opens its category view with the card open (Google Maps is a link in the card); a banner over the map names the category view and has Exit (also Escape, or any click outside the map); section titles in the sidebar stay pinned while scrolling; comparison cells and address headers are fully clickable and scroll back to the map; delayed hover tooltips (`data-tip`, HoverTips.tsx); the search box clears once an address is mapped; side margins on laptop screens; tighter comparison and sidebar spacing; the category emoji in spot cards; dimmed rows stay readable.
 
+**Second round (2026-10-09):** Help in the header starts a 5-step walkthrough (HelpTour.tsx: address, times, categories, save, compare) that dims everything but one part, with Back/Next, Skip tour, close and Escape at every step (a bottom sheet on phones); pinned sidebar titles and Choose/Add time scroll their section to the top; tooltips are theme-aware cards with a centered tail; choosing a spot pans it low in the map, after the rings' fit, so its card clears the banner.
+
 **Checked on the real map (2026-10-09):** bands, smoothed outlines, theme switching, ring toggle crossfade, spot cards keeping inside the map.
 
 **Status (2026-10-09):** finished and public at ambit.zone. Done for launch: Access app set to a Bypass policy (remove it to lock the site again), browser key restricted to ambit.zone and localhost, both keys restricted to their APIs, `/api/isochrones` rate-limited per visitor, launch quotas and a $100 budget set, link preview card (`public/og.png`, source in `tools/og/`). Still to do on posting: lower the quotas on day 3.

@@ -27,7 +27,7 @@ export function SaveControl({
 
   if (saved)
     return (
-      <div className="save-row">
+      <div className="save-row" data-tour="save">
         <span className="save-state">
           <Icon name="bookmarkAdded" size={20} />
           Saved as{' '}
@@ -55,11 +55,11 @@ export function SaveControl({
     );
 
   if (full)
-    return <p className="field-hint">You’ve saved {MAX_SAVED} addresses. Remove one below to save this one.</p>;
+    return <p className="field-hint" data-tour="save">You’ve saved {MAX_SAVED} addresses. Remove one below to save this one.</p>;
 
   if (!naming)
     return (
-      <div className="save-row">
+      <div className="save-row" data-tour="save">
         <button type="button" className="btn btn-sm btn-outline btn-icon" onClick={() => setNaming(true)}>
           <Icon name="bookmarkAdd" size={20} />
           Save to compare
@@ -74,7 +74,7 @@ export function SaveControl({
   }
 
   return (
-    <form className="field" onSubmit={submit}>
+    <form className="field" data-tour="save" onSubmit={submit}>
       <label className="field-label" htmlFor="save-label">
         Name this address
       </label>

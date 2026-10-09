@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { MAX_RING, MAX_RINGS, MIN_RING } from '../../shared/isochrones';
 import { formatMinutes, pillColors } from '../lib/rings';
 import { Icon } from './Icon';
+import { scrollSectionToTop } from '../lib/categoryView';
 
 const PRESETS = [5, 10, 15, 20, 30, 45, 60];
 
@@ -54,8 +55,8 @@ export function RingPicker({
   }
 
   return (
-    <div className="field" role="group" aria-labelledby="walking-time-label">
-      <div className="field-head">
+    <div className="field" role="group" aria-labelledby="walking-time-label" data-tour="times">
+      <div className="field-head" onClick={(e) => scrollSectionToTop(e.currentTarget)}>
         <h2 className="field-label" id="walking-time-label">
           Walking times
         </h2>

@@ -41,3 +41,11 @@ export function scrollToMap(): void {
   const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelector('.map-panel')?.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
 }
+
+/** Scrolls a sidebar section back to its top (its pinned title was clicked). */
+export function scrollSectionToTop(el: Element | null): void {
+  const section = el?.closest('.field');
+  if (!section) return;
+  const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  section.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+}

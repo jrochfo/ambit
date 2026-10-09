@@ -45,22 +45,28 @@ export function HoverTips() {
     };
   }, []);
 
-  // Above the element, or below when there's no room; kept inside the window.
+  // Above the element, or below when there's no room; kept inside the window, with the tail
+  // pointing at the element's center.
   useLayoutEffect(() => {
     const el = bubble.current;
     if (!el || !tip) return;
     const { width, height } = el.getBoundingClientRect();
+    // Lock the measured width so the text wraps the same wherever the bubble lands.
+    el.style.width = `${Math.ceil(width)}px`;
     const a = tip.anchor;
+    const viewport = document.documentElement.clientWidth;
     const above = a.top - height - GAP >= 8;
-    const left = Math.min(Math.max(8, a.left + a.width / 2 - width / 2), innerWidth - width - 8);
+    const left = Math.min(Math.max(8, a.left + a.width / 2 - width / 2), viewport - Math.ceil(width) - 8);
     el.style.left = `${left}px`;
     el.style.top = `${above ? a.top - height - GAP : a.bottom + GAP}px`;
+    el.style.setProperty('--tail-x', `${Math.round(a.left + a.width / 2 - left)}px`);
+    el.dataset.side = above ? 'above' : 'below';
     el.style.visibility = 'visible';
   }, [tip]);
 
   if (!tip) return null;
   return createPortal(
-    <div ref={bubble} className="hover-tip" aria-hidden="true" style={{ visibility: 'hidden' }}>
+    <div ref={bubble} className="hover-tip" aria-hidden="true" style={{ visibility: 'hidden', left: 0, top: 0 }}>
       {tip.text}
     </div>,
     document.body,

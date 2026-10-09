@@ -1,11 +1,13 @@
 import { useRef } from 'react';
 import type { Theme } from '../lib/theme';
 import { AboutDialog } from './AboutDialog';
+import { HelpTour, startTour } from './HelpTour';
 import { Icon } from './Icon';
 import { Logomark } from './Logomark';
 
 export function Header({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => void }) {
   const about = useRef<HTMLDialogElement>(null);
+  const tour = useRef<HTMLDialogElement>(null);
   const dark = theme === 'dark';
   return (
     <header className="header">
@@ -14,6 +16,10 @@ export function Header({ theme, onTheme }: { theme: Theme; onTheme: (theme: Them
         <h1 className="brand-name">Ambit</h1>
       </div>
       <div className="header-actions">
+        <button type="button" className="header-btn" onClick={() => startTour(tour.current)}>
+          <Icon name="help" size={16} />
+          Help
+        </button>
         <button type="button" className="header-btn" onClick={() => about.current?.showModal()}>
           <Icon name="info" size={16} />
           About
@@ -25,6 +31,7 @@ export function Header({ theme, onTheme }: { theme: Theme; onTheme: (theme: Them
         </button>
       </div>
       <AboutDialog ref={about} />
+      <HelpTour ref={tour} />
     </header>
   );
 }

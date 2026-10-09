@@ -93,6 +93,7 @@ export function AddressSearch({ busy, onSearch }: { busy: boolean; onSearch: (ta
 
   return (
     <form
+      data-tour="address"
       className="field"
       onSubmit={(e) => {
         e.preventDefault();

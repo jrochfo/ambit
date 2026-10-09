@@ -112,7 +112,10 @@ export function MapPanel({
               />
             );
           })}
-          <PanToSpot position={pins.find((p) => `${p.category.id}:${p.place.id}` === spotlight)?.place.position} />
+          <PanToSpot
+            position={pins.find((p) => `${p.category.id}:${p.place.id}` === spotlight)?.place.position}
+            fitKey={`${origin ? `${origin.position.lat},${origin.position.lng}` : ''}:${largest?.minutes ?? ''}`}
+          />
           {origin && (
             <MapOverlay position={origin.position} zIndex={OVERLAY_Z.origin}>
               <OriginMarker label={origin.label} />
@@ -127,17 +130,33 @@ export function MapPanel({
   );
 }
 
-/** Brings a spotlighted spot into view (after the rings have been fitted). */
-function PanToSpot({ position }: { position: google.maps.LatLngLiteral | undefined }) {
+/**
+ * Brings the selected spot into view, low in the map, so its card (which opens above the pin)
+ * clears the category view banner. Runs again after the rings are fitted (`fitKey`), since a fit
+ * that lands later would otherwise undo it.
+ */
+function PanToSpot({ position, fitKey }: { position: google.maps.LatLngLiteral | undefined; fitKey: string }) {
   const map = useMap();
   const lat = position?.lat;
   const lng = position?.lng;
   useEffect(() => {
     if (!map || lat === undefined || lng === undefined) return;
-    const bounds = map.getBounds();
-    if (bounds?.contains({ lat, lng })) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) map.setCenter({ lat, lng });
-    else map.panTo({ lat, lng });
-  }, [map, lat, lng]);
+    const go = () => {
+      const projection = map.getProjection();
+      const zoom = map.getZoom();
+      if (!projection || zoom === undefined) return;
+      // Center a little north of the spot: the pin lands about two thirds of the way down.
+      const point = projection.fromLatLngToPoint({ lat, lng });
+      if (!point) return;
+      const offset = (map.getDiv().clientHeight * 0.18) / 2 ** zoom;
+      const center = projection.fromPointToLatLng(new google.maps.Point(point.x, point.y - offset));
+      if (!center) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) map.setCenter(center);
+      else map.panTo(center);
+    };
+    // After any fit in the same update (FitToRing's effect runs first).
+    const t = setTimeout(go, 0);
+    return () => clearTimeout(t);
+  }, [map, lat, lng, fitKey]);
   return null;
 }
