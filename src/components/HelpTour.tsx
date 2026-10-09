@@ -78,11 +78,11 @@ export function HelpTour({ ref }: { ref: Ref<HTMLDialogElement> }) {
   const measure = useCallback(() => {
     const { el } = target();
     if (!el) return setHole(null);
-    const r = el.getBoundingClientRect();
+    const r = visibleRect(el);
     const vh = innerHeight;
     const top = Math.max(PAD, r.top - PAD);
     const bottom = Math.min(vh - PAD, r.bottom + PAD);
-    setHole({ top, left: r.left - PAD, width: r.width + 2 * PAD, height: Math.max(0, bottom - top) });
+    setHole({ top, left: r.left - PAD, width: r.right - r.left + 2 * PAD, height: Math.max(0, bottom - top) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
@@ -102,9 +102,16 @@ export function HelpTour({ ref }: { ref: Ref<HTMLDialogElement> }) {
     const { el } = target();
     if (el) {
       const r = el.getBoundingClientRect();
-      // Phones: the card sits at the bottom, so bring the part to the top of the screen.
-      if (narrow()) scrollTo({ top: scrollY + r.top - 24, behavior: 'auto' });
-      else el.scrollIntoView({ block: r.height > innerHeight * 0.7 ? 'start' : 'center', behavior: 'auto' });
+      const scroller = scrollingAncestor(el);
+      if (scroller) {
+        // Inside the sidebar: bring the section to the sidebar's top, then show the sidebar.
+        scroller.scrollTop += r.top - scroller.getBoundingClientRect().top;
+        const v = visibleRect(el);
+        if (v.top < 24 || v.bottom > innerHeight - 24) scrollTo({ top: scrollY + v.top - 24, behavior: 'auto' });
+      } else if (narrow()) {
+        // Phones: the card sits at the bottom, so bring the part to the top of the screen.
+        scrollTo({ top: scrollY + r.top - 24, behavior: 'auto' });
+      } else el.scrollIntoView({ block: r.height > innerHeight * 0.7 ? 'start' : 'center', behavior: 'auto' });
     }
     measure();
     next.current?.focus();
@@ -194,6 +201,34 @@ export function HelpTour({ ref }: { ref: Ref<HTMLDialogElement> }) {
       </div>
     </dialog>
   );
+}
+
+/**
+ * The part of an element that's actually visible: its box clipped by any scrolling ancestor
+ * (the sidebar scrolls its sections inside itself).
+ */
+function visibleRect(el: Element): { top: number; bottom: number; left: number; right: number } {
+  const r = el.getBoundingClientRect();
+  let { top, bottom, left, right } = r;
+  for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+    const style = getComputedStyle(p);
+    if (style.overflowY === 'visible' && style.overflowX === 'visible') continue;
+    const c = p.getBoundingClientRect();
+    top = Math.max(top, c.top);
+    bottom = Math.min(bottom, c.bottom);
+    left = Math.max(left, c.left);
+    right = Math.min(right, c.right);
+  }
+  return { top, bottom, left, right };
+}
+
+/** The nearest ancestor that scrolls its content (the sidebar on wide screens), if any. */
+function scrollingAncestor(el: Element): HTMLElement | null {
+  for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+    const y = getComputedStyle(p).overflowY;
+    if ((y === 'auto' || y === 'scroll') && p.scrollHeight > p.clientHeight) return p;
+  }
+  return null;
 }
 
 /** Opens the tour from its first step. */
