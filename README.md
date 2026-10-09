@@ -132,9 +132,9 @@ Verify early whether the Isochrones API can be called safely from the browser. I
 
 Running list for phase 5 (polish). Add to it as things come up.
 
-**Done 2026-10-08:** palette: Gold & ink (an Iris detour was caused by a theme-switch bug that drew rings in the previous theme's colors, now fixed), phones: spot cards open on tap with an Open in Google Maps link, cards stay inside the map, no sideways scroll, sticky category column in the comparison, grain texture, header control sizes, line-length tokens, smoothed ring outlines and pill-colored ring bands (display only), spot card redesign, subtle motion pass, multi-add time menu, rename from the sidebar, "Walking times".
+**Done 2026-10-08:** palette: Iris & ink, final (2026-10-09; yellows and greens don't sit well as see-through fills on organic ring shapes; a theme-switch bug that drew rings in the previous theme's colors is fixed), phones: spot cards open on tap with an Open in Google Maps link, cards stay inside the map, no sideways scroll, sticky category column in the comparison, grain texture, header control sizes, line-length tokens, smoothed ring outlines and pill-colored ring bands (display only), spot card redesign, subtle motion pass, multi-add time menu, rename from the sidebar, "Walking times".
 
-**Check on the real map** (needs live calls, untested so far): iris bands on the basemap, smoothed outlines, ring toggle crossfade, spot cards keeping inside the map.
+**Check on the real map** (needs live calls, untested so far): ring toggle crossfade, spot cards keeping inside the map. Bands, smoothed outlines and theme switching were checked on the real map 2026-10-09.
 
 **Decided against (2026-10-08):** paid extras (hours, ratings and other Place Details on spot cards; exact walking minutes via the Routes API). Not essential.
 
