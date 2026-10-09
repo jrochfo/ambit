@@ -1,3 +1,4 @@
+import { DAILY_LIMIT_MESSAGE } from '../shared/limits';
 // The only code that talks to Google's Isochrones API (pre-GA Preview).
 // Keep it this small so a request/response change, or a swap to another
 // provider (OpenRouteService, Valhalla), stays contained here.
@@ -31,6 +32,8 @@ export async function fetchWalkingRing(apiKey: string, lat: number, lng: number,
     console.error(`Isochrones ${minutes}m failed`, res.status, await res.text());
     // A JSON 404 is the API's "no road within ~100 m"; an HTML 404 means a bad URL.
     const noRoad = res.status === 404 && res.headers.get('content-type')?.includes('json');
+    // 429: the project's daily Isochrones quota is used up.
+    if (res.status === 429) return { error: DAILY_LIMIT_MESSAGE, status: 429 };
     return {
       error: noRoad
         ? 'No walkable street found near that address. Try a more specific address.'

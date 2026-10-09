@@ -1,3 +1,4 @@
+import { isDailyLimit } from '../../shared/limits';
 import { Icon } from './Icon';
 
 export type Status =
@@ -18,13 +19,15 @@ export function splitAddress(address: string): [street: string, locality: string
 
 export function StatusLine({ status }: { status: Status }) {
   const [street, locality] = status.kind === 'done' ? splitAddress(status.address) : ['', ''];
+  // A used-up daily quota isn't the visitor's mistake: shown as a calm note, not an error.
+  const limit = status.kind === 'error' && isDailyLimit(status.message);
   return (
-    <div className={`status${status.kind === 'error' ? ' status-error' : ''}`} role="status" aria-live="polite">
+    <div className={`status${status.kind === 'error' && !limit ? ' status-error' : ''}${limit ? ' status-note' : ''}`} role="status" aria-live="polite">
       {status.kind === 'busy' && status.message}
       {status.kind === 'error' && (
         // An icon as well as color, so errors never rely on hue (red-orange palettes).
         <span className="status-error-line">
-          <Icon name="error" size={16} />
+          <Icon name={limit ? 'info' : 'error'} size={16} />
           {status.message}
         </span>
       )}

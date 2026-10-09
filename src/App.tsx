@@ -1,3 +1,4 @@
+import { DAILY_LIMIT_MESSAGE, looksLikeQuotaError } from '../shared/limits';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DEFAULT_RINGS, MAX_RINGS, isValidRing } from '../shared/isochrones';
@@ -140,7 +141,9 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
         const message =
           err instanceof Error && 'code' in err && err.code === 'ZERO_RESULTS'
             ? 'Couldn’t find that address.'
-            : err instanceof Error
+            : looksLikeQuotaError(`${err instanceof Error ? err.message : ''} ${err instanceof Error && 'code' in err ? String(err.code) : ''}`)
+              ? DAILY_LIMIT_MESSAGE
+              : err instanceof Error
               ? err.message
               : 'Something went wrong.';
         setStatus({ kind: 'error', message });

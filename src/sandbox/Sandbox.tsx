@@ -1,3 +1,4 @@
+import { DAILY_LIMIT_MESSAGE } from '../../shared/limits';
 import { applyColorPreview, readColorPreview, writeColorPreview } from '../lib/palette';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
@@ -72,7 +73,7 @@ export function Sandbox() {
     if (!mapped) return out;
     categories.forEach((c, i) => {
       if (resultsState === 'loading') out[c.id] = { status: 'loading' };
-      else if (resultsState === 'limit' && i % 2 === 1) out[c.id] = { status: 'error', message: 'Daily search limit reached. It resets at midnight Pacific time.' };
+      else if (resultsState === 'limit' && i % 2 === 1) out[c.id] = { status: 'error', message: DAILY_LIMIT_MESSAGE };
       else out[c.id] = fakeResult(spots[c.id] ?? [], picks[mapped.id]?.[c.id]);
     });
     return out;

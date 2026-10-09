@@ -50,7 +50,7 @@ async function handleIsochrones(request: Request, env: Env): Promise<Response> {
 
   const failed = results.find((r) => 'error' in r);
   if (failed && 'error' in failed) {
-    return json(failed, failed.status === 404 ? 404 : 502);
+    return json(failed, failed.status === 404 || failed.status === 429 ? failed.status : 502);
   }
 
   return json({ rings: results as Ring[] } satisfies IsochroneResponse);

@@ -1,3 +1,4 @@
+import { isDailyLimit } from '../../shared/limits';
 import { useState } from 'react';
 import { DEFAULT_CATEGORY_IDS, categoryTint, type Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
@@ -49,7 +50,7 @@ export function NearbyList({
   const enabled = new Set(categories.map((c) => c.id));
   const limited = categories.some((c) => {
     const r = results[c.id];
-    return r?.status === 'error' && r.message.startsWith('Daily search limit');
+    return r?.status === 'error' && isDailyLimit(r.message);
   });
 
   return (
@@ -80,10 +81,10 @@ export function NearbyList({
         )}
         <div className="field-hint">{categories.length > 0 ? 'Tap a category to see every spot' : 'Choose categories to find spots within a walk.'}</div>
         {limited && (
-          <p className="status status-error" role="status">
+          <p className="status status-note" role="status">
             <span className="status-error-line">
-              <Icon name="error" size={16} />
-              Today’s search limit is used up, so some categories couldn’t load. It resets at midnight Pacific time.
+              <Icon name="info" size={16} />
+              Ambit’s had a busy day, so some categories couldn’t load. Searches reset at midnight Pacific.
             </span>
           </p>
         )}
@@ -191,7 +192,7 @@ function RingPill({ result, rings }: { result: CategoryResult | undefined; rings
   if (result.status === 'loading') return <RingTag value={{ kind: 'loading' }} rings={rings} />;
   if (result.status === 'error')
     return (
-      <RingTag value={{ kind: 'error', label: result.message.startsWith('Daily search limit') ? 'Limit' : 'Error', message: result.message }} rings={rings} />
+      <RingTag value={{ kind: 'error', label: isDailyLimit(result.message) ? 'Paused' : 'Error', message: result.message }} rings={rings} />
     );
   if (result.ring === null) return <RingTag value={{ kind: 'none', label: `Beyond ${largest ? formatMinutes(largest) : ''}` }} rings={rings} />;
   return <RingTag value={{ kind: 'ring', minutes: result.ring }} rings={rings} />;

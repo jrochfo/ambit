@@ -338,6 +338,9 @@ button, input { font: inherit; }
 .status { font-size: var(--text-md); line-height: 1.45; color: var(--ink-3); margin: 0; }
 .status strong { color: var(--ink); font-weight: 600; }
 .status-error { color: var(--danger); }
+/* Notes like a used-up daily quota: informative, not alarming. */
+.status-note { color: var(--ink-2); }
+.status-note .icon { color: var(--accent-text); }
 .status-error-line { display: inline-flex; align-items: flex-start; gap: var(--space-2); }
 .status-error-line .icon { margin-top: 2px; }
 /* Stays in the DOM (live region) but takes no space while empty. */

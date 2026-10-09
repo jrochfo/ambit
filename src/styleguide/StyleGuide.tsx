@@ -11,6 +11,7 @@ import { annulusPath, pillColors, ringStyle } from '../lib/rings';
 import { ringBand } from '../lib/ringBands';
 import { BUTTON_TEXTURES, PAGE_TEXTURES, applyTexturePreview, readTexturePreview, writeTexturePreview, type TexturePreview } from '../lib/texturePreview';
 import { RingTag } from '../components/RingTag';
+import { DAILY_LIMIT_MESSAGE } from '../../shared/limits';
 import { toPolygonPaths } from '../lib/geojson';
 import { DEFAULT_RING_SHAPE, RING_SHAPES, readRingShape, shapePolygons, writeRingShape, type RingShape } from '../lib/ringShape';
 
@@ -305,7 +306,7 @@ function Rings() {
         <RingTag value={{ kind: 'none', label: '—' }} rings={minutes} />
         <RingTag value={{ kind: 'none', label: 'Beyond 15 min' }} rings={minutes} />
         <RingTag value={{ kind: 'loading' }} rings={minutes} />
-        <RingTag value={{ kind: 'error', label: 'Limit', message: 'Daily search limit reached.' }} rings={minutes} />
+        <RingTag value={{ kind: 'error', label: 'Paused', message: DAILY_LIMIT_MESSAGE }} rings={minutes} />
       </div>
       <div className="sg-rings-demo">
         <svg viewBox="0 0 220 140" aria-hidden="true">

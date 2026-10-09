@@ -1,5 +1,6 @@
 import type { Ring } from '../../shared/isochrones';
 import { fetchIsochrones } from './api';
+import { DAILY_LIMIT_MESSAGE, looksLikeQuotaError } from '../../shared/limits';
 import { DEFAULT_EDGE_TOLERANCE, type Category } from './categories';
 import {
   MAX_RESULTS,
@@ -291,6 +292,6 @@ export function clearFailures(): void {
 /** Google's quota errors are long and technical; the per-day caps are the common case. */
 function describeSearchError(err: unknown): string {
   const message = err instanceof Error ? err.message : String(err);
-  if (/RESOURCE_EXHAUSTED|Quota exceeded/i.test(message)) return 'Daily search limit reached. It resets at midnight Pacific time.';
+  if (looksLikeQuotaError(message)) return DAILY_LIMIT_MESSAGE;
   return message || 'Search failed';
 }

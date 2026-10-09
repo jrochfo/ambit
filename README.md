@@ -138,17 +138,19 @@ Running list for phase 5 (polish). Add to it as things come up.
 
 **Status (2026-10-09):** finished. Still behind Cloudflare Access. Before sharing publicly: open the Access app, restrict both API keys, rate-limit `/api/isochrones`, and set the daily quotas below.
 
-| Quota (requests per day) | Value |
-|---|---|
-| Places API (New): Nearby Search | 260 |
-| Places API (New): Text Search | 150 |
-| Places API (New): Place Details | 300 |
-| Places API (New): Autocomplete | 320 |
-| Geocoding API | 300 |
-| Isochrones API | 300 |
-| Maps JavaScript API | 320 |
+Launch plan (a LinkedIn post, a week of discovery): high caps for the first two days, then lower.
 
-About 45 addresses a day, worst case about $100 a month (Nearby Search is the only SKU past its free cap). Budget alert at $100 with emails at 50/90/100%.
+| Quota (requests per day) | Launch, days 1–2 | Day 3 on |
+|---|---|---|
+| Places API (New): Nearby Search | 2,500 | 400 |
+| Places API (New): Text Search | 400 | 150 |
+| Places API (New): Place Details | 1,500 | 300 |
+| Places API (New): Autocomplete | 3,000 | 320 |
+| Geocoding API | 800 | 300 |
+| Isochrones API | 2,000 | 300 |
+| Maps JavaScript API (map loads) | 1,500 | 320 |
+
+Worst case for the week about $64 (Nearby Search is the only SKU past its free cap: 7,000 searches, 5,000 free). About 20 Nearby Searches per engaged visitor, so ~125 visitors a day at the launch caps. Budget $100 with alerts at $50 (tripwire for forgetting day 3), 90% and 100%. Free monthly caps reset on the 1st. When a cap runs out, visitors see a friendly note (shared/limits.ts) until midnight Pacific; the worker also limits each visitor to 20 isochrone requests a minute.
 
 **Decided against (2026-10-08):** paid extras (hours, ratings and other Place Details on spot cards; exact walking minutes via the Routes API). Not essential.
 
