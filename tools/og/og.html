@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Link preview card (public/og.png, 1200×630). Render: `npm run dev`, then
+         node --use-system-ca tools/og/render.mjs. Ring shapes come from the local isochrone
+         sample (src/styleguide/fixtures/iso-sample.json, gitignored). -->
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <style>
+      html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+      body { background: var(--page); color: var(--ink); font-family: var(--font); }
+      .card { position: relative; width: 1200px; height: 630px; display: grid; grid-template-columns: 560px 1fr; }
+      .text { padding: 84px 0 0 84px; display: flex; flex-direction: column; gap: 28px; position: relative; z-index: 1; }
+      .brand { display: flex; align-items: center; gap: 20px; }
+      .brand .name { font-family: var(--font-display); font-size: 84px; line-height: 1; }
+      h1 { margin: 0; font-size: 50px; line-height: 1.12; font-weight: 700; letter-spacing: -0.01em; max-width: 13ch; }
+      p { margin: 0; font-size: 26px; line-height: 1.4; color: var(--ink-2); max-width: 25ch; text-wrap: balance; }
+      .url { position: absolute; left: 84px; bottom: 64px; font-size: 24px; font-weight: 600; color: var(--accent-text); }
+      .map { position: absolute; right: 0; top: 0; width: 760px; height: 630px; -webkit-mask-image: linear-gradient(to right, transparent, #000 38%); mask-image: linear-gradient(to right, transparent, #000 38%); }
+      .grain { position: absolute; inset: 0; background-image: var(--grain); background-size: 200px; opacity: 0.2; pointer-events: none; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="text">
+        <div class="brand">
+          <svg width="76" height="76" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <circle cx="18" cy="18" r="16" style="stroke: var(--mark-ring)" stroke-width="2" stroke-opacity="0.35" />
+            <circle cx="18" cy="18" r="10.5" style="stroke: var(--mark-ring)" stroke-width="2" stroke-opacity="0.65" />
+            <circle cx="18" cy="18" r="5" style="fill: var(--mark-dot)" />
+          </svg>
+          <span class="name">Ambit</span>
+        </div>
+        <h1>What’s within a walk of here?</h1>
+        <p>See how far you can walk along real streets, and what’s inside.</p>
+      </div>
+      <div class="url">ambit.zone</div>
+      <svg class="map" id="map" viewBox="0 0 760 630" aria-hidden="true"></svg>
+      <div class="grain"></div>
+    </div>
+    <script type="module" src="./og.ts"></script>
+  </body>
+</html>
