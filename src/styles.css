@@ -1036,8 +1036,8 @@ html[data-texture-glow='on'] .page-texture { background: var(--page-glow), var(-
 
 /* Buttons: the same grain over filled controls. isolation lets the grain layer (z-index -1) sit
    above the fill but under the label. */
-html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .theme-switch[aria-checked='true']) { position: relative; isolation: isolate; }
-html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .theme-switch[aria-checked='true'])::after {
+html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .tag[style], .theme-switch[aria-checked='true']) { position: relative; isolation: isolate; }
+html[data-texture-buttons='grain'] :is(.btn:not(.btn-outline), .pill-chip[style], .tag[style], .theme-switch[aria-checked='true'])::after {
   content: '';
   position: absolute;
   inset: 0;
