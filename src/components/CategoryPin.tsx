@@ -1,5 +1,5 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type MouseEvent } from 'react';
-import type { Category } from '../lib/categories';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
+import { categoryTint, type Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import type { NearbyPlace } from '../lib/nearby';
 import { formatMinutes } from '../lib/rings';
@@ -32,9 +32,11 @@ interface SpotPinProps {
   category: Category;
   place: NearbyPlace;
   outerRing: number | undefined;
-  /** Shown open without hover: picked from the comparison grid. */
+  /** Shown open without hover: the selected spot. */
   spotlight: boolean;
   pick?: PinPick;
+  /** Clicking the pin: show this spot in its category view. */
+  onSelect?: () => void;
 }
 
 /** "Park" → "park", "Bank or ATM" → "bank or ATM": a label used mid-sentence. */
@@ -53,8 +55,8 @@ export function CategoryPin(props: SpotPinProps) {
 }
 
 /**
- * Emoji pin for a spot; clicking opens it in Google Maps. Its card shows on hover or keyboard
- * focus (and when picked from the comparison grid). All details come from the search; no extra calls.
+ * Emoji pin for a spot; clicking shows it in its category's view, card open (the card links to
+ * Google Maps). Its card also shows on hover or keyboard focus. All details come from the search; no extra calls.
  * Rendered by CategoryPin on the real map and by the design sandbox on its fake one.
  */
 export function SpotPin({
@@ -63,22 +65,18 @@ export function SpotPin({
   outerRing,
   spotlight,
   pick,
+  onSelect,
   onOpenChange,
 }: SpotPinProps & { onOpenChange?: (open: boolean) => void }) {
   const cardId = useId();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  // Touch screens have no hover: a tap opens the card (its link opens Google Maps), a tap
-  // elsewhere closes it.
-  const touch = useMediaQuery('(hover: none)');
-  const [tapped, setTapped] = useState(false);
   // Escape closes the card until the pointer or focus leaves the spot.
   const [dismissed, setDismissed] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const spotRef = useRef<HTMLDivElement>(null);
-  const pinRef = useRef<HTMLAnchorElement>(null);
+  const pinRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const open = !dismissed && (spotlight || hovered || focused || tapped);
+  const open = !dismissed && (spotlight || hovered || focused);
   // The card stays mounted briefly after closing so it can fade out.
   const [mounted, setMounted] = useState(open);
   useEffect(() => {
@@ -89,17 +87,6 @@ export function SpotPin({
   const shown = open || mounted;
   useEffect(() => () => clearTimeout(hideTimer.current), []);
   useEffect(() => onOpenChange?.(shown), [shown, onOpenChange]);
-
-  useEffect(() => {
-    if (!tapped) return;
-    const outside = (e: PointerEvent) => {
-      if (spotRef.current?.contains(e.target as Node)) return;
-      setTapped(false);
-      setHovered(false);
-    };
-    document.addEventListener('pointerdown', outside);
-    return () => document.removeEventListener('pointerdown', outside);
-  }, [tapped]);
 
   // Keep the card inside the map: shift it sideways (the tail still points at the pin).
   useLayoutEffect(() => {
@@ -118,14 +105,6 @@ export function SpotPin({
     dx = Math.max(-limit, Math.min(limit, dx));
     card.style.setProperty('--card-dx', `${Math.round(dx)}px`);
   }, [open]);
-
-  const tap = (e: MouseEvent) => {
-    // Checked at the tap itself, not from state, so it's right even if the setting just changed.
-    if (!matchMedia('(hover: none)').matches) return;
-    e.preventDefault();
-    setTapped((t) => !t);
-    if (tapped) setHovered(false);
-  };
 
   const where = place.ring ? `Within a ${formatMinutes(place.ring)} walk` : outerRing ? `Beyond a ${formatMinutes(outerRing)} walk` : '';
   const access = (['entrance', 'restroom', 'parking'] as const).filter((k) => place.accessible?.[k]);
@@ -158,7 +137,6 @@ export function SpotPin({
 
   return (
     <div
-      ref={spotRef}
       className="spot"
       onMouseEnter={enter}
       onMouseLeave={leave}
@@ -167,26 +145,29 @@ export function SpotPin({
       onBlur={blur}
       onKeyDown={keyDown}
     >
-      <a
+      <button
         ref={pinRef}
+        type="button"
         className={pick?.role === 'hidden' ? 'pin pin-hidden' : pick?.emphasize ? 'pin pin-pick' : 'pin'}
         style={{ borderColor: category.color }}
-        href={mapsUrl}
-        target="_blank"
-        rel="noreferrer"
-        onClick={tap}
-        aria-label={`${place.name}, ${category.label}. ${where}.${touch ? '' : ' Opens Google Maps.'}`}
-        aria-expanded={touch ? open : undefined}
+        onClick={onSelect}
+        aria-label={`${place.name}, ${category.label}. ${where}.`}
+        aria-expanded={open}
         aria-describedby={open ? cardId : undefined}
       >
         <span aria-hidden="true">{pickEmoji(category.emoji)}</span>
-      </a>
+      </button>
       {shown && (
         // An interactive popover (it holds actions), so a labelled group rather than a tooltip;
         // the pin is described by the card's facts only.
         <div ref={cardRef} className={open ? 'spot-card' : 'spot-card spot-card-out'} role="group" aria-label={place.name}>
           <div className="spot-card-facts" id={cardId}>
-            <div className="spot-card-name">{place.name}</div>
+            <div className="spot-card-title">
+              <span className="category-avatar category-avatar-sm" style={{ background: categoryTint(category.color), borderColor: category.color }} aria-hidden="true">
+                {pickEmoji(category.emoji)}
+              </span>
+              <span className="spot-card-name">{place.name}</span>
+            </div>
             <div className="spot-card-meta">{[place.typeLabel ?? category.label, place.address].filter(Boolean).join(' · ')}</div>
             {where && (
               <div className="spot-card-line">
@@ -273,14 +254,3 @@ function PickLine({ pick, noun }: { pick: PinPick; noun: string }) {
   );
 }
 
-/** Whether a media query matches, kept up to date. */
-function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => matchMedia(query).matches);
-  useEffect(() => {
-    const mq = matchMedia(query);
-    const update = () => setMatches(mq.matches);
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, [query]);
-  return matches;
-}

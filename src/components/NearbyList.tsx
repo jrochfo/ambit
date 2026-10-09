@@ -102,6 +102,8 @@ export function NearbyList({
                   className="nearby-row"
                   aria-pressed={isFocused}
                   data-dimmed={focused !== null && !isFocused}
+                  data-category-control
+                  data-tip={isFocused ? 'Exit category view' : `Show every ${c.label.toLowerCase()} on the map`}
                   onClick={() => onFocus(isFocused ? null : c.id)}
                 >
                   <span className="nearby-text">

@@ -1,10 +1,13 @@
-import { DAILY_LIMIT_MESSAGE } from '../../shared/limits';
-import { applyColorPreview, readColorPreview, writeColorPreview } from '../lib/palette';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { loadPref, savePref } from '../lib/storage';
 import { useTheme } from '../lib/theme';
 import { DEFAULT_RINGS, MAX_RINGS } from '../../shared/isochrones';
+import { DAILY_LIMIT_MESSAGE } from '../../shared/limits';
+import { applyColorPreview, readColorPreview, writeColorPreview } from '../lib/palette';
+import { scrollToMap, useExitCategoryView, type Spotlight } from '../lib/categoryView';
+import { HoverTips } from '../components/HoverTips';
+import type { CategoryViewInfo } from '../components/MapPanel';
 import { AddressSearch } from '../components/AddressSearch';
 import type { AddOption } from '../components/AddCategory';
 import { CompareGrid } from '../components/CompareGrid';
@@ -46,7 +49,7 @@ export function Sandbox() {
   const [categoryIds, setCategoryIds] = useState<ReadonlySet<string>>(new Set([...DEFAULT_CATEGORY_IDS, 'custom-climb']));
   const [saved, setSaved] = useState<SavedAddress[]>(FAKE_ADDRESSES.map(toSaved));
   const [focused, setFocused] = useState<string | null>(null);
-  const [spotlight, setSpotlight] = useState<string | null>(null);
+  const [spotlight, setSpotlight] = useState<Spotlight | null>(null);
   const [hiddenSpotIds, setHiddenSpots] = useState<ReadonlySet<string>>(new Set());
   // Picked spot per address and category (by fake spot ID).
   const [picks, setPicks] = useState<Record<string, Record<string, string>>>({});
@@ -106,6 +109,10 @@ export function Sandbox() {
     const pin = (spot: FakeSpot, hidden = false) => ({
       category,
       spot,
+      onSelect: () => {
+        setFocused(category.id);
+        setSpotlight({ category: category.id, place: spot.id });
+      },
       pick: {
         role: hidden ? 'hidden' : spot.id === current?.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
         others: r.within.filter((p) => p.id !== current?.id).length,
@@ -132,7 +139,22 @@ export function Sandbox() {
 
   const status: Status = mapped ? { kind: 'done', address: mapped.address } : { kind: 'idle' };
   const currentSaved = mapped ? saved.find((a) => a.id === mapped.id) : undefined;
-  const spotlightNearest = spotlight ? spots[spotlight]?.[0] : undefined;
+  const spotlightResult = spotlight ? results[spotlight.category] : undefined;
+  const spotlightPlace = spotlight?.place ?? (spotlightResult?.status === 'done' ? spotlightResult.nearest?.id : undefined);
+  const exitCategoryView = useCallback(() => {
+    setFocused(null);
+    setSpotlight(null);
+  }, []);
+  useExitCategoryView(focused !== null, exitCategoryView);
+  const focusedCategory = focused ? categories.find((c) => c.id === focused) : undefined;
+  const categoryView: CategoryViewInfo | null =
+    mapped && focusedCategory
+      ? {
+          category: focusedCategory,
+          count: resultsState === 'loading' ? null : pins.filter((p) => p.category.id === focused && p.pick.role !== 'hidden').length,
+          onExit: exitCategoryView,
+        }
+      : null;
 
   const toggle = <T,>(set: ReadonlySet<T>, item: T) => {
     const next = new Set(set);
@@ -172,6 +194,7 @@ export function Sandbox() {
           <div className="sidebar-head">
             {/* Real component; with no Google API loaded it simply shows no suggestions. */}
             <AddressSearch
+              key={`search:${mapped?.id ?? 'none'}`}
               busy={false}
               onSearch={(t) => {
                 const text = t.kind === 'text' ? t.text : t.prediction.text.text;
@@ -229,8 +252,9 @@ export function Sandbox() {
           rings={ringMinutes}
           hidden={hidden}
           pins={pins}
-          spotlight={spotlight && spotlightNearest ? `${spotlight}:${spotlightNearest.id}` : null}
+          spotlight={spotlight && spotlightPlace ? `${spotlight.category}:${spotlightPlace}` : null}
           onMapClick={() => setSpotlight(null)}
+          categoryView={categoryView}
         />
         <CompareGrid
           saved={saved}
@@ -238,16 +262,21 @@ export function Sandbox() {
           rings={ringMinutes}
           cells={cells}
           currentId={currentSaved?.id}
-          onSelect={showAddress}
+          onSelect={(a) => {
+            showAddress(a);
+            scrollToMap();
+          }}
           onSelectCell={(a, categoryId) => {
             showAddress(a);
             setFocused(categoryId);
-            setSpotlight(categoryId);
+            setSpotlight({ category: categoryId });
+            scrollToMap();
           }}
           onRemove={(id) => setSaved((prev) => prev.filter((a) => a.id !== id))}
           onRename={(id, label) => setSaved((prev) => prev.map((a) => (a.id === id ? { ...a, label } : a)))}
         />
       </main>
+      <HoverTips />
     </div>
   );
 }

@@ -1,12 +1,14 @@
-import { DAILY_LIMIT_MESSAGE, looksLikeQuotaError } from '../shared/limits';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DEFAULT_RINGS, MAX_RINGS, isValidRing } from '../shared/isochrones';
+import { DAILY_LIMIT_MESSAGE, looksLikeQuotaError } from '../shared/limits';
 import { Header } from './components/Header';
 import { StatusLine, type Status } from './components/StatusLine';
 import { AddressSearch, type SearchTarget } from './components/AddressSearch';
 import { RingPicker } from './components/RingPicker';
-import { MapPanel, type Origin, type Pin } from './components/MapPanel';
+import { MapPanel, type CategoryViewInfo, type Origin, type Pin } from './components/MapPanel';
+import { HoverTips } from './components/HoverTips';
+import { scrollToMap, useExitCategoryView, type Spotlight } from './lib/categoryView';
 import { NearbyList } from './components/NearbyList';
 import { CATEGORIES, DEFAULT_CATEGORY_IDS, isCustomCategoryList, makeCustomCategory, type Category } from './lib/categories';
 import type { AddOption } from './components/AddCategory';
@@ -56,8 +58,8 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
   const [categoryIds, setCategoryIds] = useState<ReadonlySet<string>>(() => new Set(loadPref('categories', DEFAULT_CATEGORY_IDS, isStringList)));
   const [customs, setCustoms] = useState<Category[]>(() => loadPref('customCategories', [], isCustomCategoryList));
   const [focused, setFocused] = useState<string | null>(null);
-  // Category whose nearest spot's card is shown open (picked from the comparison grid).
-  const [spotlight, setSpotlight] = useState<string | null>(null);
+  // The spot whose card is shown open (a clicked pin, or a category's nearest from the grid).
+  const [spotlight, setSpotlight] = useState<Spotlight | null>(null);
   const [hiddenSpots, setHiddenSpotsState] = useState<ReadonlySet<string>>(() => new Set(loadPref('hiddenSpots', [], isStringList)));
   useEffect(() => {
     setHiddenSpots(hiddenSpots);
@@ -190,7 +192,15 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
     (a: SavedAddress, categoryId: string) => {
       showSaved(a);
       setFocused(categoryId);
-      setSpotlight(categoryId);
+      setSpotlight({ category: categoryId });
+      scrollToMap();
+    },
+    [showSaved],
+  );
+  const showSavedAddress = useCallback(
+    (a: SavedAddress) => {
+      showSaved(a);
+      scrollToMap();
     },
     [showSaved],
   );
@@ -198,6 +208,8 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
     setFocused(id);
     setSpotlight(null);
   }, []);
+  const exitCategoryView = useCallback(() => focusCategory(null), [focusCategory]);
+  useExitCategoryView(focused !== null, exitCategoryView);
 
   const toggleRing = useCallback((m: number) => setHiddenRings((prev) => toggled(prev, m)), []);
   const addRing = useCallback((m: number) => setRingMinutes((prev) => [...new Set([...prev, m])].sort((a, b) => a - b).slice(0, MAX_RINGS)), []);
@@ -268,6 +280,10 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
     const pin = (place: NearbyPlace, hidden = false): Pin => ({
       category,
       place,
+      onSelect: () => {
+        setFocused(category.id);
+        setSpotlight({ category: category.id, place: place.id });
+      },
       pick: {
         role: hidden ? 'hidden' : place.id === current.id ? (r.picked ? 'chosen' : 'nearest') : 'other',
         others: r.within.filter((p) => p.id !== current.id).length,
@@ -286,8 +302,20 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
     return [...list.map((p) => pin(p)), ...hiddenPins];
   });
 
-  const spotlightResult = spotlight ? analysis.results[spotlight] : undefined;
-  const spotlightKey = spotlightResult?.status === 'done' && spotlightResult.nearest ? `${spotlight}:${spotlightResult.nearest.id}` : null;
+  const spotlightResult = spotlight ? analysis.results[spotlight.category] : undefined;
+  const spotlightPlace = spotlight?.place ?? (spotlightResult?.status === 'done' ? spotlightResult.nearest?.id : undefined);
+  const spotlightKey = spotlight && spotlightPlace ? `${spotlight.category}:${spotlightPlace}` : null;
+
+  const focusedCategory = focused ? categories.find((c) => c.id === focused) : undefined;
+  const focusedResult = focused ? analysis.results[focused] : undefined;
+  const categoryView: CategoryViewInfo | null =
+    origin && focusedCategory
+      ? {
+          category: focusedCategory,
+          count: focusedResult?.status === 'done' ? pins.filter((p) => p.category.id === focused && p.pick?.role !== 'hidden').length : null,
+          onExit: exitCategoryView,
+        }
+      : null;
 
   const shownStatus: Status =
     status.kind !== 'done'
@@ -304,7 +332,8 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
       <main className="main">
         <aside className="card sidebar">
           <div className="sidebar-head">
-            <AddressSearch busy={status.kind === 'busy' || !geocoding || !places} onSearch={mapAddress} />
+            {/* Remounted per mapped address, so the box clears once an address is on the map. */}
+            <AddressSearch key={`search:${origin ? addressKey(origin.position) : 'none'}`} busy={status.kind === 'busy' || !geocoding || !places} onSearch={mapAddress} />
             {/* The mapped address comes first: everything below adjusts what's shown for it. */}
             <StatusLine status={shownStatus} />
             {origin && status.kind === 'done' && (
@@ -348,6 +377,7 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
           pins={pins}
           spotlight={spotlightKey}
           onMapClick={() => setSpotlight(null)}
+          categoryView={categoryView}
           theme={theme}
         />
         <CompareGrid
@@ -356,13 +386,14 @@ function Ambit({ theme, onTheme }: { theme: Theme; onTheme: (theme: Theme) => vo
         rings={ringMinutes}
         cells={comparison}
         currentId={currentSaved?.id}
-        onSelect={showSaved}
+        onSelect={showSavedAddress}
         onSelectCell={showSavedSpot}
         onRemove={removeSaved}
           onRename={renameSaved}
         />
       </main>
       <ResultsAnnouncer origin={origin} results={analysis.results} />
+      <HoverTips />
     </div>
   );
 }

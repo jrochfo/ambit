@@ -81,7 +81,7 @@ export function RingPicker({
                 {formatMinutes(m)}
               </button>
               {rings.length > 1 && (
-                <button type="button" className="pill-remove" aria-label={`Remove ${formatMinutes(m)} ring`} onClick={() => onRemove(m)}>
+                <button type="button" className="pill-remove" aria-label={`Remove ${formatMinutes(m)} ring`} data-tip={`Remove ${formatMinutes(m)}`} onClick={() => onRemove(m)}>
                   <Icon name="close" size={16} />
                 </button>
               )}

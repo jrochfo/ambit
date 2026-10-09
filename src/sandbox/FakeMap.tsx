@@ -3,7 +3,8 @@ import type { Category } from '../lib/categories';
 import { ringStyle } from '../lib/rings';
 import { ringBand } from '../lib/ringBands';
 import { SpotPin, type PinPick } from '../components/CategoryPin';
-import { EmptyMapPrompt, MapLegend, OriginMarker, RingLabel } from '../components/MapParts';
+import { CategoryBanner, EmptyMapPrompt, MapLegend, OriginMarker, RingLabel } from '../components/MapParts';
+import type { CategoryViewInfo } from '../components/MapPanel';
 import { OVERLAY_Z } from '../components/MapOverlay';
 import { ringPoints, VIEW, type FakeSpot } from './fakeData';
 
@@ -18,20 +19,28 @@ export function FakeMap({
   pins,
   spotlight,
   onMapClick,
+  categoryView,
 }: {
   originLabel: string | null;
   rings: number[];
   hidden: ReadonlySet<number>;
-  pins: { category: Category; spot: FakeSpot; pick?: PinPick }[];
+  pins: { category: Category; spot: FakeSpot; pick?: PinPick; onSelect?: () => void }[];
   spotlight: string | null;
   onMapClick: () => void;
+  categoryView: CategoryViewInfo | null;
 }) {
   const largest = rings[rings.length - 1] ?? 15;
   const shown = originLabel ? rings.filter((m) => !hidden.has(m)) : [];
 
   return (
     <section className="card map-panel" aria-label="Walking rings map">
-      <div className="map-frame" onClick={onMapClick}>
+      <div
+        className="map-frame"
+        // Like the real map: clicks on pins and their cards aren't clicks on the map.
+        onClick={(e) => {
+          if (!(e.target as Element).closest('.spot, .category-banner')) onMapClick();
+        }}
+      >
         <svg className="fake-basemap" viewBox={`0 0 ${VIEW.width} ${VIEW.height}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <defs>
             <pattern id="fake-blocks" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(-9)">
@@ -69,7 +78,7 @@ export function FakeMap({
               </At>
             );
           })}
-          {pins.map(({ category, spot, pick }) => (
+          {pins.map(({ category, spot, pick, onSelect }) => (
             <FakePin
               key={`${category.id}:${spot.id}`}
               category={category}
@@ -77,6 +86,7 @@ export function FakeMap({
               pick={pick}
               outerRing={largest}
               spotlight={spotlight === `${category.id}:${spot.id}`}
+              onSelect={onSelect}
             />
           ))}
           {originLabel && (
@@ -86,6 +96,7 @@ export function FakeMap({
           )}
         </div>
         {!originLabel && <EmptyMapPrompt />}
+        {categoryView && <CategoryBanner {...categoryView} outerRing={largest} />}
       </div>
       <MapLegend minutes={originLabel ? rings : []} />
     </section>
@@ -98,17 +109,19 @@ function FakePin({
   pick,
   outerRing,
   spotlight,
+  onSelect,
 }: {
   category: Category;
   spot: FakeSpot;
   pick?: PinPick;
   outerRing: number;
   spotlight: boolean;
+  onSelect?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   return (
     <At x={spot.x} y={spot.y} z={open ? OVERLAY_Z.openPin : OVERLAY_Z.pin}>
-      <SpotPin category={category} place={spot} pick={pick} outerRing={outerRing} spotlight={spotlight} onOpenChange={setOpen} />
+      <SpotPin category={category} place={spot} pick={pick} outerRing={outerRing} spotlight={spotlight} onSelect={onSelect} onOpenChange={setOpen} />
     </At>
   );
 }

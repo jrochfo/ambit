@@ -1,6 +1,9 @@
 // Map visuals shared by the real Google map (MapPanel) and the design sandbox's fake map,
 // so styling them in one place styles both.
+import { categoryTint, type Category } from '../lib/categories';
+import { pickEmoji } from '../lib/emoji';
 import { formatMinutes, ringStyle } from '../lib/rings';
+import { Icon } from './Icon';
 import { Logomark } from './Logomark';
 
 export function OriginMarker({ label }: { label: string }) {
@@ -55,6 +58,44 @@ export function MapLegend({ minutes }: { minutes: number[] }) {
         </span>
       ))}
       <span className="legend-note">Walking reach along real streets</span>
+    </div>
+  );
+}
+
+/**
+ * Shown over the top of the map in category view: which category, what the view means, and a
+ * clear way out (also Escape, or a click anywhere outside the map).
+ */
+export function CategoryBanner({
+  category,
+  count,
+  outerRing,
+  onExit,
+}: {
+  category: Category;
+  /** Spots shown, or null while they load. */
+  count: number | null;
+  outerRing: number | undefined;
+  onExit: () => void;
+}) {
+  const reach = outerRing ? ` within a ${formatMinutes(outerRing)} walk` : '';
+  return (
+    <div className="category-banner" role="region" aria-label="Category view">
+      <span className="category-avatar" style={{ background: categoryTint(category.color), borderColor: category.color }} aria-hidden="true">
+        {pickEmoji(category.emoji)}
+      </span>
+      <div className="category-banner-text">
+        <span className="category-banner-eyebrow">Category view</span>
+        <strong>
+          {category.label}
+          {count === null ? '' : `: ${count} ${count === 1 ? 'spot' : 'spots'}${reach}`}
+        </strong>
+        <span className="category-banner-help">The starred spot counts in your comparison. Choose a different one from its card.</span>
+      </div>
+      <button type="button" className="category-banner-exit" onClick={onExit} aria-label="Exit category view" data-tip="Exit category view (Esc)">
+        <Icon name="close" size={18} />
+        Exit
+      </button>
     </div>
   );
 }

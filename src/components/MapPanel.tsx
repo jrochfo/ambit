@@ -10,7 +10,7 @@ import { START_ZOOM, mapStyleFor, randomStartView } from '../lib/mapStyle';
 import type { Theme } from '../lib/theme';
 import { CategoryPin, type PinPick } from './CategoryPin';
 import { MapOverlay, OVERLAY_Z } from './MapOverlay';
-import { EmptyMapPrompt, MapLegend, OriginMarker } from './MapParts';
+import { CategoryBanner, EmptyMapPrompt, MapLegend, OriginMarker } from './MapParts';
 import { FitToRing, RingLayer, useRingShape } from './RingLayer';
 
 export interface Origin {
@@ -26,6 +26,15 @@ export interface Pin {
   category: Category;
   place: NearbyPlace;
   pick?: PinPick;
+  /** Clicking the pin: this spot in its category view. */
+  onSelect?: () => void;
+}
+
+/** What the category view banner shows (null when not in category view). */
+export interface CategoryViewInfo {
+  category: Category;
+  count: number | null;
+  onExit: () => void;
 }
 
 export function MapPanel({
@@ -35,6 +44,7 @@ export function MapPanel({
   pins,
   spotlight,
   onMapClick,
+  categoryView,
   theme,
 }: {
   origin: Origin | null;
@@ -45,6 +55,7 @@ export function MapPanel({
   /** `${categoryId}:${placeId}` of a spot whose card is shown open and panned to. */
   spotlight: string | null;
   onMapClick: () => void;
+  categoryView: CategoryViewInfo | null;
   theme: Theme;
 }) {
   const largest = rings[rings.length - 1];
@@ -87,7 +98,7 @@ export function MapPanel({
             <RingLayer key={d.minutes} minutes={d.minutes} outline={d.outline} band={d.band} rank={d.rank} count={rings.length} theme={theme} />
           ))}
           <FitToRing ring={largest} />
-          {pins.map(({ category, place }) => {
+          {pins.map(({ category, place, onSelect }) => {
             const key = `${category.id}:${place.id}`;
             return (
               <CategoryPin
@@ -97,6 +108,7 @@ export function MapPanel({
                 outerRing={largest?.minutes}
                 spotlight={spotlight === key}
                 pick={pins.find((p) => p.category === category && p.place === place)?.pick}
+                onSelect={onSelect}
               />
             );
           })}
@@ -108,6 +120,7 @@ export function MapPanel({
           )}
         </Map>
         {!origin && <EmptyMapPrompt />}
+        {categoryView && <CategoryBanner {...categoryView} outerRing={largest?.minutes} />}
       </div>
       <MapLegend minutes={rings.map((r) => r.minutes)} />
     </section>

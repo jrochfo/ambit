@@ -69,8 +69,23 @@ export function CompareGrid({
                   Category
                 </th>
                 {saved.map((a) => (
-                  <th key={a.id} scope="col" aria-current={a.id === currentId ? 'true' : undefined} className="compare-col">
-                    <button type="button" className="icon-btn compare-remove" aria-label={`Remove ${a.label}`} onClick={() => onRemove(a.id)}>
+                  <th
+                    key={a.id}
+                    scope="col"
+                    aria-current={a.id === currentId ? 'true' : undefined}
+                    className="compare-col"
+                    // The whole header cell opens the address (mouse); its name button is the accessible control.
+                    onClick={(e) => {
+                      if (renaming !== a.id && !(e.target as Element).closest('button, input')) onSelect(a);
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="icon-btn compare-remove"
+                      aria-label={`Remove ${a.label} from the comparison`}
+                      data-tip="Remove from the comparison"
+                      onClick={() => onRemove(a.id)}
+                    >
                       <Icon name="close" size={16} />
                     </button>
                     {renaming === a.id ? (
@@ -84,10 +99,10 @@ export function CompareGrid({
                       />
                     ) : (
                       <div className="compare-col-head">
-                        <button type="button" className="compare-col-name" title={`${a.address}. Show on the map.`} onClick={() => onSelect(a)}>
+                        <button type="button" className="compare-col-name" data-tip={`${a.address} · Show on the map`} onClick={() => onSelect(a)}>
                           {a.label}
                         </button>
-                        <button type="button" className="icon-btn compare-rename-btn" aria-label={`Rename ${a.label}`} onClick={() => setRenaming(a.id)}>
+                        <button type="button" className="icon-btn compare-rename-btn" aria-label={`Rename ${a.label}`} data-tip="Rename" onClick={() => setRenaming(a.id)}>
                           <Icon name="edit" size={16} />
                         </button>
                       </div>
@@ -108,8 +123,8 @@ export function CompareGrid({
                     </div>
                   </th>
                   {saved.map((a) => (
-                    <td key={a.id} aria-current={a.id === currentId ? 'true' : undefined}>
-                      <button type="button" className="compare-cell" onClick={() => onSelectCell(a, c.id)}>
+                    <td key={a.id} className="compare-cell-td" aria-current={a.id === currentId ? 'true' : undefined}>
+                      <button type="button" className="compare-cell" data-category-control onClick={() => onSelectCell(a, c.id)}>
                         {/* Visible text stays in the spoken name; the hidden parts give it context. */}
                         <span className="sr-only">{c.label} near {a.label}: </span>
                         <CellPill cell={cells[a.id]?.[c.id]} rings={rings} />

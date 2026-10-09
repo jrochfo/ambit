@@ -100,7 +100,8 @@ export function FitToRing({ ring }: { ring: Ring | undefined }) {
     if (!map || !ring) return;
     const bounds = new google.maps.LatLngBounds();
     toPolygonPaths(ring.geoJson).forEach(([outer]) => outer?.forEach((p) => bounds.extend(p)));
-    if (!bounds.isEmpty()) map.fitBounds(bounds, 48);
+    // Extra room at the top for the category view banner, so it never covers the outer label.
+    if (!bounds.isEmpty()) map.fitBounds(bounds, { top: 88, right: 48, bottom: 48, left: 48 });
   }, [map, ring]);
   return null;
 }
