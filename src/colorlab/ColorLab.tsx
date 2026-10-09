@@ -29,12 +29,12 @@ export function ColorLab() {
           <p className="cl-lede">
             Every palette is generated from a few choices (accent hue, neutral tint, ring hues), with each text and outline color tuned until it
             meets WCAG contrast. Open the <a href="/sandbox.html" target="_blank" rel="noreferrer">sandbox</a> beside this page; “Preview in
-            sandbox” recolors it live. The real app uses Citrus & ink (in styles.css).
+            sandbox” recolors it live. The real app uses Iris & ink (in styles.css).
           </p>
         </div>
         <div className="cl-head-actions">
           <span className="cl-current">
-            Sandbox: <strong>{current ? current.name : 'Citrus & ink (current, from styles.css)'}</strong>
+            Sandbox: <strong>{current ? current.name : 'Iris & ink (current, from styles.css)'}</strong>
           </span>
           <button type="button" className="link-btn" onClick={() => choose(null)} disabled={!preview}>
             Reset
@@ -56,7 +56,7 @@ export function ColorLab() {
 
       <Group
         title="Citrus variations"
-        note="Citrus & ink (current) beside versions that each change one thing about the lime: hue, saturation or lightness. Ink and surfaces are identical."
+        note="Citrus & ink beside versions that each change one thing about the lime: hue, saturation or lightness. Ink and surfaces are identical."
         palettes={[PALETTES.find((p) => p.id === 'citrus-ink')!, ...PALETTES.filter((p) => p.kind === 'citrus')]}
         preview={preview}
         choose={choose}

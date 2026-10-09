@@ -269,7 +269,7 @@ function SandboxBar(props: {
 }) {
   const [open, setOpen] = useState(() => loadPref('sandboxBarOpen', true, (v): v is boolean => typeof v === 'boolean'));
   useEffect(() => savePref('sandboxBarOpen', open), [open]);
-  // Quick A/B between the shipped palette and Gold & ink (the color lab can preview any other).
+  // Quick A/B between the shipped palette and the finalists (the color lab can preview any other).
   const [palette, setPalette] = useState(() => Object.entries(PALETTE_CHOICES).find(([, id]) => id === readColorPreview())?.[0] ?? 'iris');
   const choosePalette = (v: string) => {
     setPalette(v);
