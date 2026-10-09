@@ -132,7 +132,7 @@ Verify early whether the Isochrones API can be called safely from the browser. I
 
 Running list for phase 5 (polish). Add to it as things come up.
 
-**Done 2026-10-08:** palette: Iris & ink (lime read sickly on the map, gold read like… not gold), phones: spot cards open on tap with an Open in Google Maps link, cards stay inside the map, no sideways scroll, sticky category column in the comparison, grain texture, header control sizes, line-length tokens, smoothed ring outlines and pill-colored ring bands (display only), spot card redesign, subtle motion pass, multi-add time menu, rename from the sidebar, "Walking times".
+**Done 2026-10-08:** palette: Iris & ink (lime and gold both read murky as see-through fills on the map), phones: spot cards open on tap with an Open in Google Maps link, cards stay inside the map, no sideways scroll, sticky category column in the comparison, grain texture, header control sizes, line-length tokens, smoothed ring outlines and pill-colored ring bands (display only), spot card redesign, subtle motion pass, multi-add time menu, rename from the sidebar, "Walking times".
 
 **Check on the real map** (needs live calls, untested so far): iris bands on the basemap, smoothed outlines, ring toggle crossfade, spot cards keeping inside the map.
 
