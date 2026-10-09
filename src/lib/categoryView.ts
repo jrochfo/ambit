@@ -36,10 +36,14 @@ export function useExitCategoryView(active: boolean, exit: () => void): void {
   }, [active, exit]);
 }
 
-/** Brings the map into view (after choosing something from the comparison grid). */
+/**
+ * Brings the map into view after choosing something in the comparison grid: the top of the page
+ * when the map sits beside the sidebar, the map itself on phones (where it's below the sidebar).
+ */
 export function scrollToMap(): void {
-  const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.querySelector('.map-panel')?.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' });
+  const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  if (matchMedia('(min-width: 960px)').matches) scrollTo({ top: 0, behavior });
+  else document.querySelector('.map-panel')?.scrollIntoView({ block: 'start', behavior });
 }
 
 /**
