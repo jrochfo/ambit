@@ -29,11 +29,13 @@ export function RingLayer({
   theme: Theme;
 }) {
   const labelAt = useMemo(() => topPoint(outline), [outline]);
+  const palette = usePalettePreview();
   const style = useMemo(() => {
     const st = ringStyle(rank, count);
     // Google polygons need literal colors; read the theme's tokens (theme is a dependency so a
     // theme switch recolors them).
     void theme;
+    void palette;
     const css = getComputedStyle(document.documentElement);
     return {
       ...st,
@@ -41,7 +43,7 @@ export function RingLayer({
       fillOpacity: Number(css.getPropertyValue('--map-ring-fill')) || 0.5,
       line: css.getPropertyValue('--data').trim() || '#a27900',
     };
-  }, [rank, count, theme]);
+  }, [rank, count, theme, palette]);
 
   useFadedPolygons(band, (level) => ({ fillColor: style.fill, fillOpacity: style.fillOpacity * level, strokeWeight: 0, zIndex: 0 }));
   useFadedPolygons(outline, (level) => ({ fillOpacity: 0, strokeColor: style.line, strokeOpacity: style.stroke * level, strokeWeight: 2, zIndex: style.z }));
@@ -134,4 +136,19 @@ function fade(from: number, to: number, step: (v: number) => void, done?: () => 
   };
   frame = requestAnimationFrame(tick);
   return () => cancelAnimationFrame(frame);
+}
+
+/** Dev only: changes when a palette preview is picked in another tab, so rings recolor. */
+function usePalettePreview() {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    const onStorage = (e: StorageEvent) => {
+      // After main.tsx has applied the new palette's CSS.
+      if (e.key === 'ambit.colorPreview') requestAnimationFrame(() => setVersion((v) => v + 1));
+    };
+    addEventListener('storage', onStorage);
+    return () => removeEventListener('storage', onStorage);
+  }, []);
+  return version;
 }
