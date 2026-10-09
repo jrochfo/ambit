@@ -136,7 +136,7 @@ Running list for phase 5 (polish). Add to it as things come up.
 
 **Checked on the real map (2026-10-09):** bands, smoothed outlines, theme switching, ring toggle crossfade, spot cards keeping inside the map.
 
-**Status (2026-10-09):** finished. Still behind Cloudflare Access. Before sharing publicly: open the Access app, restrict both API keys, rate-limit `/api/isochrones`, and set the daily quotas below.
+**Status (2026-10-09):** finished and public at ambit.zone. Done for launch: Access app set to a Bypass policy (remove it to lock the site again), browser key restricted to ambit.zone and localhost, both keys restricted to their APIs, `/api/isochrones` rate-limited per visitor, launch quotas and a $100 budget set, link preview card (`public/og.png`, source in `tools/og/`). Still to do on posting: lower the quotas on day 3.
 
 Launch plan (a LinkedIn post, a week of discovery): high caps for the first two days, then lower.
 

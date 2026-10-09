@@ -8,8 +8,8 @@
     "run_worker_first": ["/api/*"]
   },
   "observability": { "enabled": true },
-  // Only reachable at ambit.zone (behind Cloudflare Access until launch);
-  // workers.dev and preview URLs would bypass Access, so they're off.
+  // Only reachable at ambit.zone (public since 2026-10-09; the Cloudflare Access app stays,
+  // with a Bypass policy, so it can be locked again). workers.dev and preview URLs stay off.
   "routes": [{ "pattern": "ambit.zone", "custom_domain": true }],
   "workers_dev": false,
   "preview_urls": false,
