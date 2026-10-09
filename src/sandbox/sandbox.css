@@ -53,7 +53,7 @@
 /* Room to scroll the page's bottom edge clear of the floating panel. */
 .app { padding-bottom: 96px; }
 .sandbox-note { opacity: 0.8; }
-.sandbox-choice { display: inline-flex; align-items: center; gap: 4px; }
+.sandbox-choice { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .sandbox-choice button {
   padding: 3px 9px;
   border: 1px solid #d9b84a;

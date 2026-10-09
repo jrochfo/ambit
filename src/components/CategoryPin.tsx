@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type MouseEvent } from 'react';
 import type { Category } from '../lib/categories';
 import { pickEmoji } from '../lib/emoji';
 import type { NearbyPlace } from '../lib/nearby';
@@ -68,11 +68,17 @@ export function SpotPin({
   const cardId = useId();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  // Touch screens have no hover: a tap opens the card (its link opens Google Maps), a tap
+  // elsewhere closes it.
+  const touch = useMediaQuery('(hover: none)');
+  const [tapped, setTapped] = useState(false);
   // Escape closes the card until the pointer or focus leaves the spot.
   const [dismissed, setDismissed] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const spotRef = useRef<HTMLDivElement>(null);
   const pinRef = useRef<HTMLAnchorElement>(null);
-  const open = !dismissed && (spotlight || hovered || focused);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const open = !dismissed && (spotlight || hovered || focused || tapped);
   // The card stays mounted briefly after closing so it can fade out.
   const [mounted, setMounted] = useState(open);
   useEffect(() => {
@@ -83,6 +89,43 @@ export function SpotPin({
   const shown = open || mounted;
   useEffect(() => () => clearTimeout(hideTimer.current), []);
   useEffect(() => onOpenChange?.(shown), [shown, onOpenChange]);
+
+  useEffect(() => {
+    if (!tapped) return;
+    const outside = (e: PointerEvent) => {
+      if (spotRef.current?.contains(e.target as Node)) return;
+      setTapped(false);
+      setHovered(false);
+    };
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  }, [tapped]);
+
+  // Keep the card inside the map: shift it sideways (the tail still points at the pin).
+  useLayoutEffect(() => {
+    const card = cardRef.current;
+    const frame = card?.closest('.map-frame');
+    if (!card || !frame || !open) return;
+    card.style.setProperty('--card-dx', '0px');
+    const c = card.getBoundingClientRect();
+    const f = frame.getBoundingClientRect();
+    const margin = 8;
+    let dx = 0;
+    if (c.left < f.left + margin) dx = f.left + margin - c.left;
+    else if (c.right > f.right - margin) dx = f.right - margin - c.right;
+    // The tail stays over the card, clear of its rounded corners.
+    const limit = c.width / 2 - 20;
+    dx = Math.max(-limit, Math.min(limit, dx));
+    card.style.setProperty('--card-dx', `${Math.round(dx)}px`);
+  }, [open]);
+
+  const tap = (e: MouseEvent) => {
+    // Checked at the tap itself, not from state, so it's right even if the setting just changed.
+    if (!matchMedia('(hover: none)').matches) return;
+    e.preventDefault();
+    setTapped((t) => !t);
+    if (tapped) setHovered(false);
+  };
 
   const where = place.ring ? `Within a ${formatMinutes(place.ring)} walk` : outerRing ? `Beyond a ${formatMinutes(outerRing)} walk` : '';
   const access = (['entrance', 'restroom', 'parking'] as const).filter((k) => place.accessible?.[k]);
@@ -115,6 +158,7 @@ export function SpotPin({
 
   return (
     <div
+      ref={spotRef}
       className="spot"
       onMouseEnter={enter}
       onMouseLeave={leave}
@@ -130,7 +174,9 @@ export function SpotPin({
         href={mapsUrl}
         target="_blank"
         rel="noreferrer"
-        aria-label={`${place.name}, ${category.label}. ${where}. Opens Google Maps.`}
+        onClick={tap}
+        aria-label={`${place.name}, ${category.label}. ${where}.${touch ? '' : ' Opens Google Maps.'}`}
+        aria-expanded={touch ? open : undefined}
         aria-describedby={open ? cardId : undefined}
       >
         <span aria-hidden="true">{pickEmoji(category.emoji)}</span>
@@ -138,7 +184,7 @@ export function SpotPin({
       {shown && (
         // An interactive popover (it holds actions), so a labelled group rather than a tooltip;
         // the pin is described by the card's facts only.
-        <div className={open ? 'spot-card' : 'spot-card spot-card-out'} role="group" aria-label={place.name}>
+        <div ref={cardRef} className={open ? 'spot-card' : 'spot-card spot-card-out'} role="group" aria-label={place.name}>
           <div className="spot-card-facts" id={cardId}>
             <div className="spot-card-name">{place.name}</div>
             <div className="spot-card-meta">{[place.typeLabel ?? category.label, place.address].filter(Boolean).join(' · ')}</div>
@@ -225,4 +271,16 @@ function PickLine({ pick, noun }: { pick: PinPick; noun: string }) {
       )}
     </>
   );
+}
+
+/** Whether a media query matches, kept up to date. */
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => matchMedia(query).matches);
+  useEffect(() => {
+    const mq = matchMedia(query);
+    const update = () => setMatches(mq.matches);
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, [query]);
+  return matches;
 }

@@ -53,14 +53,12 @@ export function MapOverlay({
       if (!point) return;
       container.style.left = `${point.x}px`;
       container.style.top = `${point.y}px`;
-      // Flag overlays near the map’s edges so popups can open the other way (see .spot-card; 180px
-      // is half its max width plus a margin).
+      // Flag overlays near the map's top so popups open downward (see .spot-card); sideways, the
+      // card shifts itself to stay inside the map (CategoryPin).
       const onScreen = overlay.getProjection()?.fromLatLngToContainerPixel(position);
       const mapDiv = overlay.getMap() instanceof google.maps.Map ? (overlay.getMap() as google.maps.Map).getDiv() : null;
       if (onScreen && mapDiv) {
         container.dataset.edgeTop = String(onScreen.y < 190);
-        container.dataset.edgeLeft = String(onScreen.x < 180);
-        container.dataset.edgeRight = String(onScreen.x > mapDiv.clientWidth - 180);
       }
     };
     overlay.draw();
