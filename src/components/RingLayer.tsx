@@ -39,13 +39,15 @@ export function RingLayer({
     const css = getComputedStyle(document.documentElement);
     return {
       ...st,
-      fill: css.getPropertyValue(st.fillVar).trim() || '#bcb2ff',
+      fill: css.getPropertyValue(st.fillVar).trim() || '#ecbd51',
       fillOpacity: Number(css.getPropertyValue('--map-ring-fill')) || 0.5,
-      line: css.getPropertyValue('--data').trim() || '#8072c2',
+      line: css.getPropertyValue('--data').trim() || '#a27900',
     };
   }, [rank, count, theme, palette]);
 
   useFadedPolygons(band, (level) => ({ fillColor: style.fill, fillOpacity: style.fillOpacity * level, strokeWeight: 0, zIndex: 0 }));
+  // Dev only: the colors actually drawn, for checking against the theme's tokens in tests.
+  if (import.meta.env.DEV) ((window as unknown as { __ringFills?: Record<number, string> }).__ringFills ??= {})[minutes] = style.fill;
   useFadedPolygons(outline, (level) => ({ fillOpacity: 0, strokeColor: style.line, strokeOpacity: style.stroke * level, strokeWeight: 2, zIndex: style.z }));
 
   if (!labelAt) return null;

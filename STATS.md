@@ -30,8 +30,8 @@ Snapshot taken 2026-10-08, when the project was wrapped up.
 - 14 style guide sections; 4 dev pages (sandbox, style guide, type lab, color lab) that make no Google calls
 
 ## Decisions along the way
-- Palette: teal → Citrus & ink → Gold & ink → Iris & ink (lime and gold both went murky as see-through
-  fills on the map; nothing on a basemap is purple)
+- Palette: teal → Citrus & ink → Gold & ink → Iris & ink → Gold & ink. A theme-switch bug drew map rings in the
+  previous theme's colors, which made gold look muddy; with it fixed, gold stayed
 - Type: Young Serif wordmark, Hanken Grotesk UI
 - Map rings: smoothed outlines and non-overlapping bands in the pill colors, display only
 - No paid extras (hours and ratings, exact walking minutes)
